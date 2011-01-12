@@ -1,4 +1,4 @@
-% Time-stamp: <2011-01-12 08:47:52 cmauclai>
+% Time-stamp: <2011-01-12 08:53:45 cmauclai>
 %
 % Copyright 2010 by Cedric Mauclair
 %
@@ -645,7 +645,7 @@
 
 \defbeamertemplate{headline}{acme}[2][]{
   \setupframed[width=\hsize, lmargin=\Gm@lmargin, rmargin=\Gm@rmargin,
-               tmargin=3pt,  bmargin=0pt, #1]%
+               tmargin=2pt,  bmargin=0pt, #1]%
   \setupheadline[#2]%
   \let\next\@empty
   \ifnum\insertframenumber=1 \else
@@ -744,7 +744,8 @@
 %>>
 
 \defbeamertemplate{footline}{acme}[2][]{%
-  \setupframed[margin=0pt, #1]%
+  \setupframed[width=\hsize, lmargin=\Gm@lmargin, rmargin=\Gm@rmargin,
+               tmargin=0pt,  bmargin=1pt, #1]%
   \setupfootline[#2]%
   \let\next\@empty
   \ifnum\insertframenumber=1 \else
@@ -1606,9 +1607,7 @@
     [width=\hsize, lmargin=\leftmargin, rmargin=\rightmargin, tmargin=2pt, bmargin=0pt]%
     {left=title, right=page number}%
   % [·footline·]
-  \setbeamertemplate{footline}[acme]%
-    [width=\hsize, lmargin=\leftmargin, rmargin=\rightmargin, tmargin=0pt, bmargin=1pt]%
-    {left=empty, center=empty, right=empty}%
+  \setbeamertemplate{footline}[acme]{left=empty, center=empty, right=empty}%
   % [·frametitle·]
   \setbeamertemplate{frametitle}[acme]%
     [width=\hsize, frame=off, tframe=on, offset=0pt, toffset=1pt,
