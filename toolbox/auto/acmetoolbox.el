@@ -1,12 +1,14 @@
 (TeX-add-style-hook "acmetoolbox"
  (lambda ()
     (TeX-add-symbols
+     '("framed" ["argument"] 1)
      "doifnextcharelse"
      "doifnextoptionalelse"
      "doifnextbgroupelse"
      "doifinstringelse"
      "doifassingmentelse"
      "processcommalist"
+     "pgfkeyscurrentkey"
      "expandonearg"
      "expandtwoargs"
      "expanded"
@@ -38,19 +40,10 @@
      "framedboxwd"
      "framedboxht"
      "framedboxdp"
-     "framedhalign"
-     "framedtalign"
-     "framedbalign"
-     "framedfullframedefault"
-     "framedbackgrounddefault"
-     "framedfullframe"
-     "framedbackground"
-     "framed"
-     "doframed"
-     "framedlframe"
-     "framedrframe"
-     "framedtframe"
-     "framedbframe")
+     "acmeframedfullframedefault"
+     "acmeframedbackgrounddefault"
+     "acmeframedfullframe"
+     "acmeframedbackground")
     (TeX-run-style-hooks
      "pgffor"
      "pgfkeys")))

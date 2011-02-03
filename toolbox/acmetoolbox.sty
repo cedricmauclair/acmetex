@@ -1,4 +1,4 @@
-% Time-stamp: <2011-02-03 17:38:56 cmauclai>
+% Time-stamp: <2011-02-03 22:14:11 cedric>
 %
 % Copyright 2010 by Cedric Mauclair
 %
@@ -30,21 +30,21 @@
 % \ProvidesPackageRCS $Header: acmetoolbox.sty,v 0.1 2011/02/03 18:00:00 acme Exp$
 
 
-%<< [· Some requirements ···········] >>
+%<< [· Some requirements ·····················] >>
 
 \RequirePackage{pgfkeys}
 \RequirePackage{pgffor}
 
 %>>
 
-%<< [· Usefull shortcuts ···········] >>
+%<< [· Usefull shortcuts ·····················] >>
 
 \let\@NX\noexpand
 \let\@EA\expandafter
 \def\@EAEAEA{\expandafter\expandafter\expandafter}
 
 %>>
-%<< [· Usefull \doif...else ········] >>
+%<< [· Usefull \doif...else ··················] >>
 
 %D macros \doifnextcharelse,
 %D        \doifnextoptionnalelse,
@@ -76,7 +76,7 @@
 \def\doifassingmentelse{\doifinstringelse{=}}
 
 %>>
-%<< [· Usefull loop features ·······] >>
+%<< [· Usefull loop features ·················] >>
 
 %D macros \processcommalist
 %D
@@ -92,7 +92,7 @@
 \pgfkeys{/processcommalist/.is family}
 
 %>>
-%<< [· Usefull pgfkeys handlers ····] >>
+%<< [· Usefull pgfkeys handlers ··············] >>
 
 \pgfkeysdef{/handlers/.eval as dimen}{%
   \@tempdima=\dimexpr#1\relax \edef\pgfkeys@temp{\the\@tempdima}%
@@ -104,9 +104,30 @@
 \pgfkeysdef{/handlers/.estore in cs}{%
   \pgfkeysdef{\pgfkeyscurrentpath}{\@EA\edef\csname#1\endcsname{##1}}}
 
+\pgfkeysdef{/handlers/.set root for alias}{%
+  \edef\acme@@alias{#1}}
+
+\pgfkeysdef{/handlers/.alias}{
+  \pgfkeysalso{\pgfkeyscurrentpath/.estyle=
+    {\acme@@alias\pgfkeyscurrentpath={##1}}}}
+
+
+\pgfkeysdef{/handlers/.alias with value}{%
+  \edef\acme@@path{\pgfkeyscurrentpath}
+  % go directory higher
+  \let\pgfkeys@temp=\pgfkeyscurrentkey
+  \let\pgfkeys@tempb=\pgfkeyscurrentname
+  \edef\pgfkeyscurrentkey{\pgfkeyscurrentpath}%
+  \pgfkeys@split@path%
+  \let\pgfkeyscurrentkey=\pgfkeys@temp
+  \edef\pgfkeyscurrentname{\pgfkeyscurrentname/\pgfkeys@tempb}%
+  \edef\acme@@@path{\pgfkeyscurrentpath}%
+  \pgfkeysalso{\acme@@path/.estyle=
+    {\acme@@alias\acme@@@path=\noexpand#1}}}
+
 %>>
 
-%<< [· Arguments control ···········] >>
+%<< [· Arguments control ·····················] >>
 
 %D macros \expandonearg,
 %D        \expandtwoargs,
@@ -193,7 +214,7 @@
 
 %>>
 
-%<< [· Split key=val into macros ···] >>
+%<< [· Split key=val into macros ·············] >>
 
 %D macros \toolboxunpack
 %D
@@ -223,7 +244,7 @@
   \fi\endgroup}
 
 %>>
-%<< [· Easy parameters management ··] >>
+%<< [· Easy parameters management ············] >>
 
 %D pgfkeys handlers to store a key in a macro named by a string.
 
@@ -282,7 +303,7 @@
 
 %>>
 
-%<< [· Boxes manipulations ·········] >>
+%<< [· Boxes manipulations ···················] >>
 
 \ifx\nextbox\undefined \newbox\nextbox \fi
 
@@ -309,7 +330,7 @@
 \def\flushnextbox{\box\nextbox}
 
 %>>
-%<< [· Put some space around boxes ·]>>
+%<< [· Put some space around boxes ···········]>>
 
 % constants
 \def\c@@fit{fit}
@@ -339,7 +360,7 @@
 
 \declareparameters
   [root=boxcontent, familly=@@]% these are private
-  [align, wd, ht, dp]
+  [align, wd, ht]
 
 \def\boxcontent{\begingroup
   \dosingleempty\doboxcontent}
@@ -351,7 +372,7 @@
 \long\def\doboxcontent[#1]#2#3{%
   \getparameters
     [root=boxcontent, familly=@@]
-    [wd=fit, ht=fit, dp=fit, align=, #1]%
+    [wd=fit, ht=fit, align=, #1]%
   \setbox\nextbox=#2{#3}%
   \@temptokena{#3}%
   \doboxcontentindeed}
@@ -359,15 +380,12 @@
 \long\def\doboxcontentindeed{%
   \checknumericparameter{@@numericwd}\boxcontent@@wd
   \checknumericparameter{@@numericht}\boxcontent@@ht
-  % \checknumericparameter{@@numericdp}\boxcontent@@dp%
   \global\setbox\nextbox=
     \vbox \if@@numericht to \boxcontent@@ht\fi{% [·height·]
       \if@@numericwd \hsize=\boxcontent@@wd \else \hsize=\nextboxwd\fi% [·width·]
         \boxcontent@@align\the\@temptokena}%
-  % \if@@numericdp\nextboxdp=\boxcontent@@dp\fi%                        [·depth·]
   \evalasdimen\boxcontent@@wd\nextboxwd%
   \evalasdimen\boxcontent@@ht\nextboxht%
-  % \evalasdimen\boxcontent@@dp\nextboxdp%
   \flushnextbox
   \endgroup\ignorespaces}
 
@@ -378,13 +396,13 @@
 
 \declareparameters
   [root=surroundbox, familly=@@]% these are private
-  [wd, ht, dp, lft, rgt, top, bot]
+  [wd, ht, lft, rgt, top, bot]
 
 \def\surroundbox{\dosingleempty\dosurroundbox}
 \def\dosurroundbox[#1]{%
   \getparameters
     [root=surroundbox, familly=@@]
-    [wd=fit, ht=fit, dp=fit, lft=, rgt=, top=, bot=, #1]%
+    [wd=fit, ht=fit, lft=, rgt=, top=, bot=, #1]%
   \futurelet\nexttoken\dodosurroundbox}
 
 \long\def\dodosurroundbox{%
@@ -401,13 +419,13 @@
   \global\setbox\nextbox=
     \vbox \if@@numericht to \surroundbox@@ht\fi{% [·height·]
       \surroundbox@@top
-      \hbox \if@@numericwd to \surroundbox@@wd\fi
+      \hbox \if@@numericwd to \surroundbox@@wd\fi% [·width·]
         {\surroundbox@@lft\box\nextbox\surroundbox@@rgt}%
       \surroundbox@@bot}\ignorespaces}
 
 %>>
 
-%<< [· Framed text ·················] >>
+%<< [· Framed text ···························] >>
 
 % we need a new box to manipulate
 \newbox\framedbox
@@ -416,7 +434,7 @@
 \def\framedboxht{\ht\framedbox}
 \def\framedboxdp{\dp\framedbox}
 
-% \newif\ifframedbackground
+% first, the parameters
 
 \declareparameters
   [root=acme, familly=framed]
@@ -425,175 +443,215 @@
    leftmargin, rightmargin, topmargin, bottommargin,
    leftoffset, rightoffset, topoffset, bottomoffset,
    leftframe,  rightframe,  topframe,  bottomframe,
-   background, halign, valign]
+   halign, background, tikzoptions]
 
-\pgfkeys{/framed/.is family}
+% then, the possible values
 
-\pgfkeys{/framed,
-  % [·width·]
-  wd/.store in=\framedwd,        width/.style={wd=#1},
-  minwd/.store in=\framedminwd,  minimum width/.style={minwd=#1},
-  maxwd/.store in=\framedmaxwd,  maximum width/.style={maxwd=#1},
-  % [·height·]
-  ht/.store in=\framedht,        height/.style={ht=#1},
-  minht/.store in=\framedminht,  minimum height/.style={minht=#1},
-  maxht/.store in=\framedmaxht,  maximum height/.style={maxht=#1},
-  % [·depth·]
-  dp/.store in=\frameddp,        depth/.style={dp=#1},
-  mindp/.store in=\framedmindp,  minimum depth/.style={mindp=#1},
-  maxdp/.store in=\framedmaxdp,  maximum depth/.style={maxdp=#1},
-  % [·margin·]
-  lmargin/.store in=\framedlmar, left margin/.style={lmargin=#1},
-  rmargin/.store in=\framedrmar, right margin/.style={rmargin=#1},
-  tmargin/.store in=\framedtmar, top margin/.style={tmargin=#1},
-  bmargin/.store in=\framedbmar, bottom margin/.style={bmargin=#1},
-  margin/.style={lmargin=#1, rmargin=#1, tmargin=#1, bmargin=#1},
-  % [·offset·]
-  loffset/.store in=\framedloff, left offset/.style={loffset=#1},
-  roffset/.store in=\framedroff, right offset/.style={roffset=#1},
-  toffset/.store in=\framedtoff, top offset/.style={toffset=#1},
-  boffset/.store in=\framedboff, bottom offset/.style={boffset=#1},
-  offset/.style={loffset=#1, roffset=#1, toffset=#1, boffset=#1},
-  % [·internal horizontal alignment·]
+\pgfqkeys{/acme/framed}{
+  .set root for alias=/def,
+  width/.alias,
+  height/.alias,
+  % [·margins and offsets·]
+  leftmargin/.alias, rightmargin/.alias,
+  topmargin/.alias,  bottommargin/.alias,
+  margin/.style={leftmargin=#1, rightmargin=#1,
+    topmargin=#1,  bottommargin=#1},
+  leftoffset/.alias, rightoffset/.alias,
+  topoffset/.alias,  bottomoffset/.alias,
+  offset/.style={leftoffset=#1, rightoffset=#1,
+    topoffset=#1,  bottomoffset=#1},
+  % [·horizontal alignment·]
   halign/.is choice,
-  halign/right/.code=\let\framedhalign\raggedright,
+  halign/right/.alias with value=\raggedright,
+  halign/left/.alias with value=\raggedleft,
+  halign/center/.alias with value=\centering,
   halign/flushleft/.style={halign=right},
-  halign/left/.code=\let\framedhalign\raggedleft,
   halign/flushright/.style={halign=left},
-  halign/center/.code=\let\framedhalign\centering,
   halign/middle/.style={halign=center},
-  % [·internal vertical alignment·]
-  valign/.is choice,
-  valign/top/.code=\let\framedtalign\@empty\let\framedbalign\vss,
-  valign/bottom/.code=\let\framedtalign\vss\let\framedbalign\@empty,
-  valign/center/.code=\let\framedtalign\vss\let\framedbalign\vss,
-  valign/middle/.style={valign=center},
   % [·frame·]
-  lframe/.is choice,          left frame/.style={lframe=#1},
-  lframe/off/.code=\let\framedlframe\@empty,
-  lframe/on/.code=\def\framedlframe{
-    \path [draw] (0,0) -- ++(0,-\framedboxht-\framedboxdp);},
-  rframe/.is choice,          right frame/.style={rframe=#1},
-  rframe/off/.code=\let\framedrframe\@empty,
-  rframe/on/.code=\def\framedrframe{
-    \path [draw] (\framedboxwd,0) -- ++(0,-\framedboxht-\framedboxdp);},
-  tframe/.is choice,          top frame/.style={tframe=#1},
-  tframe/off/.code=\let\framedtframe\@empty,
-  tframe/on/.code=\def\framedtframe{
-    \path [draw] (0,0) -- ++(\framedboxwd,0);},
-  bframe/.is choice,          bottom frame/.style={bframe=#1},
-  bframe/off/.code=\let\framedbframe\@empty,
-  bframe/on/.code=\def\framedbframe{
-    \path [draw] (0,-\framedboxht-\framedboxdp) -- ++(\framedboxwd,0);},
-  % [·custom frame & background·]
-  frame/.style={lframe=#1, rframe=#1, tframe=#1, bframe=#1},
-  framepath/.store in=\framedfullframe,
-  background/.is choice,
-  background/on/.code=\framedbackgroundtrue,
-  background/off/.code=\framedbackgroundfalse,
-  background/color/.code=\let\framedbackground\framedbackgrounddefault,
-  background/color/.append style={background=on},
-  backgroundpath/.store in=\framedbackground,
-  %% —————————————————————————————————————————————————— %%
-  options/.estore in=\framedoptions,
+  leftframe/.alias, rightframe/.alias,
+  topframe/.alias,  bottomframe/.alias,
+  frame/.style={leftframe=#1, rightframe=#1,
+    topframe=#1,  bottomframe=#1},
+  % [·options·]
+  % .set root for alias=/def,% /def ou /edef ?
+  tikzoptions/.alias
+  % lframe/off/.code=\let\framedlframe\@empty,
+  % lframe/on/.code=\def\framedlframe{
+  % \path [draw] (0,0) -- ++(0,-\framedboxht-\framedboxdp);},
+  % rframe/.is choice,          right frame/.style={rframe=#1},
+  % rframe/off/.code=\let\framedrframe\@empty,
+  % rframe/on/.code=\def\framedrframe{
+  % \path [draw] (\framedboxwd,0) -- ++(0,-\framedboxht-\framedboxdp);},
+  % tframe/.is choice,          top frame/.style={tframe=#1},
+  % tframe/off/.code=\let\framedtframe\@empty,
+  % tframe/on/.code=\def\framedtframe{
+  % \path [draw] (0,0) -- ++(\framedboxwd,0);},
+  % bframe/.is choice,          bottom frame/.style={bframe=#1},
+  % bframe/off/.code=\let\framedbframe\@empty,
+  % bframe/on/.code=\def\framedbframe{
+  % \path [draw] (0,-\framedboxht-\framedboxdp) -- ++(\framedboxwd,0);},
+  % % [·custom frame & background·]
+  % frame/.style={lframe=#1, rframe=#1, tframe=#1, bframe=#1},
+  % framepath/.store in=\framedfullframe,
+  % background/.is choice,
+  % background/on/.code=\framedbackgroundtrue,
+  % background/off/.code=\framedbackgroundfalse,
+  % background/color/.code=\let\framedbackground\framedbackgrounddefault,
+  % background/color/.append style={background=on},
+  % backgroundpath/.store in=\framedbackground,
+  % %% —————————————————————————————————————————————————— %%
+  % options/.estore in=\framedoptions,
 }
 
-\def\framedfullframedefault{%
-  \path [draw] (0,0) rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);}
 
-\def\framedbackgrounddefault{%
-  \path [fill] (0,0) rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);}
-
-\let\framedfullframe\framedfullframedefault
-\let\framedbackground\framedbackgrounddefault
-
-\def\framed{\dosingleempty\doframed}
-\long\def\doframed[#1]#2{\begingroup
-  \pgfkeysfiltered{/framed,
-    wd=fit, minwd=-\maxdimen, maxwd=\hsize,
-    ht=fit, minht=-\maxdimen, maxht=\maxdimen,
-    dp=fit, mindp=-\maxdimen, maxdp=\maxdimen,
-    halign=right, valign=center,
-    offset=3pt, margin=0pt,
-    frame=on, background=off, backgroundpath=\framedbackgrounddefault,
-    options={draw=fg, fill=bg, rounded corners=3pt, thick, line cap=rect}}%
-  \pgfkeysfiltered{/framed, #1}%
+\newcommand\framed[2][]{%
+  \begingroup
+  \def\@@root{acme}\def\@@familly{framed}%
+  \pgfqkeys{/acme/framed}{
+    .set root for alias=/def,
+    width=fit,  height=fit,
+    margin=0pt, offset=0pt,
+    frame=off,
+    halign=right, #1}%
   \let\\\newline
   %% —————————————————————————————————————————————————— %%
   % [·adjust size of text: width, height & depth·]
-  \ifx\framedwd\!fit
-    \noboxit[wd=fit]\hbox{#2}%
-    \setlen\framedwd{\boxitwd+\framedloff+\framedroff}
+  \checknumericparameter{@@numericwd}\acmeframedwidth
+  \checknumericparameter{@@numericht}\acmeframedheight
+  \if@@numericwd
+    \evalasdimen\acmeframedwidth\acmeframedwidth
   \else
-    \setlen\framedwd\framedwd
+    \noboxcontent[wd=fit]\hbox{#2}%
+    \evalasdimen\acmeframedwidth
+    {\boxcontent@@wd+\acmeframedleftoffset+\acmeframedrightoffset}%
   \fi
-  \setlen\framedminwd\framedminwd
-  \setlen\framedmaxwd\framedmaxwd
-  \ifdim\framedwd<\framedminwd
-    \setlen\framedwd\framedminwd\fi
-  \ifdim\framedwd>\framedmaxwd
-    \setlen\framedwd\framedmaxwd\fi
-  \setlen\framedwd{\framedwd-\framedloff-\framedroff}
-  \noboxit[wd=\framedwd, align=\framedhalign]\hbox{\hsize=\framedwd#2}%
-  %
-  \setlen\framedminht\framedminht
-  \setlen\framedmaxht\framedmaxht
-  \ifx\framedht\!fit
-    \setlen\framedht{\boxitht+\framedtoff}\fi
-  \ifdim\framedht<\framedminht
-    \setlen\framedht\framedminht\fi
-  \ifdim\framedht>\framedmaxht
-    \setlen\framedht\framedmaxht\fi
-  %
-  \setlen\framedmindp\framedmindp
-  \setlen\framedmaxdp\framedmaxdp
-  \ifx\frameddp\!fit
-    \setlen\frameddp{\boxitdp+\framedboff}\fi
-  \ifdim\frameddp<\framedmindp
-    \setlen\frameddp\framedmindp\fi
-  \ifdim\frameddp>\framedmaxdp
-    \setlen\frameddp\framedmaxdp\fi
+  % \setlen\acmeframedminwd\acmeframedminwd
+  % \setlen\acmeframedmaxwd\acmeframedmaxwd
+  % \ifdim\acmeframedwidth<\acmeframedminwd
+  %   \setlen\acmeframedwidth\acmeframedminwd\fi
+  % \ifdim\acmeframedwidth>\acmeframedmaxwd
+  %   \setlen\acmeframedwidth\acmeframedmaxwd\fi
+  % \setlen\acmeframedwidth{\acmeframedwidth-\acmeframedloff-\acmeframedroff}
+  % \noboxit[wd=\acmeframedwidth, align=\acmeframedhalign]\hbox{\hsize=\acmeframedwidth#2}%
+  % %
+  % \setlen\acmeframedminht\acmeframedminht
+  % \setlen\acmeframedmaxht\acmeframedmaxht
+  \if@@numericht\acmeframedht
+    \evalasdimen\acmeframedht{\boxcontent@@ht+\acmeframedtopoffset}\fi
+  % \ifdim\acmeframedht<\acmeframedminht
+  %   \setlen\acmeframedht\acmeframedminht\fi
+  % \ifdim\acmeframedht>\acmeframedmaxht
+  %   \setlen\acmeframedht\acmeframedmaxht\fi
+  % %
   % [·tight box around text·]
-  \setlen\framedwd\boxitwd
-  \setlen\framedht{\framedht-\framedtoff}
-  \setlen\frameddp{\frameddp-\framedboff}
-  %% —————————————————————————————————————————————————— %%
-  \surroundit
-    [wd=\framedwd+\framedloff+\framedroff,
-     ht=\framedht+\framedtoff+\frameddp+\framedboff,
-     lft=\kern\framedloff, rgt=\kern\framedroff,
-     top=\kern\framedtoff\framedtalign, bot=\framedbalign\kern\framedboff]
-    \box\nextbox
-  \setbox\framedbox=\box\nextbox
-  %% —————————————————————————————————————————————————— %%
-  \setbox\nextbox=\hbox{%
-    \expandafter\tikzpicture\expandafter[\framedoptions]%
-      \path [use as bounding box] (0,0)
-        rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);
-      % [·four sides ==> one rectangle·]
-      \ifframedbackground
-        \framedbackground\fi
-      \ifx\framedlframe\@empty\else
-      \ifx\framedrframe\@empty\else
-      \ifx\framedtframe\@empty\else
-      \ifx\framedbframe\@empty\else
-        \let\framedlframe\@empty
-        \let\framedrframe\@empty
-        \let\framedtframe\@empty
-        \let\framedbframe\@empty
-        \framedfullframe
-      \fi\fi\fi\fi%
-      \framedlframe \framedrframe
-      \framedtframe \framedbframe
-      \node [anchor=north west, inner sep=0pt, outer sep=0pt]
-        at (0,0) {\box\framedbox};
-  \endtikzpicture}%
-  \surroundit[lft=\kern\framedlmar, rgt=\kern\framedrmar,
-              top=\kern\framedtmar, bot=\kern\framedbmar]
-    \box\nextbox
+  % \evalasdimen\acmeframedwidth\boxcontent@@wd
+  % \evalasdimen\acmeframedheight{\acmeframedheight-\acmeframedtopoffset}
+  % \noboxcontent\hbox{#2}
+  \surroundbox[lft=\hskip\acmeframedleftmargin,
+               rgt=\hskip\acmeframedrightmargin,
+               top=\vskip\acmeframedtopmargin,
+               bot=\vskip\acmeframedbottommargin]%
   \box\nextbox
-  \global\nextdepth=\dimexpr\frameddp+\framedboff+\framedbmar\relax%
-\endgroup}
+  \endgroup\flushnextbox}
+
+
+\def\acmeframedfullframedefault{%
+  \path [draw] (0,0) rectangle ++(\acmeframedboxwd,-\acmeframedboxht-\acmeframedboxdp);}
+
+\def\acmeframedbackgrounddefault{%
+  \path [fill] (0,0) rectangle ++(\acmeframedboxwd,-\acmeframedboxht-\acmeframedboxdp);}
+
+\let\acmeframedfullframe\acmeframedfullframedefault
+\let\acmeframedbackground\acmeframedbackgrounddefault
+
+% \def\acmeframed{\dosingleempty\doframed}
+% \long\def\doframed[#1]#2{\begingroup
+%   \pgfkeysfiltered{/framed,
+%     wd=fit, minwd=-\maxdimen, maxwd=\hsize,
+%     ht=fit, minht=-\maxdimen, maxht=\maxdimen,
+%     dp=fit, mindp=-\maxdimen, maxdp=\maxdimen,
+%     halign=right, valign=center,
+%     offset=3pt, margin=0pt,
+%     frame=on, background=off, backgroundpath=\acmeframedbackgrounddefault,
+%     options={draw=fg, fill=bg, rounded corners=3pt, thick, line cap=rect}}%
+%   \pgfkeysfiltered{/framed, #1}%
+%   \let\\\newline
+%   %% —————————————————————————————————————————————————— %%
+%   % [·adjust size of text: width, height & depth·]
+%   \ifx\acmeframedwidth\!fit
+%     \noboxit[wd=fit]\hbox{#2}%
+%     \setlen\acmeframedwidth{\boxitwd+\acmeframedloff+\acmeframedroff}
+%   \else
+%     \setlen\acmeframedwidth\acmeframedwidth
+%   \fi
+%   \setlen\acmeframedminwd\acmeframedminwd
+%   \setlen\acmeframedmaxwd\acmeframedmaxwd
+%   \ifdim\acmeframedwidth<\acmeframedminwd
+%     \setlen\acmeframedwidth\acmeframedminwd\fi
+%   \ifdim\acmeframedwidth>\acmeframedmaxwd
+%     \setlen\acmeframedwidth\acmeframedmaxwd\fi
+%   \setlen\acmeframedwidth{\acmeframedwidth-\acmeframedloff-\acmeframedroff}
+%   \noboxit[wd=\acmeframedwidth, align=\acmeframedhalign]\hbox{\hsize=\acmeframedwidth#2}%
+%   %
+%   \setlen\acmeframedminht\acmeframedminht
+%   \setlen\acmeframedmaxht\acmeframedmaxht
+%   \ifx\acmeframedht\!fit
+%     \setlen\acmeframedht{\boxitht+\acmeframedtoff}\fi
+%   \ifdim\acmeframedht<\acmeframedminht
+%     \setlen\acmeframedht\acmeframedminht\fi
+%   \ifdim\acmeframedht>\acmeframedmaxht
+%     \setlen\acmeframedht\acmeframedmaxht\fi
+%   %
+%   \setlen\acmeframedmindp\acmeframedmindp
+%   \setlen\acmeframedmaxdp\acmeframedmaxdp
+%   \ifx\acmeframeddp\!fit
+%     \setlen\acmeframeddp{\boxitdp+\acmeframedboff}\fi
+%   \ifdim\acmeframeddp<\acmeframedmindp
+%     \setlen\acmeframeddp\acmeframedmindp\fi
+%   \ifdim\acmeframeddp>\acmeframedmaxdp
+%     \setlen\acmeframeddp\acmeframedmaxdp\fi
+%   % [·tight box around text·]
+%   \setlen\acmeframedwidth\boxitwd
+%   \setlen\acmeframedht{\acmeframedht-\acmeframedtoff}
+%   \setlen\acmeframeddp{\acmeframeddp-\acmeframedboff}
+%   %% —————————————————————————————————————————————————— %%
+%   \surroundit
+%     [wd=\acmeframedwidth+\acmeframedloff+\acmeframedroff,
+%      ht=\acmeframedht+\acmeframedtoff+\acmeframeddp+\acmeframedboff,
+%      lft=\kern\acmeframedloff, rgt=\kern\acmeframedroff,
+%      top=\kern\acmeframedtoff\acmeframedtalign, bot=\acmeframedbalign\kern\acmeframedboff]
+%     \box\nextbox
+%   \setbox\acmeframedbox=\box\nextbox
+%   %% —————————————————————————————————————————————————— %%
+%   \setbox\nextbox=\hbox{%
+%     \expandafter\tikzpicture\expandafter[\acmeframedoptions]%
+%       \path [use as bounding box] (0,0)
+%         rectangle ++(\acmeframedboxwd,-\acmeframedboxht-\acmeframedboxdp);
+%       % [·four sides ==> one rectangle·]
+%       \ifframedbackground
+%         \acmeframedbackground\fi
+%       \ifx\acmeframedlframe\@empty\else
+%       \ifx\acmeframedrframe\@empty\else
+%       \ifx\acmeframedtframe\@empty\else
+%       \ifx\acmeframedbframe\@empty\else
+%         \let\acmeframedlframe\@empty
+%         \let\acmeframedrframe\@empty
+%         \let\acmeframedtframe\@empty
+%         \let\acmeframedbframe\@empty
+%         \acmeframedfullframe
+%       \fi\fi\fi\fi%
+%       \acmeframedlframe \acmeframedrframe
+%       \acmeframedtframe \acmeframedbframe
+%       \node [anchor=north west, inner sep=0pt, outer sep=0pt]
+%         at (0,0) {\box\acmeframedbox};
+%   \endtikzpicture}%
+%   \surroundit[lft=\kern\acmeframedlmar, rgt=\kern\acmeframedrmar,
+%               top=\kern\acmeframedtmar, bot=\kern\acmeframedbmar]
+%     \box\nextbox
+%   \box\nextbox
+%   \global\nextdepth=\dimexpr\acmeframeddp+\acmeframedboff+\acmeframedbmar\relax%
+% \endgroup}
 
 %>>
 

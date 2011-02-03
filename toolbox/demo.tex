@@ -12,10 +12,23 @@
 \makeatletter
 \parindent=0pt
 
+\def\mycolor{red}
+
+% \getparameters[root=acme, familly=framed][halign=\centering]
+\pgfkeys{/acme/framed/.cd, .set root for alias=/def, halign=center,
+  margin=12pt, tikzoptions={draw, fill=\mycolor}}
+
+
+\def\mycolor{blue}
+
 \begin{document}
 
   Texte de démonstration: rien de spécial !\vskip10pt
 
+  \vrule\boxcontent[wd=120pt, align=\raggedleft]%
+  \hbox{Small text.}\vrule
+
+  \vskip20pt
   \vrule\boxcontent[align=\raggedleft]%
   \vbox{Hello toto, have a good! Hello toto, have a good! Hello toto,
     have a good! Hello toto, have a good! Hello toto, have a good! Hello
@@ -44,5 +57,10 @@
   \flushnextbox
 
 
-  % \framed{toto}
+  \acmeframedhalign
+  Un texte quelconque. %\acmeframedleftmargin\ \acmeframedtikzoptions
+
+  \vskip20pt
+  \vrule\framed[margin=10pt, leftmargin=0pt, ]{toto}\vrule
+
 \end{document}
