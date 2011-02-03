@@ -1,0 +1,603 @@
+% Time-stamp: <2011-02-03 17:38:56 cmauclai>
+%
+% Copyright 2010 by Cedric Mauclair
+%
+% This file may be distributed and/or modified according to the
+% following licences:
+%
+% 1. CCPL Attribution-ShareAlike License
+%    (http://creativecommons.org/licenses/by-sa/3.0/legalcode)
+% 2. GNU Public License 3
+%    (http://www.gnu.org/licenses/gpl.html)
+%
+%         ————————————————————————————————————————————————————
+%
+% Latest major version: 1.0
+% Date: 2011-02-03
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% General purpose tools for LaTeX (c) Cedric Mauclair, 2011.
+%   * ideas and/or snippets borrowed from ConTeXt
+%   * ideas and/or snippets borrowed from pgf
+%
+%   [2011-03-02] Version: 0.1 -- First release.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\ProvidesPackage{acmetoolbox}[2011/02/03 Usefull LaTeX macros]
+% \ProvidesPackageRCS $Header: acmetoolbox.sty,v 0.1 2011/02/03 18:00:00 acme Exp$
+
+
+%<< [· Some requirements ···········] >>
+
+\RequirePackage{pgfkeys}
+\RequirePackage{pgffor}
+
+%>>
+
+%<< [· Usefull shortcuts ···········] >>
+
+\let\@NX\noexpand
+\let\@EA\expandafter
+\def\@EAEAEA{\expandafter\expandafter\expandafter}
+
+%>>
+%<< [· Usefull \doif...else ········] >>
+
+%D macros \doifnextcharelse,
+%D        \doifnextoptionnalelse,
+%D        \doifnextbgroupelse
+%D
+%D Example:
+%D
+%D \doifnextcharelse[{\command}{\command[<default args>]}
+
+\let\doifnextcharelse\pgfutil@ifnextchar
+
+\def\doifnextoptionalelse{\doifnextcharelse[}
+
+\def\doifnextbgroupelse{\doifnextcharelse\bgroup}
+
+
+%D macros \doifinstringelse,
+%D        \doifassingmentelse
+%D
+%D Example:
+%D
+%D \doifinstringelse{=}{arg}{key/value list}{simple list}
+%D \doifassingmentelse{arg}{key/value list}{simple list}
+
+\def\doifinstringelse#1#2#3#4{%
+  \pgfutil@in@{#1}{#2}%
+  \ifpgfutil@in@#3\else#4\fi}
+
+\def\doifassingmentelse{\doifinstringelse{=}}
+
+%>>
+%<< [· Usefull loop features ·······] >>
+
+%D macros \processcommalist
+%D
+%D Example:
+%D
+%D \def\enclose#1{(#1) }
+%D \processcommalist[one, two, three=four]\print
+%D         ==> (one) (two) (three=four)
+
+\def\processcommalist[#1]#2{%
+  \pgfqkeys{/processcommalist}{.code=#2{##1}, .list={#1}}}
+
+\pgfkeys{/processcommalist/.is family}
+
+%>>
+%<< [· Usefull pgfkeys handlers ····] >>
+
+\pgfkeysdef{/handlers/.eval as dimen}{%
+  \@tempdima=\dimexpr#1\relax \edef\pgfkeys@temp{\the\@tempdima}%
+  \expandafter\pgfkeys@exp@call\expandafter{\pgfkeys@temp}}
+
+\pgfkeysdef{/handlers/.store in cs}{%
+  \pgfkeysdef{\pgfkeyscurrentpath}{\@EA\def\csname#1\endcsname{##1}}}
+
+\pgfkeysdef{/handlers/.estore in cs}{%
+  \pgfkeysdef{\pgfkeyscurrentpath}{\@EA\edef\csname#1\endcsname{##1}}}
+
+%>>
+
+%<< [· Arguments control ···········] >>
+
+%D macros \expandonearg,
+%D        \expandtwoargs,
+%D        \expanded
+%D
+%D Does a once expansion of its first argument and its first two
+%D arguments respectively. \expanded does a full expansion of its
+%D argument except the first token respectively.
+%D
+%D Example:
+%D
+%D \expandonearg\command{arg}% a macro MUST be given between {}
+%D         ==> \command{<arg expanded once>}
+%D
+%D \expandtwoargs\command{argone}{argtwo}
+%D         ==> \command{<argone expanded once>}{<argtwo expanded once>}
+%D
+%D \expanded{\command...anything...}
+%D         ==> \command<...anything... fully expanded>
+
+\def\expandonearg#1{\@EA#1\@EA}
+
+\def\expandtwoargs#1#2#3{% don't use \@EAEAEA, it will get expanded
+  \@EAEAEA#1\@EA\@EA\@EA{\@EA#2\@EA}\@EA{#3}}
+
+\def\expanded#1{\edef\@@expanded{\@NX#1}\@@expanded}
+
+
+%D macros \dosingleempty,
+%D        \dodoubleempty
+%D
+%D Example:
+%D
+%D \def\command{\dosingleempty\docommand}
+%D \def\docommand[#1]#2{}
+%D
+%D \command{no optionnal argument}
+%D         ==> \iffirstargument=\iffalse
+%D
+%D \command[optionnal]{optionnal argument}
+%D         ==> \iffirstargument=\iftrue
+%D
+%D         ————————————————————————
+%D
+%D \def\command{\dodoubleempty\docommand}
+%D \def\docommand[#1][#2]{}
+%D
+%D \command
+%D         ==> \iffirstargument  == \iffalse,
+%D             \ifsecondargument == \iffalse
+%D
+%D \command[one]
+%D         ==> \iffirstargument  == \iftrue
+%D             \ifsecondargument == \iffalse
+%D
+%D \command[one][two]
+%D         ==> \iffirstargument  == \iftrue
+%D             \ifsecondargument == \iftrue
+
+\def\dosingleempty#1%
+  {\doifnextoptionalelse
+     {\firstargumenttrue#1}%
+     {\dosinglefakeempty#1}}
+
+\def\dodoubleempty#1%
+  {\doifnextoptionalelse
+     {\dodoubletestempty#1}%
+     {\dodoublefakeempty#1}}
+
+\def\dosinglefakeempty#1%
+  {\firstargumentfalse#1[]}
+
+\def\dodoublefakeempty#1%
+  {\firstargumentfalse\secondargumentfalse#1[][]}
+
+\long\def\dodoubletestempty#1[#2]%
+  {\firstargumenttrue
+   \doifnextoptionalelse
+     {\secondargumenttrue #1[{#2}]}%
+     {\secondargumentfalse#1[{#2}][]}}
+
+\newif\iffirstargument
+\newif\ifsecondargument
+
+%>>
+
+%<< [· Split key=val into macros ···] >>
+
+%D macros \toolboxunpack
+%D
+%D Example:
+%D
+%D \toolboxunpack{key}
+%D         ==> \edef\@@key={key}, \def\@@value{}
+%D
+%D \toolboxunpack{key=value}
+%D         ==> \edef\@@key={key}, \def\@@value{value}
+
+\def\toolboxunpack#1{%
+  \toolbox@unpack#1=\pgfkeysnovalue=\toolbox@stop}
+
+\long\def\toolbox@unpack#1=#2=#3\toolbox@stop{%
+  \begingroup
+  \pgfkeys@spdef\@@key{#1}%
+  \xdef\@@key{\@@key}%
+  \ifx\@@key\pgfkeys@empty
+    % skip
+  \else%
+    \pgfkeys@spdef\@@value{#2}%
+    \xdef\@@value{\@@value}%
+    \ifx\@@value\pgfkeysnovalue@text% Hmm... no value
+      \let\pgfutil@empty
+    \fi%
+  \fi\endgroup}
+
+%>>
+%<< [· Easy parameters management ··] >>
+
+%D pgfkeys handlers to store a key in a macro named by a string.
+
+\pgfkeysdef{/handlers/.parameter}{\pgfkeysalso{%
+    /def/\@@@root\@@@familly#1/.store in cs=\@@root\@@familly#1,
+    /edef/\@@@root\@@@familly#1/.estore in cs=\@@root\@@familly#1}}
+
+\pgfqkeys{/parameters}{%
+  root/.estore in=\@@root,
+  familly/.estore in=\@@familly,
+  .unknown/.style={familly=\pgfkeyscurrentname}}
+
+\def\@@@@root{}\let\@@root\@@@@root
+\def\@@@@familly{@@}\let\@@familly\@@@@familly
+
+
+%D macros \declareparameters
+%D        \getparameters
+%D        \geteparameters
+%D
+%D Example
+%D
+%D \declareparameters
+%D \getparameters
+%D \geteparameters
+
+\def\declareparameters{\dodoubleempty\dodeclareparameters}
+\def\dodeclareparameters[#1][#2]{%
+  \ifsecondargument\dodeclareparametersindeed[#1][#2]%
+  \else\dodeclareparametersindeed[][#1]\fi}
+\def\dodeclareparametersindeed[#1][#2]{%
+  \pgfqkeys{/parameters}{root=\@@@@root, familly=\@@@@familly, #1}%
+  \if=\@@root=\def\@@@root{}\else\def\@@@root{\@@root/}\fi
+  \if=\@@familly=\def\@@@familly{}\else\def\@@@familly{\@@familly/}\fi
+  \pgfkeys{/handlers/.parameter/.list={#2}}}
+
+\def\getparameters{\dodoubleempty\dogetparameters}
+\def\dogetparameters[#1][#2]{%
+  \ifsecondargument\dogetparametersindeed[#1][#2]%
+  \else\dogetparametersindeed[][#1]\fi}
+\def\dogetparametersindeed[#1][#2]{%
+  \pgfqkeys{/parameters}{root=\@@@@root, familly=\@@@@familly, #1}%
+  \if=\@@root=\def\@@@root{}\else\def\@@@root{\@@root/}\fi
+  \if=\@@familly=\def\@@@familly{}\else\def\@@@familly{\@@familly/}\fi
+  \pgfkeys{/def/\@@@root\@@@familly.cd, #2}}
+
+\def\geteparameters{\dodoubleempty\dogeteparameters}
+\def\dogeteparameters[#1][#2]{%
+  \ifsecondargument\dogeteparametersindeed[#1][#2]%
+  \else\dogeteparametersindeed[][#1]\fi}
+\def\dogeteparametersindeed[#1][#2]{%
+  \pgfqkeys{/parameters}{root=\@@@@root, familly=\@@@@familly, #1}%
+  \if=\@@root=\def\@@@root{}\else\def\@@@root{\@@root/}\fi
+  \if=\@@familly=\def\@@@familly{}\else\def\@@@familly{\@@familly/}\fi
+  \pgfkeys{/edef/\@@@root\@@@familly.cd, #2}}
+
+%>>
+
+%<< [· Boxes manipulations ·········] >>
+
+\ifx\nextbox\undefined \newbox\nextbox \fi
+
+\long\def\dowithnextbox#1%
+  {\long\def\dodowithnextbox{#1}%
+   \afterassignment\dododowithnextbox
+   \setbox\nextbox}
+
+\def\dododowithnextbox
+  {\aftergroup\dodowithnextbox}
+
+\long\def\dowithnextboxcs#1%
+  {\let\dodowithnextbox#1%
+   \afterassignment\dododowithnextbox
+   \setbox\nextbox}
+
+\def\dododowithnextbox
+  {\aftergroup\dodowithnextbox}
+
+\def\nextboxht{\ht\nextbox}
+\def\nextboxwd{\wd\nextbox}
+\def\nextboxdp{\dp\nextbox}
+
+\def\flushnextbox{\box\nextbox}
+
+%>>
+%<< [· Put some space around boxes ·]>>
+
+% constants
+\def\c@@fit{fit}
+
+% was the parameter numeric?
+\newif\if@@numericwd
+\newif\if@@numericht
+\newif\if@@numericdp
+
+% usefull macros
+\def\evalasdimen#1#2{%
+  \@tempdima=\dimexpr#2\relax
+  \xdef#1{\the\@tempdima}}
+
+\def\checknumericparameter#1#2{%
+  \ifx#2\c@@fit
+    \csname#1false\endcsname
+  \else
+    \evalasdimen#2#2%
+    \csname#1true\endcsname
+  \fi}
+
+
+%D macros \boxcontent
+%D
+%D Put some content into a box.
+
+\declareparameters
+  [root=boxcontent, familly=@@]% these are private
+  [align, wd, ht, dp]
+
+\def\boxcontent{\begingroup
+  \dosingleempty\doboxcontent}
+
+\def\noboxcontent{\begingroup
+  \let\flushnextbox\@empty
+  \dosingleempty\doboxcontent}
+
+\long\def\doboxcontent[#1]#2#3{%
+  \getparameters
+    [root=boxcontent, familly=@@]
+    [wd=fit, ht=fit, dp=fit, align=, #1]%
+  \setbox\nextbox=#2{#3}%
+  \@temptokena{#3}%
+  \doboxcontentindeed}
+
+\long\def\doboxcontentindeed{%
+  \checknumericparameter{@@numericwd}\boxcontent@@wd
+  \checknumericparameter{@@numericht}\boxcontent@@ht
+  % \checknumericparameter{@@numericdp}\boxcontent@@dp%
+  \global\setbox\nextbox=
+    \vbox \if@@numericht to \boxcontent@@ht\fi{% [·height·]
+      \if@@numericwd \hsize=\boxcontent@@wd \else \hsize=\nextboxwd\fi% [·width·]
+        \boxcontent@@align\the\@temptokena}%
+  % \if@@numericdp\nextboxdp=\boxcontent@@dp\fi%                        [·depth·]
+  \evalasdimen\boxcontent@@wd\nextboxwd%
+  \evalasdimen\boxcontent@@ht\nextboxht%
+  % \evalasdimen\boxcontent@@dp\nextboxdp%
+  \flushnextbox
+  \endgroup\ignorespaces}
+
+
+%D macro \surroundbox
+%D
+%D Put some /things/ arround a (register) box.
+
+\declareparameters
+  [root=surroundbox, familly=@@]% these are private
+  [wd, ht, dp, lft, rgt, top, bot]
+
+\def\surroundbox{\dosingleempty\dosurroundbox}
+\def\dosurroundbox[#1]{%
+  \getparameters
+    [root=surroundbox, familly=@@]
+    [wd=fit, ht=fit, dp=fit, lft=, rgt=, top=, bot=, #1]%
+  \futurelet\nexttoken\dodosurroundbox}
+
+\long\def\dodosurroundbox{%
+  \ifx\nexttoken\box
+    \def\next{\afterassignment\dosurroundboxindeed\setbox\nextbox=}%
+  \else
+    \def\next{\dowithnextbox\dosurroundboxindeed}%
+  \fi
+  \next}
+
+\long\def\dosurroundboxindeed{%
+  \checknumericparameter{@@numericwd}\surroundbox@@wd
+  \checknumericparameter{@@numericht}\surroundbox@@ht
+  \global\setbox\nextbox=
+    \vbox \if@@numericht to \surroundbox@@ht\fi{% [·height·]
+      \surroundbox@@top
+      \hbox \if@@numericwd to \surroundbox@@wd\fi
+        {\surroundbox@@lft\box\nextbox\surroundbox@@rgt}%
+      \surroundbox@@bot}\ignorespaces}
+
+%>>
+
+%<< [· Framed text ·················] >>
+
+% we need a new box to manipulate
+\newbox\framedbox
+
+\def\framedboxwd{\wd\framedbox}
+\def\framedboxht{\ht\framedbox}
+\def\framedboxdp{\dp\framedbox}
+
+% \newif\ifframedbackground
+
+\declareparameters
+  [root=acme, familly=framed]
+  [width,      minwidth,    maxwidth,
+   height,     minheight,   maxheight,
+   leftmargin, rightmargin, topmargin, bottommargin,
+   leftoffset, rightoffset, topoffset, bottomoffset,
+   leftframe,  rightframe,  topframe,  bottomframe,
+   background, halign, valign]
+
+\pgfkeys{/framed/.is family}
+
+\pgfkeys{/framed,
+  % [·width·]
+  wd/.store in=\framedwd,        width/.style={wd=#1},
+  minwd/.store in=\framedminwd,  minimum width/.style={minwd=#1},
+  maxwd/.store in=\framedmaxwd,  maximum width/.style={maxwd=#1},
+  % [·height·]
+  ht/.store in=\framedht,        height/.style={ht=#1},
+  minht/.store in=\framedminht,  minimum height/.style={minht=#1},
+  maxht/.store in=\framedmaxht,  maximum height/.style={maxht=#1},
+  % [·depth·]
+  dp/.store in=\frameddp,        depth/.style={dp=#1},
+  mindp/.store in=\framedmindp,  minimum depth/.style={mindp=#1},
+  maxdp/.store in=\framedmaxdp,  maximum depth/.style={maxdp=#1},
+  % [·margin·]
+  lmargin/.store in=\framedlmar, left margin/.style={lmargin=#1},
+  rmargin/.store in=\framedrmar, right margin/.style={rmargin=#1},
+  tmargin/.store in=\framedtmar, top margin/.style={tmargin=#1},
+  bmargin/.store in=\framedbmar, bottom margin/.style={bmargin=#1},
+  margin/.style={lmargin=#1, rmargin=#1, tmargin=#1, bmargin=#1},
+  % [·offset·]
+  loffset/.store in=\framedloff, left offset/.style={loffset=#1},
+  roffset/.store in=\framedroff, right offset/.style={roffset=#1},
+  toffset/.store in=\framedtoff, top offset/.style={toffset=#1},
+  boffset/.store in=\framedboff, bottom offset/.style={boffset=#1},
+  offset/.style={loffset=#1, roffset=#1, toffset=#1, boffset=#1},
+  % [·internal horizontal alignment·]
+  halign/.is choice,
+  halign/right/.code=\let\framedhalign\raggedright,
+  halign/flushleft/.style={halign=right},
+  halign/left/.code=\let\framedhalign\raggedleft,
+  halign/flushright/.style={halign=left},
+  halign/center/.code=\let\framedhalign\centering,
+  halign/middle/.style={halign=center},
+  % [·internal vertical alignment·]
+  valign/.is choice,
+  valign/top/.code=\let\framedtalign\@empty\let\framedbalign\vss,
+  valign/bottom/.code=\let\framedtalign\vss\let\framedbalign\@empty,
+  valign/center/.code=\let\framedtalign\vss\let\framedbalign\vss,
+  valign/middle/.style={valign=center},
+  % [·frame·]
+  lframe/.is choice,          left frame/.style={lframe=#1},
+  lframe/off/.code=\let\framedlframe\@empty,
+  lframe/on/.code=\def\framedlframe{
+    \path [draw] (0,0) -- ++(0,-\framedboxht-\framedboxdp);},
+  rframe/.is choice,          right frame/.style={rframe=#1},
+  rframe/off/.code=\let\framedrframe\@empty,
+  rframe/on/.code=\def\framedrframe{
+    \path [draw] (\framedboxwd,0) -- ++(0,-\framedboxht-\framedboxdp);},
+  tframe/.is choice,          top frame/.style={tframe=#1},
+  tframe/off/.code=\let\framedtframe\@empty,
+  tframe/on/.code=\def\framedtframe{
+    \path [draw] (0,0) -- ++(\framedboxwd,0);},
+  bframe/.is choice,          bottom frame/.style={bframe=#1},
+  bframe/off/.code=\let\framedbframe\@empty,
+  bframe/on/.code=\def\framedbframe{
+    \path [draw] (0,-\framedboxht-\framedboxdp) -- ++(\framedboxwd,0);},
+  % [·custom frame & background·]
+  frame/.style={lframe=#1, rframe=#1, tframe=#1, bframe=#1},
+  framepath/.store in=\framedfullframe,
+  background/.is choice,
+  background/on/.code=\framedbackgroundtrue,
+  background/off/.code=\framedbackgroundfalse,
+  background/color/.code=\let\framedbackground\framedbackgrounddefault,
+  background/color/.append style={background=on},
+  backgroundpath/.store in=\framedbackground,
+  %% —————————————————————————————————————————————————— %%
+  options/.estore in=\framedoptions,
+}
+
+\def\framedfullframedefault{%
+  \path [draw] (0,0) rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);}
+
+\def\framedbackgrounddefault{%
+  \path [fill] (0,0) rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);}
+
+\let\framedfullframe\framedfullframedefault
+\let\framedbackground\framedbackgrounddefault
+
+\def\framed{\dosingleempty\doframed}
+\long\def\doframed[#1]#2{\begingroup
+  \pgfkeysfiltered{/framed,
+    wd=fit, minwd=-\maxdimen, maxwd=\hsize,
+    ht=fit, minht=-\maxdimen, maxht=\maxdimen,
+    dp=fit, mindp=-\maxdimen, maxdp=\maxdimen,
+    halign=right, valign=center,
+    offset=3pt, margin=0pt,
+    frame=on, background=off, backgroundpath=\framedbackgrounddefault,
+    options={draw=fg, fill=bg, rounded corners=3pt, thick, line cap=rect}}%
+  \pgfkeysfiltered{/framed, #1}%
+  \let\\\newline
+  %% —————————————————————————————————————————————————— %%
+  % [·adjust size of text: width, height & depth·]
+  \ifx\framedwd\!fit
+    \noboxit[wd=fit]\hbox{#2}%
+    \setlen\framedwd{\boxitwd+\framedloff+\framedroff}
+  \else
+    \setlen\framedwd\framedwd
+  \fi
+  \setlen\framedminwd\framedminwd
+  \setlen\framedmaxwd\framedmaxwd
+  \ifdim\framedwd<\framedminwd
+    \setlen\framedwd\framedminwd\fi
+  \ifdim\framedwd>\framedmaxwd
+    \setlen\framedwd\framedmaxwd\fi
+  \setlen\framedwd{\framedwd-\framedloff-\framedroff}
+  \noboxit[wd=\framedwd, align=\framedhalign]\hbox{\hsize=\framedwd#2}%
+  %
+  \setlen\framedminht\framedminht
+  \setlen\framedmaxht\framedmaxht
+  \ifx\framedht\!fit
+    \setlen\framedht{\boxitht+\framedtoff}\fi
+  \ifdim\framedht<\framedminht
+    \setlen\framedht\framedminht\fi
+  \ifdim\framedht>\framedmaxht
+    \setlen\framedht\framedmaxht\fi
+  %
+  \setlen\framedmindp\framedmindp
+  \setlen\framedmaxdp\framedmaxdp
+  \ifx\frameddp\!fit
+    \setlen\frameddp{\boxitdp+\framedboff}\fi
+  \ifdim\frameddp<\framedmindp
+    \setlen\frameddp\framedmindp\fi
+  \ifdim\frameddp>\framedmaxdp
+    \setlen\frameddp\framedmaxdp\fi
+  % [·tight box around text·]
+  \setlen\framedwd\boxitwd
+  \setlen\framedht{\framedht-\framedtoff}
+  \setlen\frameddp{\frameddp-\framedboff}
+  %% —————————————————————————————————————————————————— %%
+  \surroundit
+    [wd=\framedwd+\framedloff+\framedroff,
+     ht=\framedht+\framedtoff+\frameddp+\framedboff,
+     lft=\kern\framedloff, rgt=\kern\framedroff,
+     top=\kern\framedtoff\framedtalign, bot=\framedbalign\kern\framedboff]
+    \box\nextbox
+  \setbox\framedbox=\box\nextbox
+  %% —————————————————————————————————————————————————— %%
+  \setbox\nextbox=\hbox{%
+    \expandafter\tikzpicture\expandafter[\framedoptions]%
+      \path [use as bounding box] (0,0)
+        rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);
+      % [·four sides ==> one rectangle·]
+      \ifframedbackground
+        \framedbackground\fi
+      \ifx\framedlframe\@empty\else
+      \ifx\framedrframe\@empty\else
+      \ifx\framedtframe\@empty\else
+      \ifx\framedbframe\@empty\else
+        \let\framedlframe\@empty
+        \let\framedrframe\@empty
+        \let\framedtframe\@empty
+        \let\framedbframe\@empty
+        \framedfullframe
+      \fi\fi\fi\fi%
+      \framedlframe \framedrframe
+      \framedtframe \framedbframe
+      \node [anchor=north west, inner sep=0pt, outer sep=0pt]
+        at (0,0) {\box\framedbox};
+  \endtikzpicture}%
+  \surroundit[lft=\kern\framedlmar, rgt=\kern\framedrmar,
+              top=\kern\framedtmar, bot=\kern\framedbmar]
+    \box\nextbox
+  \box\nextbox
+  \global\nextdepth=\dimexpr\frameddp+\framedboff+\framedbmar\relax%
+\endgroup}
+
+%>>
+
+
+%%% Local Variables:
+%%% TeX-master: "./demo.tex"
+%%% End:
