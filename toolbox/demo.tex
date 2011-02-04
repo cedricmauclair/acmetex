@@ -1,48 +1,165 @@
-\documentclass{article}
+\documentclass[9pt]{beamer}
 
 \usepackage[english, french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
-\usepackage{acmetoolbox}
-% \usepackage{acmebeamer, arev}
+\usepackage{acmetoolbox, tikz}
+\usepackage{acmebeamer, arev}
 
-% \acmeplaintheme
+\acmeplaintheme
 
-\makeatletter
-\parindent=0pt
+\pgfdeclarelayer{foreground}
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main,foreground}
+
+%<< >>
+% \begin{document}
+
+%   Texte de démonstration: rien de spécial !
+
+%   \vskip10pt
+%   \vrule\boxcontent[height=45pt+15pt]%
+%   \vbox{Hello toto, have a good! Hello toto, have a good! Hello toto,
+%     have a good! Hello toto, have a good! Hello toto, have a good! Hello
+%     toto, have a good! Hello toto, have a good! Hello toto, have a good!
+%     Hello toto, have a good!\par Next paragraph!}\vrule
+
+%   \vskip10pt%
+%   \noboxcontent[width=\hsize-30pt]%
+%   \vbox{\vskip10pt Hello toto, have a good! Hello toto, have a good!
+%     Hello toto, have a good! Hello toto, have a good! Hello toto, have
+%     a good! Hello toto, have a good! Hello toto, have a good! Hello
+%     toto, have a good! Hello toto, have a good!\par\vskip5pt Next
+%     paragraph!\vskip10pt}
+
+%   \surroundbox%
+%     [left=\vrule\hskip15pt, right=\hskip15pt\vrule, top=\hrule, bottom=\hrule]%
+%   \box\nextbox%
+%   \flushnextbox
+
+%   \vskip10pt
+%   \surroundbox[left=\vrule, right=\vrule, top=\hrule, bottom=\hrule]%
+%   \vbox{Hello toto, have a good! Hello toto, have a good! Hello toto,
+%     have a good! Hello toto, have a good! Hello toto, have a good! Hello
+%     toto, have a good! Hello toto, have a good! Hello toto, have a good!
+%     Hello toto, have a good!\par Next paragraph!}
+%   \flushnextbox
+
+%   \vskip10pt
+%   ---\framed[%
+%     width=240pt, background=off, %minheight=150pt,
+%     % offset=10pt,
+%     left=\vrule, right=,
+%     align={left, middle}, rightframe=on,
+%     customframe={
+%       \begin{pgfonlayer}{foreground}
+%       \path [draw=red, line width=20pt, line cap=round]
+%         (0,0) -- (\framedboxwd, -\framedboxht)
+%         (0, -\framedboxht) -- (\framedboxwd,0);
+%       \path [draw=orange, line width=10pt, line cap=round]
+%         (0,0) -- (\framedboxwd, -\framedboxht)
+%         (0, -\framedboxht) -- (\framedboxwd,0);
+%       \end{pgfonlayer}}]%
+%   {Hello toto, have a good! Hello toto, have a good! Hello toto, have
+%     a good! Hello toto, have a good! Hello toto, have a good! Hello
+%     toto, have a good! Hello toto, have a good! Hello toto, have a good!
+%     Hello toto, have a good!\par Next paragraph!} ---
+
+%   \vskip10pt
+%   \begin{framedtext}
+%     [customframe={
+%       \begin{pgfonlayer}{foreground}
+%       \path [draw=red, line width=20pt, line cap=round]
+%         (0,0) -- (\framedboxwd, -\framedboxht)
+%         (0, -\framedboxht) -- (\framedboxwd,0);
+%       \path [draw=orange, line width=10pt, line cap=round]
+%         (0,0) -- (\framedboxwd, -\framedboxht)
+%         (0, -\framedboxht) -- (\framedboxwd,0);
+%       \end{pgfonlayer}},
+%     minheight=100pt, width=240pt, offset=15pt, align=left, left=\vrule]
+%     Hello toto, have a good! Hello toto, have a good! Hello toto, have
+%     a good! Hello toto, have a good! Hello toto, have a good! Hello
+%     toto, have a good! Hello toto, have a good! Hello toto, have a good!
+%     Hello toto, have a good!\par\vskip40pt Next paragraph!
+%   \end{framedtext}
+
+%   \vskip10pt
+%   Some random text, with \inframe{some inframed text} and so on.
+
+% \end{document}
+%>>
 
 \begin{document}
 
-  Texte de démonstration: rien de spécial !\vskip10pt
+\title{Some title}
+\subtitle{Some subtitle}
 
-  \vrule\boxcontent[align=\raggedleft]%
-  \vbox{Hello toto, have a good! Hello toto, have a good! Hello toto,
-    have a good! Hello toto, have a good! Hello toto, have a good! Hello
-    toto, have a good! Hello toto, have a good! Hello toto, have a good!
-    Hello toto, have a good!\par Next paragraph!}\vrule
+\author{Some author}
 
-  \vskip20pt%
-  \noboxcontent[wd=\hsize-30pt]%
-  \vbox{\vskip10pt Hello toto, have a good! Hello toto, have a good!
-    Hello toto, have a good! Hello toto, have a good! Hello toto, have
-    a good! Hello toto, have a good! Hello toto, have a good! Hello
-    toto, have a good! Hello toto, have a good!\par\vskip5pt Next
-    paragraph!\vskip10pt}
+\maketitle
 
-  \surroundbox%
-    [lft=\vrule\hskip15pt, rgt=\hskip15pt\vrule, top=\hrule, bot=\hrule]%
-  \box\nextbox%
-  \flushnextbox
+\frametoc{Plan de l'exposé}
 
-  \vskip20pt
-  \surroundbox[lft=\vrule, rgt=\vrule, top=\hrule, bot=\hrule]%
-  \vbox{Hello toto, have a good! Hello toto, have a good! Hello toto,
-    have a good! Hello toto, have a good! Hello toto, have a good! Hello
-    toto, have a good! Hello toto, have a good! Hello toto, have a good!
-    Hello toto, have a good!\par Next paragraph!}
-  \flushnextbox
+\section{First section}
 
+\begin{frame}
+  {Frame title}
+  {Frame subtitle}
 
-  % \framed{toto}
+  \begingroup
+    \emph{Frame content, mostly gibberish.} Frame content, mostly
+    gibberish. Frame content, mostly gibberish. Frame content, mostly
+    gibberish. Frame content, mostly gibberish. Frame content, mostly
+    gibberish.
+  \endgroup
+
+  \vskip10pt
+  \begin{block}{}
+    % [offset=8pt, width=200pt, tikzoptions={draw=darkorange, very thick,
+    %                           rounded corners=2pt}]%
+    \begin{itemize}
+    \item Frame content, mostly gibberish.
+    \item Frame content, mostly gibberish.
+    \item Frame content, mostly gibberish.
+    \end{itemize}
+  \end{block}
+
+  \vskip10pt%
+  \begin{framedtext}%
+    [offset=8pt, tikzoptions={draw=darkorange, very thick,
+                              rounded corners=2pt}]%
+    Frame content, mostly gibberish. Frame content, mostly gibberish.
+    Frame content, mostly gibberish. Frame content, mostly gibberish.
+    Frame content, mostly gibberish. Frame content, mostly gibberish.
+  \end{framedtext}
+
+  \vskip10pt
+  \begin{center}
+    \leavevmode
+    \framed
+      [minwidth=120pt, align=left,
+       tikzoptions={draw, very thick, rounded corners}]
+      {framed text}
+    \hfil
+    \framed
+      [minwidth=120pt, align=center,
+       tikzoptions={draw, very thick, rounded corners}]
+      {framed text, again}
+  \end{center}
+
+\end{frame}
+
+\begin{frame}
+
+  \begin{block}{Titre}
+    [width=200pt, bodyheight=100pt, bodyalign={bottom, left}]
+
+    Frame content, mostly gibberish. Frame content, mostly gibberish.
+    Frame content, mostly gibberish. Frame content, mostly gibberish.
+    Frame content, mostly gibberish. Frame content, mostly gibberish.
+  \end{block}
+
+\end{frame}
+
 \end{document}

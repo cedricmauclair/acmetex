@@ -1,2 +1,3 @@
 \beamer@endinputifotherversion {3.10pt}
 \select@language {french}
+\beamer@sectionintoc {1}{First section}{3}{0}{1}
