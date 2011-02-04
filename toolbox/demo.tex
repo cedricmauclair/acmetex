@@ -93,8 +93,8 @@
 \def\mycolor{red}
 
 % \getparameters[root=acme, familly=framed][halign=\centering]
-\pgfkeys{/acme/framed/.cd, .set root for alias=/def, halign=center,
-  margin=12pt, tikzoptions={draw, fill=\mycolor}}
+% \pgfkeys{/acme/framed/.cd, .set root for alias=/def, halign=center,
+%   margin=12pt, tikzoptions={draw, fill=\mycolor}}
 
 
 \def\mycolor{blue}
@@ -124,15 +124,16 @@
   \endgroup
 
   \vskip10pt
-  \begin{block}{}
-    % [offset=8pt, width=200pt, tikzoptions={draw=darkorange, very thick,
-    %                           rounded corners=2pt}]%
+  \begin{alertblock}{Title}
+    Text before
     \begin{itemize}
-    \item Frame content, mostly gibberish.
+    \item to to to to to to to to to to to to to to to to to to to to to
+      to to to to to to to to to to to to to to to to to to to to yy
     \item Frame content, mostly gibberish.
     \item Frame content, mostly gibberish.
     \end{itemize}
-  \end{block}
+    Text after
+  \end{alertblock}
 
   \vskip10pt%
   \begin{framedtext}%

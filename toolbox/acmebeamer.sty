@@ -1,4 +1,4 @@
-% Time-stamp: <2011-02-04 18:24:05 cmauclai>
+% Time-stamp: <2011-02-04 22:30:45 cedric>
 %
 % Copyright 2010 by Cedric Mauclair
 %
@@ -41,6 +41,8 @@
 % Version: 3.02  [2011-01-13]
 %     Reworked the frametitle: empty frametitles into (sub)sectioned
 %     frametitles.
+% Version: 4.0alpha [2011-02-04]
+%     Reworked to work with the new toolbox.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -613,7 +615,7 @@
 
 %>> Page number (end) ——————————————————————————————————————————————— >>
 
-%<< —— Emphasis ·········· —————————————————————————————————————————— >>
+%<< [· Emphasis ······························] >>
 
 % BEWARE: VERY UGLY HACK BELOW
 \def\emstyle{\def\@emstyle}
@@ -647,7 +649,7 @@
 \setbeamerfont{emphasis}{series=\bf,shape=\rm}
 
 %>>
-%<< —— Blocks ············ —————————————————————————————————————————— >>
+%<< [· Blocks ································] >>
 
 %<< — macros{defineblock} ············· — >>
 
@@ -772,15 +774,6 @@
     \setupblock[#1][##2]%
     % [·adjust size of text: width, height & depth·]
     \evalasdimen\blockswd{\getvalue{#1blockwidth}}
-    % [·fix for itemize/enumerate (/!\ \hbox to grab content in boxit)·]
-    \addtobeamertemplate{itemize/enumerate body begin}
-      {\expanded{\pgfkeys{/acme/framed/.cd, \getvalue{#1blockbodyoptions}}}%
-        \par\vbox\bgroup
-        \linewidth=\dimexpr\hsize-\acmeframedleftoffset-\acmeframedrightoffset\relax}
-      {}
-    \addtobeamertemplate{itemize/enumerate body end}
-      {}
-      {\par\kern-.5\baselineskip\egroup}% VERY ugly hack
     \setbeamercolor{item}{use=#1blockitems, fg=#1blockitems.fg}%
     \def\insertblocktitle{##1}%
     % [·let's go for the definition of a block·]
@@ -793,11 +786,10 @@
            height=\getvalue{#1blockbodyheight},
            maxheight=\paperheight,
            align={\getvalue{#1blockbodyalign}},
-           \getvalue{#1blockbodyoptions},
-           frame=\getvalue{#1blockbodyframe},
-           background=\getvalue{#1blockbodybackground}},
+           \getvalue{#1blockbodyoptions}},
            customframe=\getvalue{#1blockbodycustomframe},
-           custombackground=\getvalue{#1blockbodycustombackground}]
+           custombackground=\getvalue{#1blockbodycustombackground},
+           frame=on, background=on]
           \vskip-\parskip
           \usefgorcolor{\getvalue{#1blockbodycolor}}%
           \getvalue{#1blockbodystyle}\ignorespaces}%
@@ -814,11 +806,10 @@
         \expanded{\begin{framedtext}
           [width=\hsize-\acmeframedleftoffset-\acmeframedrightoffset,
            align={\getvalue{#1blocktitlealign}},
-           \getvalue{#1blocktitleoptions},
-           frame=\getvalue{#1blocktitleframe},
-           background=\getvalue{#1blocktitlebackground}},
+           \getvalue{#1blocktitleoptions}},
            customframe=\getvalue{#1blocktitlecustomframe},
-           custombackground=\getvalue{#1blocktitlecustombackground}]
+           custombackground=\getvalue{#1blocktitlecustombackground},
+           frame=on, background=on]
           \parskip=0pt
           \usefgorcolor{\getvalue{#1blocktitlecolor}}%
           \getvalue{#1blocktitlestyle}%
@@ -828,11 +819,10 @@
     % [·and the whole box·]
     \vrule width0pt\acmeblocksleft
     \expanded{\begin{framedtext}
-        [width=\blockswd, \getvalue{#1blockframeoptions},
-         frame=\getvalue{#1blockframe},
-         background=\getvalue{#1blockbackground}},
+        [width=\blockswd, \getvalue{#1blockframeoptions}},
          customframe=\getvalue{#1blockcustomframe},
-         custombackground=\getvalue{#1blockcustombackground}]
+         custombackground=\getvalue{#1blockcustombackground},
+         frame=on, background=on]
         \vskip-\parskip\box\blockstitlebox
         \ifx\insertblocktitle\@empty\else\vskip-\parskip\fi
         \box\blocksbodybox
@@ -848,27 +838,25 @@
   width=\hsize,
   align=center,
   % [·outer frame·]
-  frame=on,
-  customframe=false,
-  background=on,
-  custombackground=false,
-  frameoptions={offset=10pt,
-    tikzoptions={draw=fg, fill=red, thick, rounded corners=2pt}},
+  customframe=
+    {\path [draw] (0,0) rectangle ++(\framedboxwd,-\framedboxht);},
+  custombackground=
+    {\path [fill] (0,0) rectangle ++(\framedboxwd,-\framedboxht);},
+  frameoptions=
+    {offset=0pt,
+     tikzoptions={draw=fg, fill=bg, thick, rounded corners=2pt}},
   % [·title·]
-  titleframe=off,
-  titlecustomframe=false,
-  titlebackground=on,
-  titlecustombackground={\path [fill=fg]
+  titlecustomframe=none,
+  titlecustombackground={
+    \path [fill=fg]
     {[sharp corners] (0,0) -- ++(0,-\framedboxht) -- ++(\framedboxwd,0)}
     {[rounded corners=2pt] -- ++(0,\framedboxht)  -- cycle};},
   titleoptions={offset=4pt, bottomoffset=2pt},
   titlecolor=white,
   titlestyle=\usebeamerfont{block title},
-  titlealign=right,
+  titlealign={center},
   % [·body·]
-  bodyframe=off,
-  bodycustomframe=false,
-  bodybackground=off,
+  bodycustomframe=none,
   bodycustombackground=false,
   bodyoptions={offset=4pt},
   bodycolor=normal text,
@@ -897,8 +885,8 @@
 \defineblock [emphasis] [color=emphasis]
 \setbeamercolor{emphasisblockitems}{parent=emphasis}
 
-%>> Blocks (end) ———————————————————————————————————————————————————— >>
-%<< —— Items ············· —————————————————————————————————————————— >>
+%>>
+%<< [· Items ·································] >>
 
 % prevent babel french.ldf from meddling with my itemizes
 \AtBeginDocument{%
@@ -955,7 +943,7 @@
     {\unittriangle[fill, scale=3, yshift=.3333]}}
 
 %>>
-%<< —— Enumerate ········· —————————————————————————————————————————— >>
+%<< [· Enumerate ·····························] >>
 
 \setbeamertemplate{enumerate item}{\insertenumlabel.}
 
@@ -978,11 +966,11 @@
   \beamer@firstlineitemizeunskip%
 }
 
-%>> Enumerate (end) ————————————————————————————————————————————————— >>
+%>>
 
 \setbeamersize{text margin left=1em, text margin right=1em}
 
-%<< —— Basic templates ··· —————————————————————————————————————————— >>
+%<< [· Basic templates ·······················] >>
 
 %<< — helpers ············ — >>
 
@@ -1025,9 +1013,10 @@
   {\vskip12pt plus6pt minus6pt\leavevmode\usebeamertemplate{itemize item}\hskip\labelsep}{}
 \acme@template@complex{subsection in toc}[tocsubsection]%
   {}{}
-  {\vskip3pt plus3pt minus3pt\leavevmode\hskip\leftmarginii\usebeamertemplate{itemize subitem}\hskip\labelsep}{\endgraf}
+  {\vskip3pt plus3pt minus3pt\leavevmode\hskip\leftmarginii
+    \usebeamertemplate{itemize subitem}\hskip\labelsep}{\endgraf}
 
-%>> Basic templates (end) ——————————————————————————————————————————— >>
+%>>
 
 %<< * \emptyline, \emptyfull, \emptyhalf >>
 
@@ -1036,7 +1025,7 @@
 \def\emptyhalf{\emptyline[.5\baselineskip]}
 
 %>>
-%<< * \definelanguageswitch              >>
+%<< * TODO \definelanguageswitch              >>
 
 \def\definelanguageswitch{\dotripleempty\dodefinelanguageswitch}
 \def\dodefinelanguageswitch[#1][#2][#3]{%
@@ -1047,7 +1036,7 @@
   \fi}
 
 %>>
-%<< * enhanced itemizes: sitemize        >>
+%<< * TODO enhanced itemizes: sitemize        >>
 
 \newenvironment{sitemize}[1][1]{%
   \edef\optarg{#1}
@@ -1445,7 +1434,7 @@
            \insertframesubtitle\hfil}
        \egroup}\fi}
   % % [·blocks·] (soon)
-  % % [·items·]
+  % [·items·]
   \let\olditem\item
   \def\item{\afterassignment\olditem
     \parskip=.4\baselineskip minus.4\baselineskip}

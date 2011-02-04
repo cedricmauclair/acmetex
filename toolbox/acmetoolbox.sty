@@ -1,4 +1,4 @@
-% Time-stamp: <2011-02-04 20:43:47 cedric>
+% Time-stamp: <2011-02-04 22:16:33 cedric>
 %
 % Copyright 2010 by Cedric Mauclair
 %
@@ -616,9 +616,6 @@
   leftframe/off/.code=
     \let\acmeframedleftframe@@\@empty
     \let\acmeframedleftframe\c@@off,
-  leftframe/.unknown/.code=
-    \def\acmeframedleftframe@@{#1}
-    \let\acmeframedleftframe\c@@on,
   %
   rightframe/.is choice,
   rightframe/on/.code=\def\acmeframedrightframe@@
@@ -626,9 +623,6 @@
     \let\acmeframedrightframe\c@@on,
   rightframe/off/.code=\let\acmeframedrightframe@@\@empty
     \let\acmeframedrightframe\c@@off,
-  rightframe/.unknown/.code=
-    \def\acmeframedrightframe@@{#1}
-    \let\acmeframedrightframe\c@@on,
   %
   topframe/.is choice,
   topframe/on/.code=\def\acmeframedtopframe@@
@@ -636,9 +630,6 @@
     \let\acmeframedtopframe\c@@on,
   topframe/off/.code=\let\acmeframedtopframe@@\@empty
     \let\acmeframedtopframe\c@@off,
-  topframe/.unknown/.code=
-    \def\acmeframedtopframe@@{#1}
-    \let\acmeframedtopframe\c@@on,
   %
   bottomframe/.is choice,
   bottomframe/on/.code=\def\acmeframedbottomframe@@
@@ -646,9 +637,6 @@
     \let\acmeframedbottomframe\c@@on,
   bottomframe/off/.code=\let\acmeframedbottomframe@@\@empty
     \let\acmeframedbottomframe\c@@off,
-  bottomframe/.unknown/.code=
-    \def\acmeframedbottomframe@@{#1}
-    \let\acmeframedbottomframe\c@@on,
   %
   frame/.is choice,
   frame/on/.code=\def\acmeframedframe@@
@@ -662,11 +650,8 @@
   % [·background·]
   background/.is choice,
   background/on/.code=\def\acmeframedbackground@@
-    {\path [fill] (0,0) rectangle ++(\framedboxwd,-\framedboxht);}%
-    \let\acmeframedbackground\c@@on,
-  background/off/.code=
-    \let\acmeframedbackground@@\@empty
-    \let\acmeframedbackground\c@@off,
+    {\path [fill] (0,0) rectangle ++(\framedboxwd,-\framedboxht);},
+  background/off/.code=\let\acmeframedbackground@@\@empty,
   custombackground/.code=\def\acmeframedcustombackground@@{#1},
   % [·some additions·]
   width/.append style={minwidth=#1, maxwidth=#1},
@@ -696,7 +681,8 @@
 \long\def\doframed[#1]#2{\begingroup
   \getparameters
     [/acme/framed]
-    [frame=on, customframe=false, background=off,
+    [frame=on, customframe=false,
+     background=off, custombackground=false,
      margin=0pt, offset=3pt,
      width=-\maxdimen, height=-\maxdimen,
      maxwidth=\hsize,  maxheight=\maxdimen,
@@ -723,7 +709,6 @@
   \normalizeabove\acmeframedheight\acmeframedminheight
   \normalizebelow\acmeframedheight\acmeframedmaxheight
   % [·tight box around text·]
-  \evalasdimen\acmeframedwidth\boxcontent@@width
   \evalasdimen\acmeframedheight
     {\acmeframedheight-\acmeframedtopoffset}%
   %% —————————————————————————————————————————————————— %%
@@ -743,7 +728,7 @@
       \path [use as bounding box] (0,0)
         rectangle ++(\framedboxwd,-\framedboxht);
       % [·four sides ==> one rectangle·]
-      \ifx\acmeframedcustomframe@@\c@@false
+      \ifx\acmeframedcustombackground@@\c@@false
           \acmeframedbackground@@
         \else
           \acmeframedcustombackground@@
