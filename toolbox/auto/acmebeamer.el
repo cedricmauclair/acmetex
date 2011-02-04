@@ -1,9 +1,9 @@
 (TeX-add-style-hook "acmebeamer"
  (lambda ()
     (LaTeX-add-environments
-     "framedtext"
      "sitemize")
     (TeX-add-symbols
+     '("emptyline" ["argument"] 0)
      '("warn" ["argument"] 0)
      '("whng" ["argument"] 0)
      '("frwn" ["argument"] 0)
@@ -17,25 +17,11 @@
      '("wsmiley" ["argument"] 2)
      '("wgsmiley" ["argument"] 2)
      '("gsmiley" ["argument"] 2)
-     '("emptyline" ["argument"] 0)
      '("usebeamer" ["argument"] 1)
-     "tempdim"
      "leftmargin"
      "rightmargin"
      "titlepagelineoffset"
-     "setlen"
-     "framedboxwd"
-     "framedboxht"
-     "framedboxdp"
-     "framedfullframedefault"
-     "framedbackgrounddefault"
-     "framedfullframe"
-     "framedbackground"
-     "framed"
-     "startframedtext"
-     "insidestrut"
-     "inframe"
-     "doinframe"
+     "em"
      "slide"
      "oldsetbeamersize"
      "setbeamersize"
@@ -51,8 +37,10 @@
      "dounittriangle"
      "fulltriangle"
      "dofulltriangle"
+     "ok"
+     "ko"
      "maketitle"
-     "logocustom"
+     "domaketitle"
      "frametoc"
      "doframetoc"
      "dodoframetoc"
@@ -62,7 +50,24 @@
      "footlineleft"
      "footlinecenter"
      "footlineright"
-     "pagenumbercustom"
+     "emstyle"
+     "blocksparameters"
+     "defineblocks"
+     "dodefineblocks"
+     "defineblock"
+     "dodefineblock"
+     "setupblocks"
+     "dosetupblocks"
+     "setupblock"
+     "dosetupblock"
+     "dodefineblockindeed"
+     "current"
+     "insertblocktitle"
+     "block"
+     "alertblock"
+     "exampleblock"
+     "defaultblock"
+     "defaultendblock"
      "usesquareitems"
      "usecircleitems"
      "usetriangleitems"
@@ -73,8 +78,6 @@
      "emptyhalf"
      "definelanguageswitch"
      "dodefinelanguageswitch"
-     "ok"
-     "ko"
      "usefgorcolor"
      "useordefinefgbgcolor"
      "acmeplaintheme"
@@ -83,6 +86,6 @@
      "secname"
      "subsecname")
     (TeX-run-style-hooks
-     "acmetoolbox"
-     "tikz")))
+     "tikz"
+     "acmetoolbox")))
 

@@ -3,6 +3,9 @@
     (TeX-add-symbols
      "mycolor")
     (TeX-run-style-hooks
+     "arev"
+     "acmebeamer"
+     "tikz"
      "acmetoolbox"
      "fontenc"
      "T1"
@@ -12,6 +15,7 @@
      "english"
      "french"
      "latex2e"
-     "art10"
-     "article")))
+     "beamer10"
+     "beamer"
+     "9pt")))
 

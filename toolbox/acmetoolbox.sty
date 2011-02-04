@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 % Time-stamp: <2011-02-03 22:14:11 cedric>
+=======
+% Time-stamp: <2011-02-04 18:16:19 cmauclai>
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 %
 % Copyright 2010 by Cedric Mauclair
 %
@@ -13,7 +17,7 @@
 %         ————————————————————————————————————————————————————
 %
 % Latest major version: 1.0
-% Date: 2011-02-03
+% Date: 2011-02-04
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -22,11 +26,12 @@
 %   * ideas and/or snippets borrowed from pgf
 %
 %   [2011-03-02] Version: 0.1 -- First release.
+%   [2011-04-02] Version: 1.0 -- First functionnal release.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\ProvidesPackage{acmetoolbox}[2011/02/03 Usefull LaTeX macros]
+\ProvidesPackage{acmetoolbox}[2011/02/04 Usefull LaTeX macros]
 % \ProvidesPackageRCS $Header: acmetoolbox.sty,v 0.1 2011/02/03 18:00:00 acme Exp$
 
 
@@ -34,6 +39,7 @@
 
 \RequirePackage{pgfkeys}
 \RequirePackage{pgffor}
+\RequirePackage{tikz}
 
 %>>
 
@@ -73,7 +79,7 @@
   \pgfutil@in@{#1}{#2}%
   \ifpgfutil@in@#3\else#4\fi}
 
-\def\doifassingmentelse{\doifinstringelse{=}}
+\def\doifassignmentelse{\doifinstringelse{=}}
 
 %>>
 %<< [· Usefull loop features ·················] >>
@@ -94,9 +100,24 @@
 %>>
 %<< [· Usefull pgfkeys handlers ··············] >>
 
-\pgfkeysdef{/handlers/.eval as dimen}{%
+%D handlers .dimexpr,
+%D          .numexpr
+%D
+%D Evaluates the value as a dimension and an integer respectively.
+
+\pgfkeysdef{/handlers/.dimexpr}{%
   \@tempdima=\dimexpr#1\relax \edef\pgfkeys@temp{\the\@tempdima}%
   \expandafter\pgfkeys@exp@call\expandafter{\pgfkeys@temp}}
+
+\pgfkeysdef{/handlers/.numepr}{%
+  \@tempcnta=\numexpr#1\relax \edef\pgfkeys@temp{\the\@tempcnta}%
+  \expandafter\pgfkeys@exp@call\expandafter{\pgfkeys@temp}}
+
+
+%D handlers .store in cs,
+%D          .estore in cs
+%D
+%D Same as .store in and .estore in, except it uses \csname.
 
 \pgfkeysdef{/handlers/.store in cs}{%
   \pgfkeysdef{\pgfkeyscurrentpath}{\@EA\def\csname#1\endcsname{##1}}}
@@ -104,6 +125,7 @@
 \pgfkeysdef{/handlers/.estore in cs}{%
   \pgfkeysdef{\pgfkeyscurrentpath}{\@EA\edef\csname#1\endcsname{##1}}}
 
+<<<<<<< HEAD
 \pgfkeysdef{/handlers/.set root for alias}{%
   \edef\acme@@alias{#1}}
 
@@ -127,6 +149,162 @@
 
 %>>
 
+=======
+
+%D handlers .store dimexpr in,
+%D          .store dimexpr in cs,
+%D          .store numexpr in,
+%D          .store numexpr in cs
+%D
+%D Same as .store in and .store in cs, except it store the evaluated
+%D dimension and integer.
+
+\pgfkeysdef{/handlers/.store dimexpr in}{%
+  \pgfkeysdef{\pgfkeyscurrentpath}{\@tempdima=\dimexpr##1\relax
+    \@EA\def\@EA#1\@EA{\the\@tempdima}}}
+
+\pgfkeysdef{/handlers/.store dimexpr in cs}{%
+  \pgfkeysdef{\pgfkeyscurrentpath}{\@tempdima=\dimexpr##1\relax
+    \@EAEAEA\def\@EA\csname\@EA#1\@EA\endcsname\@EA{\the\@tempdima}}}
+
+\pgfkeysdef{/handlers/.store numexpr in}{%
+  \pgfkeysdef{\pgfkeyscurrentpath}{\@tempnuma=\numexpr##1\relax
+    \@EA\def\@EA#1\@EA{\the\@tempnuma}}}
+
+\pgfkeysdef{/handlers/.store numexpr in cs}{%
+  \pgfkeysdef{\pgfkeyscurrentpath}{\@tempnuma=\numexpr##1\relax
+    \@EAEAEA\def\@EA\csname\@EA#1\@EA\endcsname\@EA{\the\@tempnuma}}}
+
+
+%D handlers .parameter,
+%D          .parameters,
+%D          .dimension,
+%D          .dimensions,
+%D          .dimension,
+%D          .dimensions,
+%D
+%D BEWARE: uses \@@prefix (see below).
+%D Defines a macro, a dimension or a number with
+%D \csname\@@prefix#1\endcsname.
+%D The plural repeats the operation for each value (uses .list).
+
+\pgfkeysdef{/handlers/.parameter}{%
+  \pgfkeysalso{\pgfkeyscurrentpath/#1/.store in cs=\@@prefix#1}}
+
+\pgfkeysdef{/handlers/.parameters}{%
+  \pgfkeysalso{\pgfkeyscurrentpath/.parameter/.list={#1}}}
+
+\pgfkeysdef{/handlers/.dimension}{%
+  \pgfkeysalso{\pgfkeyscurrentpath/#1/.store dimexpr in cs=\@@prefix#1}}
+
+\pgfkeysdef{/handlers/.dimensions}{%
+  \pgfkeysalso{\pgfkeyscurrentpath/.dimension/.list={#1}}}
+
+\pgfkeysdef{/handlers/.number}{%
+  \pgfkeysalso{\pgfkeyscurrentpath/#1/.store numexpr in cs=\@@prefix#1}}
+
+\pgfkeysdef{/handlers/.numbers}{%
+  \pgfkeysalso{\pgfkeyscurrentpath/.number/.list={#1}}}
+
+
+%D handlers .set prefix,
+%D          .cd (existed before, only modified)
+%D
+%D Strips the '/' from the current path and stores it in \@@prefix.
+%D Append '.set prefix' to '.cd' so \@@prefix is alway well defined.
+
+\pgfkeysdef{/handlers/.set prefix}{%
+  \acme@@splitpath\edef\@@prefix{\the\pgfkeys@pathtoks}}
+
+\pgfkeys{/handlers/.cd/.append style=.set prefix}
+
+\def\acme@@splitpath{%
+  \pgfkeys@pathtoks{}%
+  \expandafter\acme@@splitter\pgfkeyscurrentkey//%
+}
+\def\acme@@splitter#1/#2/{%
+  \def\pgfkeys@temp{#2}%
+  \ifx\pgfkeys@temp\pgfkeys@empty%
+    % Ah. done
+    \def\acme@@currentname{#1}%
+    \expandafter\acme@@gobbletoslash%
+  \else%
+    \expandafter\pgfkeys@pathtoks\expandafter{\the\pgfkeys@pathtoks#1}%
+  \fi%
+  \acme@@splitter#2/%
+}
+\def\acme@@gobbletoslash\acme@@splitter/{%
+  \expandafter\pgfkeys@remove@slash\the\pgfkeys@pathtoks/\relax}%
+
+\pgfkeysdef{/rawparameters/.unknown}{%
+  \@EA\def\csname \@@prefix\pgfkeyscurrentname\endcsname{#1}}
+
+%>>
+%<< [· Usefull macros ························] >>
+
+\def\evalasdimen#1#2{%
+  \@tempdima=\dimexpr#2\relax
+  \xdef#1{\the\@tempdima}}
+
+\def\checknumericparameter#1#2{%
+  \ifx#2\c@@fit
+    \csname#1false\endcsname
+  \else
+    \evalasdimen#2#2%
+    \csname#1true\endcsname
+  \fi}
+
+\long\def\doifvaliddimensionelse#1#2#3{%
+  \ifdim#1>-2\hsize #2\else#3\fi}
+
+\long\def\doifvaliddimension#1#2{%
+  \doifvaliddimensionelse#1{#2}{}}
+
+\long\def\doifnotvaliddimension#1#2{%
+  \doifvaliddimensionelse#1{}{#2}}
+
+\def\tovaliddimension#1{%
+  \doifvaliddimensionelse#1{to #1}{}}
+
+\def\normalizeabove#1#2{%
+  \ifdim#1<#2\evalasdimen#1#2\fi}
+
+\def\normalizebelow#1#2{%
+  \ifdim#1>#2\evalasdimen#1#2\fi}
+
+%>>
+
+%<< [· Split key=val into macros ·············] >>
+
+%D macros \toolboxunpack
+%D
+%D Example:
+%D
+%D \toolboxunpack{key}
+%D         ==> \edef\@@key={key}, \def\@@value{}
+%D
+%D \toolboxunpack{key=value}
+%D         ==> \edef\@@key={key}, \def\@@value{value}
+
+\def\toolboxunpack#1{%
+  \toolbox@unpack#1=\pgfkeysnovalue=\toolbox@stop}
+
+\long\def\toolbox@unpack#1=#2=#3\toolbox@stop{%
+  \begingroup
+  \pgfkeys@spdef\@@key{#1}%
+  \xdef\@@key{\@@key}%
+  \ifx\@@key\pgfkeys@empty
+    % skip
+  \else%
+    \pgfkeys@spdef\@@value{#2}%
+    \xdef\@@value{\@@value}%
+    \ifx\@@value\pgfkeysnovalue@text% Hmm... no value
+      \let\pgfutil@empty
+    \fi%
+  \fi\endgroup}
+
+%>>
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 %<< [· Arguments control ·····················] >>
 
 %D macros \expandonearg,
@@ -213,7 +391,9 @@
 \newif\ifsecondargument
 
 %>>
+%<< [· Easy parameters management ············] >>
 
+<<<<<<< HEAD
 %<< [· Split key=val into macros ·············] >>
 
 %D macros \toolboxunpack
@@ -247,18 +427,22 @@
 %<< [· Easy parameters management ············] >>
 
 %D pgfkeys handlers to store a key in a macro named by a string.
+=======
+\def\setvalue     #1{\expandafter \def\csname#1\endcsname}
+\def\setgvalue    #1{\expandafter\gdef\csname#1\endcsname}
+\def\setevalue    #1{\expandafter\edef\csname#1\endcsname}
+\def\setxvalue    #1{\expandafter\xdef\csname#1\endcsname}
+\def\getvalue     #1{\csname#1\endcsname}
+\def\letvalue     #1{\expandafter\let\csname#1\endcsname}
+\def\letgvalue    #1{\global\expandafter\let\csname#1\endcsname}
+\def\resetvalue   #1{\expandafter\let\csname#1\endcsname\empty}
+\def\ignorevalue#1#2{\expandafter\let\csname#1\endcsname\empty}
+\def\docopyvalue#1#2#3%
+  {\@EA\def\csname#1#3\endcsname{\csname#2#3\endcsname}}
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 
-\pgfkeysdef{/handlers/.parameter}{\pgfkeysalso{%
-    /def/\@@@root\@@@familly#1/.store in cs=\@@root\@@familly#1,
-    /edef/\@@@root\@@@familly#1/.estore in cs=\@@root\@@familly#1}}
 
-\pgfqkeys{/parameters}{%
-  root/.estore in=\@@root,
-  familly/.estore in=\@@familly,
-  .unknown/.style={familly=\pgfkeyscurrentname}}
-
-\def\@@@@root{}\let\@@root\@@@@root
-\def\@@@@familly{@@}\let\@@familly\@@@@familly
+\def\acme@@default@@prefix{/@@}
 
 
 %D macros \declareparameters
@@ -274,32 +458,40 @@
 \def\declareparameters{\dodoubleempty\dodeclareparameters}
 \def\dodeclareparameters[#1][#2]{%
   \ifsecondargument\dodeclareparametersindeed[#1][#2]%
-  \else\dodeclareparametersindeed[][#1]\fi}
+  \else\dodeclareparametersindeed[\acme@@default@@prefix][#1]\fi}
 \def\dodeclareparametersindeed[#1][#2]{%
-  \pgfqkeys{/parameters}{root=\@@@@root, familly=\@@@@familly, #1}%
-  \if=\@@root=\def\@@@root{}\else\def\@@@root{\@@root/}\fi
-  \if=\@@familly=\def\@@@familly{}\else\def\@@@familly{\@@familly/}\fi
-  \pgfkeys{/handlers/.parameter/.list={#2}}}
+  \pgfkeys{#1/.cd, .parameters={#2}}\ignorespaces}
+
+\def\declaredimensions{\dodoubleempty\dodeclaredimensions}
+\def\dodeclaredimensions[#1][#2]{%
+  \ifsecondargument\dodeclaredimensionsindeed[#1][#2]%
+  \else\dodeclaredimensionsindeed[\acme@@default@@prefix][#1]\fi}
+\def\dodeclaredimensionsindeed[#1][#2]{%
+  \pgfkeys{#1/.cd, .dimensions={#2}}\ignorespaces}
 
 \def\getparameters{\dodoubleempty\dogetparameters}
 \def\dogetparameters[#1][#2]{%
   \ifsecondargument\dogetparametersindeed[#1][#2]%
-  \else\dogetparametersindeed[][#1]\fi}
+  \else\dogetparametersindeed[\acme@@default@@prefix]\fi}
 \def\dogetparametersindeed[#1][#2]{%
-  \pgfqkeys{/parameters}{root=\@@@@root, familly=\@@@@familly, #1}%
-  \if=\@@root=\def\@@@root{}\else\def\@@@root{\@@root/}\fi
-  \if=\@@familly=\def\@@@familly{}\else\def\@@@familly{\@@familly/}\fi
-  \pgfkeys{/def/\@@@root\@@@familly.cd, #2}}
+  \pgfkeys{#1/.cd, #2}\ignorespaces}
 
-\def\geteparameters{\dodoubleempty\dogeteparameters}
-\def\dogeteparameters[#1][#2]{%
-  \ifsecondargument\dogeteparametersindeed[#1][#2]%
-  \else\dogeteparametersindeed[][#1]\fi}
-\def\dogeteparametersindeed[#1][#2]{%
-  \pgfqkeys{/parameters}{root=\@@@@root, familly=\@@@@familly, #1}%
-  \if=\@@root=\def\@@@root{}\else\def\@@@root{\@@root/}\fi
-  \if=\@@familly=\def\@@@familly{}\else\def\@@@familly{\@@familly/}\fi
-  \pgfkeys{/edef/\@@@root\@@@familly.cd, #2}}
+\def\dodoubleargumentwithset#1[#2][#3]{%
+  \def\acme@@process##1{#1[##1][#3]}%
+  \processcommalist[#2]\acme@@process
+  \ignorespaces}
+
+%>>
+%<< [· Get parameters without checking ·······] >>
+
+\def\getrawparameters{\dodoubleempty\dogetrawparameters}
+\def\dogetrawparameters[#1][#2]{%
+  \def\@@prefix{#1}%TIP, AVOID .cd to set the new prefix (SHOULD BE REMOVED)
+  \pgfqkeys{/rawparameters}{#2}}
+
+\def\copyrawparameters[#1]#2[#3]#4[#5]{% to=#1, from=#3, parameters=#5
+  \def\docopyparameter{\docopyvalue{#1}{#3}}%
+  \processcommalist[#5]\docopyparameter}
 
 %>>
 
@@ -330,9 +522,17 @@
 \def\flushnextbox{\box\nextbox}
 
 %>>
+<<<<<<< HEAD
 %<< [· Put some space around boxes ···········]>>
+=======
+%<< [· Put some space around boxes ···········] >>
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 
 % constants
+\def\c@@on{on}
+\def\c@@off{off}
+\def\c@@true{true}
+\def\c@@false{false}
 \def\c@@fit{fit}
 
 % was the parameter numeric?
@@ -340,27 +540,22 @@
 \newif\if@@numericht
 \newif\if@@numericdp
 
-% usefull macros
-\def\evalasdimen#1#2{%
-  \@tempdima=\dimexpr#2\relax
-  \xdef#1{\the\@tempdima}}
-
-\def\checknumericparameter#1#2{%
-  \ifx#2\c@@fit
-    \csname#1false\endcsname
-  \else
-    \evalasdimen#2#2%
-    \csname#1true\endcsname
-  \fi}
-
 
 %D macros \boxcontent
 %D
 %D Put some content into a box.
 
+<<<<<<< HEAD
 \declareparameters
   [root=boxcontent, familly=@@]% these are private
   [align, wd, ht]
+=======
+\pgfkeys{/boxcontent/@@/.cd,
+  %% parameters below %%
+  .parameters={align},
+  %% dimensions below %%
+  .dimensions={width, height}}
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 
 \def\boxcontent{\begingroup
   \dosingleempty\doboxcontent}
@@ -371,12 +566,18 @@
 
 \long\def\doboxcontent[#1]#2#3{%
   \getparameters
+<<<<<<< HEAD
     [root=boxcontent, familly=@@]
     [wd=fit, ht=fit, align=, #1]%
+=======
+    [/boxcontent/@@]
+    [align=, width=-\maxdimen, height=-\maxdimen, #1]
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
   \setbox\nextbox=#2{#3}%
   \@temptokena{#3}%
   \doboxcontentindeed}
 
+<<<<<<< HEAD
 \long\def\doboxcontentindeed{%
   \checknumericparameter{@@numericwd}\boxcontent@@wd
   \checknumericparameter{@@numericht}\boxcontent@@ht
@@ -388,24 +589,50 @@
   \evalasdimen\boxcontent@@ht\nextboxht%
   \flushnextbox
   \endgroup\ignorespaces}
+=======
+\def\doboxcontentindeed{%
+  \global\setbox\nextbox=\vbox
+    \tovaliddimension\boxcontent@@height{%       [·height·]
+      \doifvaliddimensionelse\boxcontent@@width% [·width·]
+        {\hsize=\boxcontent@@width}%
+        {\hsize=\nextboxwd}%
+      \boxcontent@@align\the\@temptokena}%
+  \evalasdimen\boxcontent@@width\nextboxwd%
+  \evalasdimen\boxcontent@@height\nextboxht%
+  \flushnextbox\endgroup\ignorespaces}
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 
 
 %D macro \surroundbox
 %D
 %D Put some /things/ arround a (register) box.
 
+<<<<<<< HEAD
 \declareparameters
   [root=surroundbox, familly=@@]% these are private
   [wd, ht, lft, rgt, top, bot]
+=======
+\pgfkeys{/surroundbox/@@/.cd,
+  %% parameters below %%
+  .parameters={left, right, top, bottom},
+  %% dimensions below %%
+  .dimensions={width, height}}
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 
 \def\surroundbox{\dosingleempty\dosurroundbox}
 \def\dosurroundbox[#1]{%
   \getparameters
+<<<<<<< HEAD
     [root=surroundbox, familly=@@]
     [wd=fit, ht=fit, lft=, rgt=, top=, bot=, #1]%
+=======
+    [/surroundbox/@@]
+    [width=-\maxdimen, height=-\maxdimen,
+     left=, right=, top=, bottom=, #1]
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
   \futurelet\nexttoken\dodosurroundbox}
 
-\long\def\dodosurroundbox{%
+\def\dodosurroundbox{%
   \ifx\nexttoken\box
     \def\next{\afterassignment\dosurroundboxindeed\setbox\nextbox=}%
   \else
@@ -413,12 +640,11 @@
   \fi
   \next}
 
-\long\def\dosurroundboxindeed{%
-  \checknumericparameter{@@numericwd}\surroundbox@@wd
-  \checknumericparameter{@@numericht}\surroundbox@@ht
+\def\dosurroundboxindeed{%
   \global\setbox\nextbox=
-    \vbox \if@@numericht to \surroundbox@@ht\fi{% [·height·]
+    \vbox \tovaliddimension\surroundbox@@height{%  [·height·]
       \surroundbox@@top
+<<<<<<< HEAD
       \hbox \if@@numericwd to \surroundbox@@wd\fi% [·width·]
         {\surroundbox@@lft\box\nextbox\surroundbox@@rgt}%
       \surroundbox@@bot}\ignorespaces}
@@ -426,14 +652,24 @@
 %>>
 
 %<< [· Framed text ···························] >>
+=======
+      \hbox \tovaliddimension\surroundbox@@width% [·width·]
+        {\surroundbox@@left\box\nextbox\surroundbox@@right}%
+      \surroundbox@@bottom}\ignorespaces}
 
-% we need a new box to manipulate
+%>>
+
+%<< [· Framed text   (use \hbox) ·············] >>
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
+
+% new box to manipulate
 \newbox\framedbox
 
 \def\framedboxwd{\wd\framedbox}
 \def\framedboxht{\ht\framedbox}
 \def\framedboxdp{\dp\framedbox}
 
+<<<<<<< HEAD
 % first, the parameters
 
 \declareparameters
@@ -652,6 +888,242 @@
 %   \box\nextbox
 %   \global\nextdepth=\dimexpr\acmeframeddp+\acmeframedboff+\acmeframedbmar\relax%
 % \endgroup}
+=======
+% parameters
+
+\pgfkeys{/acme/framed/.cd,
+  %% parameters below %%
+  .parameters={
+    left, right, top, bottom,
+    leftframe, rightframe, topframe, bottomframe},
+  tikzoptions/.estore in=\acmeframedtikzoptions,
+  %% dimensions below %%
+  .dimensions={
+    width,  minwidth,  maxwidth,
+    height, minheight, maxheight,
+    leftmargin, rightmargin, topmargin, bottommargin,
+    leftoffset, rightoffset, topoffset, bottomoffset}}
+
+
+\pgfkeys{/acme/framed/.cd,
+  % [·some aliases·]
+  margin/.style={
+    leftmargin=#1, rightmargin=#1, topmargin=#1, bottommargin=#1},
+  offset/.style={
+    leftoffset=#1, rightoffset=#1, topoffset=#1, bottomoffset=#1},
+  % [·frame·]
+  leftframe/.is choice,
+  leftframe/on/.code=\def\acmeframedleftframe@@
+    {\path [draw] (0,0) -- ++(0,-\framedboxht);}%
+    \let\acmeframedleftframe\c@@on,
+  leftframe/off/.code=
+    \let\acmeframedleftframe@@\@empty
+    \let\acmeframedleftframe\c@@off,
+  leftframe/.unknown/.code=
+    \def\acmeframedleftframe@@{#1}
+    \let\acmeframedleftframe\c@@on,
+  %
+  rightframe/.is choice,
+  rightframe/on/.code=\def\acmeframedrightframe@@
+    {\path [draw] (\framedboxwd,0) -- ++(0,-\framedboxht);}%
+    \let\acmeframedrightframe\c@@on,
+  rightframe/off/.code=\let\acmeframedrightframe@@\@empty
+    \let\acmeframedrightframe\c@@off,
+  rightframe/.unknown/.code=
+    \def\acmeframedrightframe@@{#1}
+    \let\acmeframedrightframe\c@@on,
+  %
+  topframe/.is choice,
+  topframe/on/.code=\def\acmeframedtopframe@@
+    {\path [draw] (0,0) -- ++(\framedboxwd,0);}%
+    \let\acmeframedtopframe\c@@on,
+  topframe/off/.code=\let\acmeframedtopframe@@\@empty
+    \let\acmeframedtopframe\c@@off,
+  topframe/.unknown/.code=
+    \def\acmeframedtopframe@@{#1}
+    \let\acmeframedtopframe\c@@on,
+  %
+  bottomframe/.is choice,
+  bottomframe/on/.code=\def\acmeframedbottomframe@@
+    {\path [draw] (0,-\framedboxht) -- ++(\framedboxwd,0);}%
+    \let\acmeframedbottomframe\c@@on,
+  bottomframe/off/.code=\let\acmeframedbottomframe@@\@empty
+    \let\acmeframedbottomframe\c@@off,
+  bottomframe/.unknown/.code=
+    \def\acmeframedbottomframe@@{#1}
+    \let\acmeframedbottomframe\c@@on,
+  %
+  frame/.is choice,
+  frame/on/.code=\def\acmeframedframe@@
+    {\path [draw] (0,0) rectangle ++(\framedboxwd,-\framedboxht);},
+  frame/on/.append style=
+    {leftframe=on,  rightframe=on,  topframe=on,  bottomframe=on},
+  frame/off/.code=\let\acmeframedframe@@\@empty,
+  frame/off/.append style={
+    leftframe=off,  rightframe=off,  topframe=off,  bottomframe=off},
+  customframe/.code=\def\acmeframedcustomframe@@{#1},
+  % [·background·]
+  background/.is choice,
+  background/on/.code=\def\acmeframedbackground@@
+    {\path [fill] (0,0) rectangle ++(\framedboxwd,-\framedboxht);}%
+    \let\acmeframedbackground\c@@on,
+  background/off/.code=
+    \let\acmeframedbackground@@\@empty
+    \let\acmeframedbackground\c@@off,
+  custombackground/.code=\def\acmeframedcustombackground@@{#1},
+  % [·some additions·]
+  width/.append style={minwidth=#1, maxwidth=#1},
+  height/.append style={minheight=#1, maxheight=#1},
+  % [·alignment·]
+  align/.style={@align/.list={#1}},
+  % [·horizontal alignment·]
+  @align/.is choice,
+  @align/default/.code=\let\acmeframedalign\@empty,
+  @align/right/.code=\let\acmeframedalign\raggedright,
+  @align/left/.code=\let\acmeframedalign\raggedleft,
+  @align/center/.code=\let\acmeframedalign\centering,
+  % [·vertical alignment·]
+  @align/top/.code=
+    \let\acmeframedtop\@empty
+    \let\acmeframedbottom\vss,
+  @align/bottom/.code=
+    \let\acmeframedtop\vss
+    \let\acmeframedbottom\@empty,
+  @align/middle/.code=
+    \let\acmeframedtop\vss
+    \let\acmeframedbottom\vss}
+
+\newdimen\nextdepth
+
+\def\framed{\dosingleempty\doframed}
+\long\def\doframed[#1]#2{\begingroup
+  \getparameters
+    [/acme/framed]
+    [frame=on, customframe=false, background=off,
+     margin=0pt, offset=3pt,
+     width=-\maxdimen, height=-\maxdimen,
+     maxwidth=\hsize,  maxheight=\maxdimen,
+     left=, right=, top=, bottom=,
+     align={default, middle},
+     tikzoptions={draw}, #1]
+  \let\\\newline
+  %% —————————————————————————————————————————————————— %%
+  % [·adjust size of text: width·]
+  \doifnotvaliddimension\acmeframedwidth{%
+    \noboxcontent\hbox{#2}%
+    \evalasdimen\acmeframedwidth
+      {\boxcontent@@width+\acmeframedleftoffset+\acmeframedrightoffset}}%
+  \normalizeabove\acmeframedwidth\acmeframedminwidth
+  \normalizebelow\acmeframedwidth\acmeframedmaxwidth
+  \evalasdimen\acmeframedwidth
+    {\acmeframedwidth-\acmeframedleftoffset-\acmeframedrightoffset}%
+  \noboxcontent[width=\acmeframedwidth, align=\acmeframedalign]
+    \hbox{\hsize=\acmeframedwidth#2}
+  % [·adjust size of text: height·]
+  \doifnotvaliddimension\acmeframedheight{%
+    \evalasdimen\acmeframedheight
+      {\boxcontent@@height+\acmeframedtopoffset}}%
+  \normalizeabove\acmeframedheight\acmeframedminheight
+  \normalizebelow\acmeframedheight\acmeframedmaxheight
+  % [·tight box around text·]
+  \evalasdimen\acmeframedwidth\boxcontent@@width
+  \evalasdimen\acmeframedheight
+    {\acmeframedheight-\acmeframedtopoffset}%
+  %% —————————————————————————————————————————————————— %%
+  \surroundbox
+    [width=
+      \acmeframedwidth+\acmeframedleftoffset+\acmeframedrightoffset,
+     height=
+      \acmeframedheight+\acmeframedtopoffset+\acmeframedbottomoffset,
+     left=\kern\acmeframedleftoffset\acmeframedleft,
+     right=\acmeframedright\kern\acmeframedrightoffset,
+     top=\kern\acmeframedtopoffset\acmeframedtop,
+     bottom=\acmeframedbottom\kern\acmeframedbottomoffset]\box\nextbox
+  \setbox\framedbox=\box\nextbox
+  %% —————————————————————————————————————————————————— %%
+  \setbox\nextbox=\hbox{%
+    \expandonearg\tikzpicture[\acmeframedtikzoptions]
+      \path [use as bounding box] (0,0)
+        rectangle ++(\framedboxwd,-\framedboxht);
+      % [·four sides ==> one rectangle·]
+      \ifx\acmeframedcustomframe@@\c@@false
+          \acmeframedbackground@@
+        \else
+          \acmeframedcustombackground@@
+      \fi
+      \ifx\acmeframedleftframe\c@@on
+      \ifx\acmeframedrightframe\c@@on
+      \ifx\acmeframedtopframe\c@@on
+      \ifx\acmeframedbottomframe\c@@on
+        \let\acmeframedleftframe@@\@empty
+        \let\acmeframedrightframe@@\@empty
+        \let\acmeframedtopframe@@\@empty
+        \let\acmeframedbottomframe@@\@empty
+        \ifx\acmeframedcustomframe@@\c@@false
+          \acmeframedframe@@
+        \else
+          \acmeframedcustomframe@@\fi
+      \fi\fi\fi\fi%
+      \acmeframedleftframe@@ \acmeframedrightframe@@
+      \acmeframedtopframe@@  \acmeframedbottomframe@@
+      \node [anchor=north west, inner sep=0pt, outer sep=0pt]
+        at (0,0) {\box\framedbox};
+  \endtikzpicture}%
+  \surroundbox[%
+    left=\kern\acmeframedleftmargin, right=\kern\acmeframedrightmargin,
+    top=\kern\acmeframedtopmargin, bottom=\kern\acmeframedbottommargin]%
+    \box\nextbox
+  \box\nextbox
+  \global\nextdepth=\dimexpr\framedboxdp
+                            +\acmeframedbottomoffset
+                            +\acmeframedbottommargin\relax
+  \endgroup}
+
+%>>
+%<< [· Framed text   (use \vbox) ·············] >>
+
+\newenvironment{framedtext}[1][]
+{\begingroup
+ \def\acmeframedtextoptions{width=\hsize, #1}%
+ \getparameters
+   [/acme/framed]
+   [frame=on, customframe=false, background=off,
+    margin=0pt, offset=3pt,
+    width=\hsize, height=-\maxdimen, maxheight=\maxdimen,
+    left=, right=, top=, bottom=,
+    align={default, middle},
+   tikzoptions={draw}, #1]
+ \setbox\nextbox\vbox\bgroup
+   \hsize=\dimexpr\acmeframedwidth-\acmeframedleftoffset
+                                  -\acmeframedrightoffset\relax
+   \acmeframedalign\ignorespaces}
+{\egroup
+ \leavevmode
+ \expandonearg\framed[\acmeframedtextoptions]{\box\nextbox}%
+ \endgroup}
+
+
+%>>
+%<< [· Inframed text (use \hbox) ·············] >>
+
+\def\strutdp{\dp\strutbox}
+\def\strutht{\ht\strutbox}
+\def\strutwd{\wd\strutbox}
+
+\def\insidestrut{%
+  \vrule height\dimexpr\strutht-\acmeframedtopoffset\relax
+         depth\dimexpr\strutdp-\acmeframedbottomoffset\relax
+         width0pt}
+
+\def\inframe{\dosingleempty\doinframe}
+\def\doinframe[#1]#2{%
+  \setbox\nextbox=\vbox{%
+    \framed[offset=2pt, bottomoffset=\strutdp,
+            leftmargin=-1pt, rightmargin=-1pt,
+            tikzoptions={draw}, #1]
+    {\insidestrut#2}}%
+  \raisebox{-\nextdepth}{\box\nextbox}}
+>>>>>>> f8fc420f8e2a19d3d22a8544952e1cc6425d3a02
 
 %>>
 
