@@ -1,0 +1,1643 @@
+% Time-stamp: <2011-01-12 08:53:45 cmauclai>
+%
+% Copyright 2010 by Cedric Mauclair
+%
+% This file may be distributed and/or modified
+%
+% 1. under the CCPL Attribution-ShareAlike License
+% (http://creativecommons.org/licenses/by-sa/3.0/legalcode) and/or
+% 2. under the GNU Public License 3 (http://www.gnu.org/licenses/gpl.html).
+%
+% Created by Cedric Mauclair for the 'acme' themes.
+%
+% Version: 3.0
+% Date:    2010-12-20
+
+\ProvidesPackageRCS $Header: acme-beamer.sty,v 3.0 2010/12/20 18:00:00 acme Exp$
+
+\typeout{}
+\typeout{###################################}
+\typeout{#}
+\typeout{# Beamer theme ''acme-beamer'' (c) Cedric Mauclair, 2010}
+\typeout{# + snippets from ''progressbar'' beamer theme (c) Sylvain Bouveret, 2009}
+\typeout{# + snippets from ''leman'' beamer theme (c) David Chemouil, 2009}
+\typeout{#}
+\typeout{# Version: 1.0   [2009-12-15] First release}
+\typeout{# Version: 1.0.1 [2010-01-04] Minor revision}
+\typeout{# Version: 1.1   [2010-01-05] Added an optional argument to maketitle command}
+\typeout{# ~~~~~~~~~~~~~~~~~~~~~~~~~ Modified enumerate environment to pifont dings}
+\typeout{# Version: 1.2   [2010-02-23] Added a custom to bigbox to do whatever you want}
+\typeout{# ~~~~~~~~~~~~~~~~~~~~~~~~~ Added the support for frame subtitles}
+\typeout{# Version: 2.0   [2010-11-22] Huge rewrite. Using pgfkeys instead of xkeyval}
+\typeout{# Version: 2.1   [2010-11-26] Rewrote framedtext environment}
+\typeout{# Version: 3.0   [2010-12-20] Huge rewrite of framed, framedtext and blocks}
+\typeout{# Version: 3.01  [2011-01-07] Removed the iwona package requirement}
+\typeout{#}
+\typeout{###################################}
+\typeout{}
+
+%<< —— Required packages · ———————————————————————————————————————— >>
+
+\RequirePackage{pgfkeys}
+
+% We may take this dependency off to go with pgf only
+\RequirePackage{tikz}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\RequirePackage{pgfkeys}
+\pgfkeys{%
+  /handlers/.store as dimen/.code=%
+    \pgfkeys{\pgfkeyscurrentpath/.code={#1=\dimexpr##1\relax}}}
+
+\RequirePackage{syst-aux}
+\unprotect
+
+%>> Required packages (end) ——————————————————————————————————————— >>
+%<< —— Utils ············· ———————————————————————————————————————— >>
+
+\def\definesetup#1{%
+  \expandafter\def\csname setup#1\endcsname[##1]{\pgfkeys{/#1/.cd, ##1}\ignorespaces}}
+
+\def\usebeamer#1{%
+  \usebeamerfont{#1}\usebeamercolor[fg]{#1}}
+
+\pgfkeys{/handlers/.store as dimen/.code=%
+  \pgfkeys{\pgfkeyscurrentpath/.code={#1=\dimexpr##1\relax}}}
+
+%<< — boxit & surroundit · — >>
+
+\edef\!fit{fit}
+\edef\default{default}
+
+\newif\ifboxithaswd
+\newif\ifboxithasht
+\newif\ifboxithasdp
+
+\def\boxit{\begingroup
+  \dosingleempty\doboxit}
+
+\def\noboxit{\begingroup
+  \def\flushnextbox{\global\setbox\nextbox=\box\nextbox}%
+  \dosingleempty\doboxit}
+
+\long\def\doboxit[#1]{%
+  \setupboxit [align=\raggedright, wd=fit, ht=fit, dp=fit, #1]%
+  \dowithnextbox\doboxitindeed}
+
+\def\doboxitindeed{%
+  % [·width·]
+  \ifx\boxitwd\!fit   \boxithaswdfalse \else
+    \boxithaswdtrue \let\tempdim\boxitwd
+    \edef\boxitwd{\dimexpr\tempdim\relax}%
+  \fi
+  % [·height·]
+  \ifx\boxitht\!fit   \boxithashtfalse \else
+    \boxithashttrue \let\tempdim\boxitht
+    \edef\boxitht{\dimexpr\tempdim\relax}%
+  \fi
+  % [·depth·]
+  \ifx\boxitdp\!fit   \boxithasdpfalse \else
+    \boxithasdptrue \let\tempdim\boxitdp
+    \edef\boxitdp{\dimexpr\tempdim\relax}%
+  \fi
+  %
+  \setbox\nextbox=\vbox \ifboxithasht to \boxitht\fi{%        [·height·]
+    \ifboxithaswd \hsize=\boxitwd \else \hsize=\nextboxwd\fi% [·width·]
+    \boxitalign\ifhbox\nextbox\unhbox\else\unvbox\fi\nextbox}%
+  \ifboxithasdp\nextboxdp=\boxitdp\fi%                        [·depth·]
+  \xdef\boxitwd{\the\nextboxwd}%
+  \xdef\boxitht{\the\nextboxht}%
+  \xdef\boxitdp{\the\nextboxdp}%
+  \flushnextbox
+  \endgroup\ignorespaces}
+
+\def\setupboxit{\getparameters[boxit]}
+
+\def\surroundit{\dosingleempty\dosurroundit}
+\def\dosurroundit[#1]{%
+  \getparameters[surroundit]
+    [wd=fit, ht=fit, lft=, rgt=, top=, bot=, #1]%
+  \dosurrounditindeed}
+
+\def\dosurrounditindeed#1#2{%
+  \ifx\surrounditht\!fit \else
+    \tempdim=\dimexpr\surrounditht\relax\fi
+  \setbox\nextbox=\vbox
+    \ifx\surrounditht\!fit \else to\tempdim\fi{
+    \surroundittop
+    \ifx\surrounditwd\!fit \else
+      \tempdim=\dimexpr\surrounditwd\relax\fi
+    \hbox \ifx\surrounditwd\!fit\else to \tempdim\fi
+      {\surrounditlft#1#2\surrounditrgt}
+    \surrounditbot}\ignorespaces}
+
+%>>
+%<< — framed ············· — >>
+
+\newbox\framedbox
+\newdimen\tempdim
+\newif\ifframedbackground
+
+\def\setlen#1#2{%
+  \tempdim=\dimexpr#2\relax
+  \edef#1{\the\tempdim}\ignorespaces}
+
+\def\framedboxwd{\wd\framedbox}
+\def\framedboxht{\ht\framedbox}
+\def\framedboxdp{\dp\framedbox}
+
+\pgfkeys{/framed/.is family}
+
+\pgfkeys{/framed,
+  % [·width·]
+  wd/.store in=\framedwd,        width/.style={wd=#1},
+  minwd/.store in=\framedminwd,  minimum width/.style={minwd=#1},
+  maxwd/.store in=\framedmaxwd,  maximum width/.style={maxwd=#1},
+  % [·height·]
+  ht/.store in=\framedht,        height/.style={ht=#1},
+  minht/.store in=\framedminht,  minimum height/.style={minht=#1},
+  maxht/.store in=\framedmaxht,  maximum height/.style={maxht=#1},
+  % [·depth·]
+  dp/.store in=\frameddp,        depth/.style={dp=#1},
+  mindp/.store in=\framedmindp,  minimum depth/.style={mindp=#1},
+  maxdp/.store in=\framedmaxdp,  maximum depth/.style={maxdp=#1},
+  % [·margin·]
+  lmargin/.store in=\framedlmar, left margin/.style={lmargin=#1},
+  rmargin/.store in=\framedrmar, right margin/.style={rmargin=#1},
+  tmargin/.store in=\framedtmar, top margin/.style={tmargin=#1},
+  bmargin/.store in=\framedbmar, bottom margin/.style={bmargin=#1},
+  margin/.style={lmargin=#1, rmargin=#1, tmargin=#1, bmargin=#1},
+  % [·offset·]
+  loffset/.store in=\framedloff, left offset/.style={loffset=#1},
+  roffset/.store in=\framedroff, right offset/.style={roffset=#1},
+  toffset/.store in=\framedtoff, top offset/.style={toffset=#1},
+  boffset/.store in=\framedboff, bottom offset/.style={boffset=#1},
+  offset/.style={loffset=#1, roffset=#1, toffset=#1, boffset=#1},
+  % [·internal horizontal alignment·]
+  halign/.is choice,
+  halign/right/.code=\let\framedhalign\raggedright,
+  halign/flushleft/.style={halign=right},
+  halign/left/.code=\let\framedhalign\raggedleft,
+  halign/flushright/.style={halign=left},
+  halign/center/.code=\let\framedhalign\centering,
+  halign/middle/.style={halign=center},
+  % [·internal vertical alignment·]
+  valign/.is choice,
+  valign/top/.code=\let\framedtalign\@empty\let\framedbalign\vss,
+  valign/bottom/.code=\let\framedtalign\vss\let\framedbalign\@empty,
+  valign/center/.code=\let\framedtalign\vss\let\framedbalign\vss,
+  valign/middle/.style={valign=center},
+  % [·frame·]
+  lframe/.is choice,          left frame/.style={lframe=#1},
+  lframe/off/.code=\let\framedlframe\@empty,
+  lframe/on/.code=\def\framedlframe{
+    \path [draw] (0,0) -- ++(0,-\framedboxht-\framedboxdp);},
+  rframe/.is choice,          right frame/.style={rframe=#1},
+  rframe/off/.code=\let\framedrframe\@empty,
+  rframe/on/.code=\def\framedrframe{
+    \path [draw] (\framedboxwd,0) -- ++(0,-\framedboxht-\framedboxdp);},
+  tframe/.is choice,          top frame/.style={tframe=#1},
+  tframe/off/.code=\let\framedtframe\@empty,
+  tframe/on/.code=\def\framedtframe{
+    \path [draw] (0,0) -- ++(\framedboxwd,0);},
+  bframe/.is choice,          bottom frame/.style={bframe=#1},
+  bframe/off/.code=\let\framedbframe\@empty,
+  bframe/on/.code=\def\framedbframe{
+    \path [draw] (0,-\framedboxht-\framedboxdp) -- ++(\framedboxwd,0);},
+  % [·custom frame & background·]
+  frame/.style={lframe=#1, rframe=#1, tframe=#1, bframe=#1},
+  framepath/.store in=\framedfullframe,
+  background/.is choice,
+  background/on/.code=\framedbackgroundtrue,
+  background/off/.code=\framedbackgroundfalse,
+  background/color/.code=\let\framedbackground\framedbackgrounddefault,
+  background/color/.append style={background=on},
+  backgroundpath/.store in=\framedbackground,
+  %% —————————————————————————————————————————————————— %%
+  options/.estore in=\framedoptions,
+}
+
+\definesetup{framed}
+
+\def\framedfullframedefault{%
+  \path [draw] (0,0) rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);}
+
+\def\framedbackgrounddefault{%
+  \path [fill] (0,0) rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);}
+
+\let\framedfullframe\framedfullframedefault
+\let\framedbackground\framedbackgrounddefault
+
+\def\framed{\dosingleempty\doframed}
+\long\def\doframed[#1]#2{\begingroup
+  \pgfkeysfiltered{/framed,
+    wd=fit, minwd=-\maxdimen, maxwd=\hsize,
+    ht=fit, minht=-\maxdimen, maxht=\maxdimen,
+    dp=fit, mindp=-\maxdimen, maxdp=\maxdimen,
+    halign=right, valign=center,
+    offset=3pt, margin=0pt,
+    frame=on, background=off, backgroundpath=\framedbackgrounddefault,
+    options={draw=fg, fill=bg, rounded corners=3pt, very thick, line cap=rect}}%
+  \pgfkeysfiltered{/framed, #1}%
+  %% —————————————————————————————————————————————————— %%
+  % [·adjust size of text: width, height & depth·]
+  \ifx\framedwd\!fit
+    \noboxit[wd=fit]\hbox{#2}%
+    \setlen\framedwd{\boxitwd+\framedloff+\framedroff}
+  \else
+    \setlen\framedwd\framedwd
+  \fi
+  \setlen\framedminwd\framedminwd
+  \setlen\framedmaxwd\framedmaxwd
+  \ifdim\framedwd<\framedminwd
+    \setlen\framedwd\framedminwd\fi
+  \ifdim\framedwd>\framedmaxwd
+    \setlen\framedwd\framedmaxwd\fi
+  \setlen\framedwd{\framedwd-\framedloff-\framedroff}
+  \noboxit[wd=\framedwd, align=\framedhalign]\hbox{\hsize=\framedwd#2}%
+  %
+  \setlen\framedminht\framedminht
+  \setlen\framedmaxht\framedmaxht
+  \ifx\framedht\!fit
+    \setlen\framedht{\boxitht+\framedtoff}\fi
+  \ifdim\framedht<\framedminht
+    \setlen\framedht\framedminht\fi
+  \ifdim\framedht>\framedmaxht
+    \setlen\framedht\framedmaxht\fi
+  %
+  \setlen\framedmindp\framedmindp
+  \setlen\framedmaxdp\framedmaxdp
+  \ifx\frameddp\!fit
+    \setlen\frameddp{\boxitdp+\framedboff}\fi
+  \ifdim\frameddp<\framedmindp
+    \setlen\frameddp\framedmindp\fi
+  \ifdim\frameddp>\framedmaxdp
+    \setlen\frameddp\framedmaxdp\fi
+  % [·tight box around text·]
+  \setlen\framedwd\boxitwd
+  \setlen\framedht{\framedht-\framedtoff}
+  \setlen\frameddp{\frameddp-\framedboff}
+  %% —————————————————————————————————————————————————— %%
+  \surroundit
+    [wd=\framedwd+\framedloff+\framedroff,
+     ht=\framedht+\framedtoff+\frameddp+\framedboff,
+     lft=\kern\framedloff, rgt=\kern\framedroff,
+     top=\kern\framedtoff\framedtalign, bot=\framedbalign\kern\framedboff]
+    \box\nextbox
+  \setbox\framedbox=\box\nextbox
+  %% —————————————————————————————————————————————————— %%
+  \setbox\nextbox=\hbox{%
+    \expandafter\tikzpicture\expandafter[\framedoptions]%
+      \path [use as bounding box] (0,0)
+        rectangle ++(\framedboxwd,-\framedboxht-\framedboxdp);
+      % [·four sides ==> one rectangle·]
+      \ifframedbackground
+        \framedbackground\fi
+      \ifx\framedlframe\@empty\else
+      \ifx\framedrframe\@empty\else
+      \ifx\framedtframe\@empty\else
+      \ifx\framedbframe\@empty\else
+        \let\framedlframe\@empty
+        \let\framedrframe\@empty
+        \let\framedtframe\@empty
+        \let\framedbframe\@empty
+        \framedfullframe
+      \fi\fi\fi\fi%
+      \framedlframe \framedrframe
+      \framedtframe \framedbframe
+      \node [anchor=north west, inner sep=0pt, outer sep=0pt]
+        at (0,0) {\box\framedbox};
+  \endtikzpicture}%
+  \surroundit[lft=\kern\framedlmar, rgt=\kern\framedrmar,
+              top=\kern\framedtmar, bot=\kern\framedbmar]
+    \box\nextbox
+  \box\nextbox
+  \global\nextdepth=\dimexpr\frameddp+\framedboff+\framedbmar\relax%
+\endgroup}
+
+%>>
+%<< — framedtext ········· — >>
+
+% [·alternative #1·]
+\newenvironment{framedtext}[1][]
+{\begingroup
+ \def\framedtextoptions{width=\hsize, #1}%
+ \pgfkeysfiltered{/framed,
+   wd=\hsize, ht=fit,
+   halign=right, valign=center,
+   offset=3pt, margin=0pt,
+   frame=on, background=off, backgroundpath=\framedbackgrounddefault,
+   options={draw=fg, fill=bg, rounded corners=3pt, very thick, line cap=rect}}%
+ \pgfkeysfiltered{/framed, width=\hsize, #1}%
+ \noboxit[]\vbox\bgroup
+   \hsize=\dimexpr\framedwd-\framedloff-\framedroff\relax
+   \framedhalign\ignorespaces}
+{\egroup
+ \leavevmode
+ \@EA\framed\@EA[\framedtextoptions]{\box\nextbox}%
+ \endgroup}
+
+% [·alternative #2·]
+% \def\framedtext{\dosingleempty\doframedtext}
+% \long\def\doframedtext[#1]#2\end{%
+%   \setbox\nextbox=\vbox{#2}%
+%   \par\framed[#1]{\box\nextbox}\end}
+
+% [·a different solution·]
+\def\startframedtext{\dosingleempty\dostartframedtext}
+\long\def\dostartframedtext[#1]#2\stopframedtext{%
+  \par\framed[#1]{\ignorespaces#2}\par}
+
+%>>
+%<< — inframe ············ — >>
+
+\def\insidestrut{%
+  \vrule height\dimexpr\strutht-\framedtoff\relax
+         depth\dimexpr\strutdp-\framedboff\relax width0pt}
+
+\def\inframe{\dosingleempty\doinframe}
+\def\doinframe[#1]#2{%
+  \setbox\nextbox=\vbox{%
+    \framed[offset=2pt, boffset=1pt, options={draw}, #1]{\insidestrut#2}}%
+  \raisebox{-\nextdepth}{\box\nextbox}}
+
+%>>
+
+\renewenvironment{center}{\endgraf\centering}{\endgraf}
+
+\def\cap#1{\begingroup\small \uppercase{#1}\endgroup}
+\def\slide#1 of #2{{\small(#1/#2)}}
+
+\let\oldsetbeamersize\setbeamersize
+
+\newdimen\leftmargin
+\newdimen\rightmargin
+\def\setbeamersize#1{\oldsetbeamersize{#1}%
+  \leftmargin=\beamer@leftmargin
+  \rightmargin=\beamer@rightmargin
+  \setlength\leftmargini{\leftmargin}
+  \setlength\leftmarginii{\labelsep}
+  \setlength\leftmarginiii{\labelsep}
+  \setlength  \labelwidth{\leftmargini}
+  \addtolength\labelwidth{-\labelsep}}
+
+%>> Utils (end) ——————————————————————————————————————————————————— >>
+%<< —— TikZ ·············· ———————————————————————————————————————— >>
+
+\def\unitsquare{\dosingleempty\dounitsquare}
+\def\dounitsquare[#1]{%
+  \begin{tikzpicture}
+    [baseline, x=1pt, y=1pt]
+    \path [#1] (0,0) -- ++(1,0) -- ++(0,1) -- ++(-1,0) -- cycle;
+  \end{tikzpicture}\ignorespaces}
+
+\def\fullsquare{\dosingleempty\dofullsquare}
+\def\dofullsquare[#1]{%
+  \begin{tikzpicture}
+    [baseline, x=1pt, y=1pt]
+    \path [#1] (-0.5,-0.5) -- ++(1,0) -- ++(0,1) -- ++(-1,0) -- cycle;
+  \end{tikzpicture}\ignorespaces}
+
+\def\unitcircle{\dosingleempty\dounitcircle}
+\def\dounitcircle[#1]{%
+  \begin{tikzpicture}
+    [baseline, x=1pt, y=1pt]
+    \path [#1] (0.5,0.5) circle (0.5);
+  \end{tikzpicture}\ignorespaces}
+
+\def\fullcircle{\dosingleempty\dofullcircle}
+\def\dofullcircle[#1]{%
+  \begin{tikzpicture}
+    [baseline, x=1pt, y=1pt]
+    \path [#1] (0,0) circle (0.5);
+  \end{tikzpicture}\ignorespaces}
+
+\def\unittriangle{\dosingleempty\dounittriangle}
+\def\dounittriangle[#1]{%
+  \begin{tikzpicture}
+    [baseline, x=1pt, y=1pt]
+    \path [#1] (0,0) -- ++(1,0.5) -- ++(-1,0.5) -- cycle;
+  \end{tikzpicture}\ignorespaces}
+
+\def\fulltriangle{\dosingleempty\dofulltriangle}
+\def\dofulltriangle[#1]{%
+  \begin{tikzpicture}
+    [baseline, x=1pt, y=1pt]
+    \path [#1] (0,-0.5) -- ++(1,0.5) -- ++(-1,0.5) -- cycle;
+  \end{tikzpicture}\ignorespaces}
+
+%>> TikZ (end) ———————————————————————————————————————————————————— >>
+
+%<< —— Title page ········ ———————————————————————————————————————— >>
+
+\def\maketitle{%
+  \begin{frame}[c,plain]\titlepage\end{frame}
+  \usebeamer{normal text}}
+
+\newdimen\titlepagelineoffset
+
+\pgfkeys{/titlepage/.is family}
+
+\pgfkeys{/titlepage,
+  logo/.is choice,
+  logo/empty/.code=\def\titlegraphic{},
+  logo/institute/.code=\def\titlegraphic{%
+    \vbox{\usebeamer{institute}\insertinstitute}},
+  logo/image/.code=\def\titlegraphic{\pgfuseimage{logo}},
+  logo/custom/.code=\def\titlegraphic{\acme@logo@custom},
+  lineoffset/.store as dimen=\titlepagelineoffset}
+
+\definesetup{titlepage}
+
+\setuptitlepage[logo=empty, lineoffset=.15\paperheight]
+
+\def\logocustom{\def\acme@logo@custom} \logocustom{}
+
+%>> Title page (end) —————————————————————————————————————————————— >>
+%<< —— Table of contents · ———————————————————————————————————————— >>
+
+\newlength\frametocheight
+\newlength\frametochmargin
+\newlength\frametocvmargin
+
+\pgfkeys{/frametoc/.is family}
+
+\pgfkeys{/frametoc,
+  hmargin/.store as dimen=\frametochmargin,
+  vmargin/.store as dimen=\frametocvmargin,
+  margin/.style={hmargin=#1, vmargin=#1},
+  height/.value required,
+  height/.store as dimen=\frametocheight,
+  .unknown/.code=} %ignore errors
+
+\definesetup{frametoc}
+
+\def\frametoc{%
+  \doifnextbgroupelse
+  {\doframetoc}
+  {\doframetoc{}}}
+\def\doframetoc#1{%
+  \doifnextoptionalelse
+  {\dodoframetoc{#1}}
+  {\dodoframetoc{#1}[]}}
+\def\dodoframetoc#1[#2]{%
+  \begin{frame}{#1}
+    \parskip=0pt\vfill
+    \usebeamercolor{frametoc}%
+    \begin{framedtext}
+      [width=\hsize, minimum height=50pt, offset=10pt, %loffset=100pt, %halign=left,
+       background=color,
+       options={draw=fg, fill=bg, very thick, rounded corners=3pt}]
+         \vskip\partopsep\vskip-\topsep
+         \tableofcontents[#2]
+    \end{framedtext}%
+  \end{frame}}
+
+%>> Table of contents (end) ——————————————————————————————————————— >>
+
+%<< —— Headline ·········· ———————————————————————————————————————— >>
+
+%<< — setups ············· — >>
+
+\pgfkeys{/headline/.is family}
+
+\pgfkeys{/headline,
+  left/.is choice,
+  left/empty/.code=\let\acme@headline@left\@empty,
+  left/page number/.code=\let\acme@headline@left\acme@pagenumber,
+  left/custom/.code=\let\acme@headline@left\acme@headline@left@custom,
+  left/predefined/.code=\acme@headline@predefined{left}{#1},
+  left/.unknown/.code={%
+    \let\acme@headline@left@predefined@key\pgfkeyscurrentname%
+    \pgfkeysalso{\pgfkeyscurrentpath/predefined=\acme@headline@left@predefined@key}},
+  %%
+  left/section/.is choice, left/section/.default=text,
+  left/section/text/.style={/headline/left/predefined=section},
+  left/subsection/.is choice, left/subsection/.default=text,
+  left/subsection/text/.style={/headline/left/predefined=subsection},
+  left/subsection/bullets/.code=\let\acme@headline@left\acme@headline@subsection@bullets,
+  left/subsection/squares/.code=\let\acme@headline@left\acme@headline@subsection@squares,
+  %% —————————————————————————————————————————————————— %%
+  center/.is choice,
+  center/empty/.code=\let\acme@headline@center\@empty,
+  center/page number/.code=\let\acme@headline@center\acme@pagenumber,
+  center/custom/.code=\let\acme@headline@center\acme@headline@center@custom,
+  center/predefined/.code=\acme@headline@predefined{center}{#1},
+  center/.unknown/.code={%
+    \let\acme@headline@center@predefined@key\pgfkeyscurrentname%
+    \pgfkeysalso{\pgfkeyscurrentpath/predefined=\acme@headline@center@predefined@key}},
+  %%
+  center/section/.is choice, center/section/.default=text,
+  center/section/text/.style={/headline/center/predefined=section},
+  center/subsection/.is choice, center/subsection/.default=text,
+  center/subsection/text/.style={/headline/center/predefined=subsection},
+  center/subsection/bullets/.code=\let\acme@headline@center\acme@headline@subsection@bullets,
+  center/subsection/squares/.code=\let\acme@headline@center\acme@headline@subsection@squares,
+  %% —————————————————————————————————————————————————— %%
+  right/.is choice,
+  right/empty/.code=\let\acme@headline@right\@empty,
+  right/page number/.code=\let\acme@headline@right\acme@pagenumber,
+  right/custom/.code=\let\acme@headline@right\acme@headline@right@custom,
+  right/predefined/.code=\acme@headline@predefined{right}{#1},
+  right/.unknown/.code={%
+    \let\acme@headline@right@predefined@key\pgfkeyscurrentname%
+    \pgfkeysalso{\pgfkeyscurrentpath/predefined=\acme@headline@right@predefined@key}},
+  %%
+  right/section/.is choice, right/section/.default=text,
+  right/section/text/.style={/headline/right/predefined=section},
+  right/subsection/.is choice, right/subsection/.default=text,
+  right/subsection/text/.style={/headline/right/predefined=subsection},
+  right/subsection/bullets/.code=\let\acme@headline@right\acme@headline@subsection@bullets,
+  right/subsection/squares/.code=\let\acme@headline@right\acme@headline@subsection@squares}
+
+\definesetup{headline}
+
+\let\acme@headline@left\@empty
+\let\acme@headline@center\@empty
+\let\acme@headline@right\@empty
+
+\def\headlineleft{\def\acme@headline@left@custom}     \headlineleft{}
+\def\headlinecenter{\def\acme@headline@center@custom} \headlinecenter{}
+\def\headlineright{\def\acme@headline@right@custom}   \headlineright{}
+
+%>>
+%<< — sections ··········· — >>
+\let\acme@headline@section\@empty
+%>>
+%<< — subsections ········ — >>
+\def\acme@headline@subsection@bullets{\@acme@headline@navigation}
+\def\acme@headline@subsection@squares{%
+  \setbeamertemplate{mini frame}{%
+    \begin{pgfpicture}{0pt}{0pt}{0.1cm}{0.1cm}
+      \pgfpathrectangle{\pgfpoint{0.0cm}{0.0cm}}{\pgfpoint{0.1cm}{0.1cm}}
+      \pgfusepath{fill,stroke}
+    \end{pgfpicture}}%
+  \setbeamertemplate{mini frame in current subsection}{%
+    \begin{pgfpicture}{0pt}{0pt}{0.1cm}{0.1cm}
+      \pgfpathrectangle{\pgfpoint{0.0cm}{0.0cm}}{\pgfpoint{0.1cm}{0.1cm}}
+      \pgfusepath{stroke}
+    \end{pgfpicture}}\@acme@headline@navigation}
+
+\let\acme@headline@subsection\@empty
+%>>
+%<< — predefined ········· — >>
+\def\acme@headline@predefined#1#2{%
+  \expandafter\def\csname acme@headline@#1\endcsname{\usebeamertemplate{#2 in head/foot}}}
+%>>
+%<< -- UGLY HACK, BEWARE! IT DOESN'T WORK QUITE RIGHT FOR NOW >>
+
+\def\@acme@headline@navigation{%
+  \def\sectionentry##1##2##3##4##5{}% section number, section title, page
+  \def\slideentry##1##2##3##4##5##6{%
+    % section number, subsection number, slide number, first/last frame, page number, part number
+    \ifnum##6=\c@part\ifnum##2>0\ifnum##3>0%
+    \ifnum\c@section=##1\beamer@xpos=##2\relax%
+    \else\beamer@xpos=0\relax\fi%
+    \beamer@ypos=0\relax%
+    \hbox to 0pt{%
+      \beamer@tempdim=-\beamer@vboxoffset%
+      \advance\beamer@tempdim by-\beamer@boxsize%
+      \multiply\beamer@tempdim by\beamer@ypos%
+      % \advance\beamer@tempdim by -.05cm%ACME FIX
+      \raise\beamer@tempdim\hbox{%
+        \beamer@tempdim=\beamer@boxsize%
+        \multiply\beamer@tempdim by\beamer@xpos%
+        \advance\beamer@tempdim by -\beamer@boxsize%
+        \advance\beamer@tempdim by 1pt%
+        \kern\beamer@tempdim\hbox{\beamer@link(##4){%
+            \usebeamerfont{mini frame}%
+            \ifnum\c@section=##1%
+              \ifnum\c@subsection=##2%
+                \usebeamercolor[fg]{mini frame}%
+                \usebeamertemplate{mini frame}%
+              \else%
+                \usebeamercolor{mini frame}%
+                \usebeamertemplate{mini frame in other subsection}%
+              \fi%
+            \fi%
+          }}}%\hskip-10cm plus 1fil%
+    }\fi\fi%
+    \else%
+    \fakeslideentry{##1}{##2}{##3}{##4}{##5}{##6}%
+    \fi\ignorespaces}
+  \def\fakeslideentry##1##2##3##4##5##6{%
+    \ifnum##2>0\ifnum##3>0%
+    \ifbeamer@compress%
+    \advance\beamer@xpos by1\relax%
+    \else%
+    \beamer@xpos=##3\relax%
+    \beamer@ypos=##2\relax%
+    \fi%
+    \hbox to 0pt{\beamer@tempdim=-\beamer@vboxoffset%
+      \advance\beamer@tempdim by -\beamer@boxsize%
+      \multiply\beamer@tempdim by\beamer@ypos%
+      \advance\beamer@tempdim by -.05cm%
+      \raise\beamer@tempdim\hbox{}}\fi\fi\ignorespaces}
+  \hbox{%
+    \setbox\beamer@sectionbox=\hbox{}%
+    \hskip-1.875ex plus-1fill\dohead%
+    \box\beamer@sectionbox\hfil\hskip.3cm}%
+}
+
+%>>
+
+\defbeamertemplate{headline}{acme}[2][]{
+  \setupframed[width=\hsize, lmargin=\Gm@lmargin, rmargin=\Gm@rmargin,
+               tmargin=2pt,  bmargin=0pt, #1]%
+  \setupheadline[#2]%
+  \let\next\@empty
+  \ifnum\insertframenumber=1 \else
+    \tempdim=\paperwidth
+    \advance\tempdim by -\framedlmar%
+    \advance\tempdim by -\framedrmar%
+    \def\next{%
+      \vskip\framedtmar%
+      \vbox\bgroup\strut
+      \hskip\framedlmar%
+      \hbox to \tempdim\bgroup%
+        \usebeamerfont{headline}\usebeamercolor[fg]{headline}%
+        \hbox to \tempdim{\acme@headline@left\hss}\hskip-\tempdim
+        \hbox to \tempdim{\hss\acme@headline@center\hss}\hskip-\tempdim
+        \hbox to \tempdim{\hss\acme@headline@right}
+      \egroup\egroup
+      \vskip\framedbmar}
+    \ifx\acme@headline@left\@empty
+    \ifx\acme@headline@center\@empty
+    \ifx\acme@headline@right\@empty
+      \let\next\@empty\fi\fi\fi% nothing to show, then reclaim space
+  \fi\next}
+
+%>> Headline (end) ———————————————————————————————————————————————— >>
+%<< —— Footline ·········· ———————————————————————————————————————— >>
+
+%<< — setups ············· — >>
+
+\pgfkeys{/footline/.is family}
+
+\pgfkeys{/footline,
+  left/.is choice,
+  left/empty/.code=\let\acme@footline@left\@empty,
+  left/page number/.code=\let\acme@footline@left\acme@pagenumber,
+  left/custom/.code=\let\acme@footline@left\acme@footline@left@custom,
+  left/predefined/.code=\acme@footline@predefined{left}{#1},
+  left/.unknown/.code={%
+    \let\acme@footline@left@predefined@key\pgfkeyscurrentname%
+    \pgfkeysalso{\pgfkeyscurrentpath/predefined=\acme@footline@left@predefined@key}},
+  %%
+  left/section/.is choice, left/section/.default=text,
+  left/section/text/.style={/footline/left/predefined=section},
+  left/subsection/.is choice, left/subsection/.default=text,
+  left/subsection/text/.style={/footline/left/predefined=subsection},
+  left/subsection/bullets/.code=\let\acme@footline@left\acme@footline@subsection@bullets,
+  left/subsection/squares/.code=\let\acme@footline@left\acme@footline@subsection@squares,
+  %% —————————————————————————————————————————————————— %%
+  center/.is choice,
+  center/empty/.code=\let\acme@footline@center\@empty,
+  center/page number/.code=\let\acme@footline@center\acme@pagenumber,
+  center/custom/.code=\let\acme@footline@center\acme@footline@center@custom,
+  center/predefined/.code=\acme@footline@predefined{center}{#1},
+  center/.unknown/.code={%
+    \let\acme@footline@center@predefined@key\pgfkeyscurrentname%
+    \pgfkeysalso{\pgfkeyscurrentpath/predefined=\acme@footline@center@predefined@key}},
+  %%
+  center/section/.is choice, center/section/.default=text,
+  center/section/text/.style={/footline/center/predefined=section},
+  center/subsection/.is choice, center/subsection/.default=text,
+  center/subsection/text/.style={/footline/center/predefined=subsection},
+  center/subsection/bullets/.code=\let\acme@footline@center\acme@footline@subsection@bullets,
+  center/subsection/squares/.code=\let\acme@footline@center\acme@footline@subsection@squares,
+  %% —————————————————————————————————————————————————— %%
+  right/.is choice,
+  right/empty/.code=\let\acme@footline@right\@empty,
+  right/page number/.code=\let\acme@footline@right\acme@pagenumber,
+  right/custom/.code=\let\acme@footline@right\acme@footline@right@custom,
+  right/predefined/.code=\acme@footline@predefined{right}{#1},
+  right/.unknown/.code={%
+    \let\acme@footline@right@predefined@key\pgfkeyscurrentname%
+    \pgfkeysalso{\pgfkeyscurrentpath/predefined=\acme@footline@right@predefined@key}},
+  %%
+  right/section/.is choice, right/section/.default=text,
+  right/section/text/.style={/footline/right/predefined=section},
+  right/subsection/.is choice, right/subsection/.default=text,
+  right/subsection/text/.style={/footline/right/predefined=subsection},
+  right/subsection/bullets/.code=\let\acme@footline@right\acme@footline@subsection@bullets,
+  right/subsection/squares/.code=\let\acme@footline@right\acme@footline@subsection@squares}
+
+\definesetup{footline}
+
+\let\acme@footline@left\@empty
+\let\acme@footline@center\@empty
+\let\acme@footline@right\@empty
+
+\def\footlineleft{\def\acme@footline@left@custom}     \footlineleft{}
+\def\footlinecenter{\def\acme@footline@center@custom} \footlinecenter{}
+\def\footlineright{\def\acme@footline@right@custom}   \footlineright{}
+
+%>>
+%<< — predefined ········· — >>
+
+\def\acme@footline@predefined#1#2{%
+  \expandafter\def\csname acme@footline@#1\endcsname{\usebeamertemplate{#2 in head/foot}}}
+
+%>>
+
+\defbeamertemplate{footline}{acme}[2][]{%
+  \setupframed[width=\hsize, lmargin=\Gm@lmargin, rmargin=\Gm@rmargin,
+               tmargin=0pt,  bmargin=1pt, #1]%
+  \setupfootline[#2]%
+  \let\next\@empty
+  \ifnum\insertframenumber=1 \else
+    \tempdim=\paperwidth
+    \advance\tempdim by -\framedlmar%
+    \advance\tempdim by -\framedrmar%
+    \def\next{%
+      \vskip\framedtmar%
+      \vbox\bgroup\strut
+      \hskip\framedlmar%
+      \hbox to \tempdim\bgroup
+        \usebeamerfont{footline}\usebeamercolor[fg]{footline}%
+        \hbox to \tempdim{\acme@footline@left\hss}\hskip-\tempdim
+        \hbox to \tempdim{\hss\acme@footline@center\hss}\hskip-\tempdim
+        \hbox to \tempdim{\hss\acme@footline@right}
+      \egroup\egroup
+      \vskip\framedbmar}
+    \ifx\acme@footline@left\@empty
+    \ifx\acme@footline@center\@empty
+    \ifx\acme@footline@right\@empty
+      \let\next\@empty\fi\fi\fi% nothing to show, then reclaim space
+  \fi\next}
+
+%>> Footline (end) ———————————————————————————————————————————————— >>
+%<< —— Frametitle ········ ———————————————————————————————————————— >>
+
+\definesetup{frametitle}
+
+\defbeamertemplate{frametitle}{acme}[2][]{%
+  \framed[#1]{#2}}
+
+%>> Frametitle (end) —————————————————————————————————————————————— >>
+%<< —— Page number ······· ———————————————————————————————————————— >>
+
+%<< — setups ················· — >>
+
+\pgfkeys{/pagenumber/.is family}
+
+\pgfkeys{/pagenumber,
+  .is choice, .value required,
+  none/.code=\let\acme@pagenumber\@empty,
+  boxed/.code=\let\acme@pagenumber\acme@pagenumber@boxed,
+  plain/.code=\let\acme@pagenumber\acme@pagenumber@plain,
+  custom/.code=\let\acme@pagenumber\acme@pagenumber@custom}
+
+\definesetup{pagenumber}
+
+\let\acme@pagenumber\@empty
+
+\def\pagenumbercustom{\def\acme@pagenumber@custom} \pagenumbercustom{}
+
+%>>
+%<< — styles: boxed or plain · — >>
+
+\def\acme@pagenumber@boxed{\bgroup%
+  \usebeamerfont{page number in head/foot}%
+  \setbox0=\hbox{\strut00/00}\tempdim=\wd0\templenb=\ht0
+  \multiply\tempdim by 15\divide\tempdim by 10%
+  \multiply\templenb by 2%
+  \usebeamercolor{page number in head/foot}%
+  \hbox\bgroup\begin{tikzpicture}%
+    \node [rectangle, draw=fg, fill=bg, rounded corners=1pt, minimum width=\tempdim,
+           inner sep=0pt, outer sep=0pt, minimum height=\templenb,
+           text=fg, text depth=1pt]%
+    {\setbox0=\hbox{\strut00}\tempdim=\wd0%
+      \usebeamerfont{page number in head/foot}\usebeamercolor[fg]{page number in head/foot}%
+      \strut\hyperlinkpresentationstart{\hbox to\tempdim{\hfill\insertframenumber}}/%
+      \hyperlinkpresentationend{\hbox to\tempdim{\inserttotalframenumber\hfill}}};
+  \end{tikzpicture}\egroup\egroup}
+
+\def\acme@pagenumber@plain{\bgroup%
+  \usebeamerfont{page number in head/foot}\usebeamercolor[fg]{page number in head/foot}%
+  \strut\hyperlinkpresentationstart{\insertframenumber}/%
+  \hyperlinkpresentationend{\inserttotalframenumber}\egroup}
+
+%>>
+
+%>> Page number (end) ————————————————————————————————————————————— >>
+
+%<< —— Emphasis ·········· ———————————————————————————————————————— >>
+
+% BEWARE: VERY UGLY HACK BELOW
+\def\emstyle{\def\@emstyle}
+\emstyle{\usebeamerfont{emphasis}\usebeamercolor[fg]{emphasis}}
+% \emstyle{\usebeamerfont{emphasis}\color{fg}}
+\DeclareRobustCommand\em
+{\@nomath\em \ifdim \fontdimen\@ne\font >\z@
+  \color{normal text.fg}\mdseries \else\@emstyle \fi}
+\let\beamer@orignewcomnoopt=\beamer@newcomnoopt
+\let\beamer@orignewcomopt=\beamer@newcomopt
+\long\def\beamer@newcomnoopt#1#2#3{%
+  \ifnum#2=0\relax%
+  \expandafter\def\expandafter#1\expandafter{\expandafter\beamer@sortzero\expandafter{\csname beamerx@\string#1\endcsname}}%
+  \else
+  \expandafter\def\expandafter#1\expandafter{\expandafter\beamer@sort\expandafter{\csname beamerx@\string#1\endcsname}{#2}}%
+  \fi%
+  \beamer@argscount=#2\relax%
+  \advance\beamer@argscount by 1\relax%
+  \expandafter\renewcommand\csname beamerx@\string#1\endcsname[\beamer@argscount]{#3}%
+}
+\long\def\beamer@newcomopt#1#2[#3]#4{%
+  \expandafter\def\expandafter#1\expandafter{\expandafter\beamer@presort\expandafter{\csname beamerx@\string#1\endcsname}{#2}{#3}}%
+  \beamer@argscount=#2\relax%
+  \advance\beamer@argscount by 1\relax%
+  \expandafter\renewcommand\csname beamerx@\string#1\endcsname[\beamer@argscount]{#4}%
+}
+\renewcommand<>{\emph}[1]{{\only#2{\em}#1}}
+
+\let\beamer@newcomnoopt=\beamer@orignewcomnoopt
+\let\beamer@newcomopt=\beamer@orignewcomopt
+\setbeamerfont{emphasis}{series=\bf,shape=\rm}
+
+%>> Emphasis (end) ———————————————————————————————————————————————— >>
+%<< —— Blocks ············ ———————————————————————————————————————— >>
+
+%<< — macros{defineblock} ············· — >>
+
+\pgfkeys{/blocks/.is family}
+
+\pgfkeys{/blocks,
+  alignbox/.is choice,
+  alignbox/right/.code=\let\blockslft\@empty\let\blocksrgt\hfill,
+  alignbox/flushleft/.style={alignbox=right},
+  alignbox/left/.code=\let\blockslft\hfill\let\blocksrgt\@empty,
+  alignbox/flushright/.style={alignbox=left},
+  alignbox/center/.code=\let\blockslft\hfill\let\blocksrgt\hfill,
+  alignbox/middle/.style={alignbox=center}}
+
+\def\blocksparameters{%
+  width,
+  align,
+  color,
+  % frame
+  frame,
+  framepath,
+  background,
+  backgroundpath,
+  frameoptions,
+  % title
+  titleframe,
+  titleframepath,
+  titlebackground,
+  titlebackgroundpath,
+  titleoptions,
+  titlecolor,
+  titlestyle,
+  titlehalign,
+  % body
+  bodyframe,
+  bodyframepath,
+  bodybackground,
+  bodybackgroundpath,
+  bodyoptions,
+  bodycolor,
+  bodystyle,
+  bodyheight,
+  bodyvalign,
+  bodyhalign}
+
+\def\defineblocks{\dodoubleempty\dodefineblocks}
+\def\dodefineblocks[#1][#2]{%
+  \iffirstargument
+    \dodoubleargumentwithset\dodefineblock[#1][#2]
+  \else
+    \showargumenterror{at least 1}{\number\inputlineno}%
+  \fi}
+
+\def\defineblock{\dodoubleargument\dodefineblock}
+\def\dodefineblock[#1][#2]{%
+  \iffirstargument
+    \def\current{#1}%
+    \ifsecondargument
+      \ifx\relax#2\relax% second argument supplied but empty
+        \expanded{\copyparameters[\current block][blocks][\blocksparameters]}%
+      \else
+        \doifassignmentelse{#2}
+          {\expanded{\copyparameters[\current block][blocks][\blocksparameters]}%
+           \getparameters[\current block][#2]}
+          {\expanded{\copyparameters[\current block][#2block][\blocksparameters]}}
+      \fi
+    \else
+      \expanded{\copyparameters[\current block][blocks][\blocksparameters]}%
+    \fi
+  \else
+    \showargumenterror{at least 1}{\number\inputlineno}%
+  \fi
+  \expanded{\dodefineblockindeed
+    {#1}
+    {block \ifx\current\@empty\else\current\space\fi begin}
+    {block \ifx\current\@empty\else\current\space\fi end}
+    {block title\ifx\current\@empty\else\space\current\fi}
+    {block body\ifx\current\@empty\else\space\current\fi}}}
+
+%>>
+%<< — macros{setupblock, setupblocks} · — >>
+
+\def\setupblocks{\dodoubleargument\dosetupblocks}
+\def\dosetupblocks[#1][#2]{%
+  \ifsecondargument
+    \dodoubleargumentwithset\dosetupblock[#1][#2]%
+  \else
+    \getparameters[blocks][#1]%
+  \fi}
+
+\def\setupblock{\dodoubleargument\dosetupblock}
+\def\dosetupblock[#1][#2]{\getparameters[#1block][#2]}
+
+
+%>>
+%<< — macros{dodefineblockindeed} ····· — >>
+
+%D One can define its own \dodefineblockindeed to whatever (s)he wishes.
+%D It will be given 5 parameters:
+%D   1. name of the block (\defineblock[name], use \begin{nameblock});
+%D   2. name of the template put at the beginning (block begin);
+%D   3. name of the template put at the end (block end);
+%D   3. name of the template for the title (block title);
+%D   3. name of the template for the body (block body).
+
+\newbox\blocksbodybox
+\newbox\blockstitlebox
+
+\def\useordefinefgbgcolor#1{%
+  \ifbeamercolorempty[fg]{#1}%
+  {\definecolor{fg}{named}{#1}\definecolor{bg}{named}{bg}}%
+  {\usebeamercolor{#1}}}
+
+\def\dodefineblockindeed#1#2#3#4#5{%
+  \def\current{#1}\ifx\current\default\relax\let\current\@empty\fi%
+  \@EA\edef\csname \current block\endcsname{%
+    \noexpand\doifnextbgroupelse
+      {\csname do\current block\endcsname}
+      {\csname do\current block\endcsname{}}}%
+  \@EA\long\@EA\edef\csname do\current block\endcsname##1{%
+    \noexpand\doifnextoptionalelse
+      {\csname dodo\current block\endcsname{\noexpand##1}}
+      {\csname dodo\current block\endcsname{\noexpand##1}[]}}%
+  \@EA\long\@EA\def\csname dodo\current block\endcsname##1[##2]{%
+    \begingroup%
+    \setupblock[#1][##2]%
+    % [·adjust size of text: width, height & depth·]
+    \setlen\blockswd{\getvalue{#1blockwidth}}
+    % [·fix for itemize/enumerate (/!\ \hbox to grab content in boxit)·]
+    \addtobeamertemplate{itemize/enumerate body begin}
+      {\expanded{\pgfkeys{/framed, \getvalue{#1blockbodyoptions}}}%
+        \par\vbox\bgroup
+        \linewidth=\dimexpr\hsize-\framedloff-\framedroff\relax}
+      {}
+    \addtobeamertemplate{itemize/enumerate body end}
+      {}
+      {\par\kern-.5\baselineskip\egroup}% VERY ugly hack
+    \setbeamercolor{item}{use=#1blockitems, fg=#1blockitems.fg}%
+    \def\insertblocktitle{##1}%
+    % [·making sure there is a frame path, even if not drawn·]
+    \let\path\@empty% prevent hyperref package from screaming
+    \expanded{\ifx\relax\getvalue{#1blockframepath}\relax}
+      \setvalue{#1blockframepath}{\framedfullframedefault}\fi
+    \expanded{\ifx\relax\getvalue{#1blocktitleframepath}\relax}
+      \setvalue{#1blocktitleframepath}{\framedfullframedefault}\fi
+    \expanded{\ifx\relax\getvalue{#1blockbodyframepath}\relax}
+      \setvalue{#1blockbodyframepath}{\framedfullframedefault}\fi
+    % [·making sure there is a background path, even if not drawn·]
+    \expanded{\ifx\relax\getvalue{#1blockbackgroundpath}\relax}
+      \setvalue{#1blockbackgroundpath}{\framedbackgrounddefault}\fi
+    \ifx\relax\getvalue{#1blocktitlebackgroundpath}\relax
+      \setvalue{#1blocktitlebackgroundpath}{\framedbackgrounddefault}\fi
+    \expanded{\ifx\relax\getvalue{#1blocktitlebackgroundpath}\relax}
+      \setvalue{#1blocktitlebackgroundpath}{\framedbackgrounddefault}\fi
+    \expanded{\ifx\relax\getvalue{#1blockbodybackgroundpath}\relax}
+      \setvalue{#1blockbodybackgroundpath}{\framedbackgrounddefault}\fi
+    % [·let's go for the definition of a block·]
+    \usefgorcolor{\getvalue{#1blockcolor}}%
+    \expanded{\pgfkeys{/framed, \getvalue{#1blockframeoptions}}}%
+    % [·the body first·]
+    \setbox\nextbox=\vbox\bgroup
+      \expanded{\begin{framedtext}
+          [width=\blockswd-\framedloff-\framedroff,
+           height=\getvalue{#1blockbodyheight},
+           halign=\getvalue{#1blockbodyhalign},
+           valign=\getvalue{#1blockbodyvalign},
+           \getvalue{#1blockbodyoptions},
+           frame=\getvalue{#1blockbodyframe},
+           background=\getvalue{#1blockbodybackground}},
+           framepath=\getvalue{#1blockbodyframepath},
+           backgroundpath=\getvalue{#1blockbodybackgroundpath}]
+          \vskip-\parskip
+          \usefgorcolor{\getvalue{#1blockbodycolor}}%
+          \getvalue{#1blockbodystyle}\ignorespaces}%
+  \@EA\def\csname end\current block\endcsname{%
+    \end{framedtext}\egroup%
+    % [·alignment·]
+    \pgfkeys{/blocks, alignbox=\getvalue{#1blockalign}}%
+    \setbox\blocksbodybox=\box\nextbox
+    % [·then the title·]
+    \expanded{\pgfkeys{/framed, \getvalue{#1blockframeoptions}}}%
+    \setbox\blockstitlebox=\vbox\bgroup
+      \hsize=\blockswd
+      \ifx\insertblocktitle\@empty\else
+        \expanded{\begin{framedtext}
+          [width=\hsize-\framedloff-\framedroff,
+           halign=\getvalue{#1blocktitlehalign},
+           \getvalue{#1blocktitleoptions},
+           frame=\getvalue{#1blocktitleframe},
+           background=\getvalue{#1blocktitlebackground}},
+           framepath=\getvalue{#1blocktitleframepath},
+           backgroundpath=\getvalue{#1blocktitlebackgroundpath}]
+          \parskip=0pt
+          \usefgorcolor{\getvalue{#1blocktitlecolor}}%
+          \getvalue{#1blocktitlestyle}%
+          \insidestrut\insertblocktitle
+         \end{framedtext}\fi
+    \egroup
+    % [·and the whole box·]
+    \vrule width0pt\blockslft
+    \expanded{\begin{framedtext}
+        [width=\blockswd, \getvalue{#1blockframeoptions},
+         frame=\getvalue{#1blockframe},
+         background=\getvalue{#1blockbackground}},
+         framepath=\getvalue{#1blockframepath},
+         backgroundpath=\getvalue{#1blockbackgroundpath}]
+        \vskip-\parskip\box\blockstitlebox
+        \ifx\insertblocktitle\@empty\else\vskip-\parskip\fi
+        \box\blocksbodybox
+     \end{framedtext}%
+   \blocksrgt\vrule width0pt
+   \endgroup}}
+
+%>>
+
+% Default setup for all blocks
+
+\setupblocks [%
+  width=\hsize,
+  align=center,
+  % [·outer frame·]
+  frame=on,
+  background=color,
+  frameoptions={offset=0pt,
+    options={draw=fg, fill=fg!5, very thick, rounded corners=3pt}},
+  % [·title·]
+  titleframe=off,
+  titlebackground=on,
+  titlebackgroundpath={\path [fill=fg]
+    {[sharp corners] (0,0) -- ++(0,-\framedboxht-\framedboxdp) -- ++(\framedboxwd,0)}
+    {[rounded corners=3pt] -- ++(0,\framedboxht+\framedboxdp)  -- cycle};},
+  titleoptions={offset=4pt, boffset=2pt},
+  titlecolor=white,
+  titlestyle=\usebeamerfont{block title},
+  titlehalign=flushleft,
+  % [·body·]
+  bodyframe=off,
+  bodybackground=off,
+  bodyoptions={offset=4pt},
+  bodycolor=normal text,
+  bodystyle=\usebeamerfont{block body},
+  bodyheight=fit,
+  bodyvalign=middle,
+  bodyhalign=flushleft]%
+
+% Default beamer blocks
+
+\let\block\relax
+\let\alertblock\relax
+\let\exampleblock\relax
+
+\defineblock [default] [color=structure]
+\defineblock [alert]   [color=alerted text]
+\defineblock [example] [color=example text]
+
+\setbeamercolor{defaultblockitems}{parent=structure}%, fg=structure.fg!70}
+\setbeamercolor{alertblockitems}{parent=alerted text}%, fg=alerted text.fg!70}
+\setbeamercolor{exampleblockitems}{parent=example text}%, fg=example text.fg!70}
+
+\let\defaultblock\block
+\let\defaultendblock\endblock
+
+% Another handy one
+\defineblock [emphasis] [color=emphasis]
+\setbeamercolor{emphasisblockitems}{parent=emphasis}
+
+%>> Blocks (end) —————————————————————————————————————————————————— >>
+%<< —— Items ············· ———————————————————————————————————————— >>
+
+\def\usesquareitems{%
+  \setbeamertemplate{itemize item}
+    {\unitsquare[draw, scale=5, yshift=.2]}
+  \setbeamertemplate{itemize subitem}
+    {\unitsquare[draw, scale=4, yshift=.25]}
+  \setbeamertemplate{itemize subsubitem}
+    {\unitsquare[draw, scale=3, yshift=.3333]}}
+
+\def\usecircleitems{%
+  \setbeamertemplate{itemize item}
+    {\unitcircle[draw, scale=5, yshift=.2]}
+  \setbeamertemplate{itemize subitem}
+    {\unitcircle[draw, scale=4, yshift=.25]}
+  \setbeamertemplate{itemize subsubitem}
+    {\unitcircle[draw, scale=3, yshift=.3333]}}
+
+\def\usetriangleitems{%
+  \setbeamertemplate{itemize item}
+    {\unittriangle[draw, scale=5, yshift=.2]}
+  \setbeamertemplate{itemize subitem}
+    {\unittriangle[draw, scale=4, yshift=.25]}
+  \setbeamertemplate{itemize subsubitem}
+    {\unittriangle[draw, scale=3, yshift=.3333]}}
+
+\def\usefillsquareitems{%
+  \setbeamertemplate{itemize item}
+    {\unitsquare[fill, scale=5, yshift=.2]}
+  \setbeamertemplate{itemize subitem}
+    {\unitsquare[fill, scale=4, yshift=.25]}
+  \setbeamertemplate{itemize subsubitem}
+    {\unitsquare[fill, scale=3, yshift=.3333]}}
+
+\def\usefillcircleitems{%
+  \setbeamertemplate{itemize item}
+    {\unitcircle[fill, scale=5, yshift=.2]}
+  \setbeamertemplate{itemize subitem}
+    {\unitcircle[fill, scale=4, yshift=.25]}
+  \setbeamertemplate{itemize subsubitem}
+    {\unitcircle[fill, scale=3, yshift=.3333]}}
+
+\def\usefilltriangleitems{%
+  \setbeamertemplate{itemize item}
+    {\unittriangle[fill, scale=5, yshift=.2]}
+  \setbeamertemplate{itemize subitem}
+    {\unittriangle[fill, scale=4, yshift=.25]}
+  \setbeamertemplate{itemize subsubitem}
+    {\unittriangle[fill, scale=3, yshift=.3333]}}
+
+%>> Items (end) ——————————————————————————————————————————————————— >>
+%<< —— Enumerate ········· ———————————————————————————————————————— >>
+
+\setbeamertemplate{enumerate item}{\insertenumlabel.}
+
+% Patch to reset the counter on each enumerate
+\def\beamer@enum@{%
+  \csname c@\@enumctr\endcsname0% QUICKFIX strange bug, don't reset the counter
+  \beamer@computepref\@itemdepth% sets \beameritemnestingprefix
+  \usebeamerfont{itemize/enumerate \beameritemnestingprefix body}%
+  \usebeamercolor[fg]{itemize/enumerate \beameritemnestingprefix body}%
+  \usebeamertemplate{itemize/enumerate \beameritemnestingprefix body begin}%
+  \expandafter
+    \list
+      {\usebeamertemplate{\beamer@enumtempl}}
+      {\usecounter\@enumctr%
+        \def\makelabel##1{{\hss\llap{{%
+                \usebeamerfont*{enumerate \beameritemnestingprefix item}%
+                \usebeamercolor[fg]{enumerate \beameritemnestingprefix item}##1}}}}}%
+  \beamer@cramped%
+  \raggedright%
+  \beamer@firstlineitemizeunskip%
+}
+
+%>> Enumerate (end) ——————————————————————————————————————————————— >>
+
+\setbeamersize{text margin left=1em, text margin right=1em}
+
+%<< —— Basic templates ··· ———————————————————————————————————————— >>
+
+%<< — helpers ············ — >>
+
+\def\acme@template@complex#1{\@ifnextchar[{\doacme@template@complex{#1}}{\doacme@template@complex{#1}[#1]}}
+\def\doacme@template@complex#1[#2]#3#4#5#6{
+  \defbeamertemplate*{#1}{acme}{%
+    #5{\usebeamerfont{#1}\usebeamercolor[fg]{#1}#3\csname insert#2\endcsname#4}#6}}
+
+\def\acme@template@simple#1{\@ifnextchar[{\doacme@template@simple{#1}}{\doacme@template@simple{#1}[#1]}}
+\def\doacme@template@simple#1[#2]{\acme@template@complex{#1}[#2]{}{}{}{}}
+
+%>>
+
+% titlepage templates
+\acme@template@simple{institute}
+\acme@template@simple{title}
+\acme@template@simple{subtitle}
+\acme@template@simple{author}
+\acme@template@simple{date}
+
+% head/footline templates
+\acme@template@simple{section in head/foot}[section]
+\acme@template@simple{subsection in head/foot}[subsection]
+\acme@template@simple{title in head/foot}[shorttitle]
+\acme@template@simple{author in head/foot}[shortauthor]
+\acme@template@simple{date in head/foot}[shortdate]
+
+\setbeamertemplate{navigation symbols}{}
+\defbeamertemplate*{navigation symbols in head/foot}{acme}{%
+  {\usebeamerfont{navigation symbols in head/foot}
+    \usebeamercolor[fg]{navigation symbols in head/foot}
+    \insertslidenavigationsymbol \insertframenavigationsymbol
+    \insertsubsectionnavigationsymbol \insertsectionnavigationsymbol
+    \insertdocnavigationsymbol \insertbackfindforwardnavigationsymbol}}
+
+% table of contents templates
+\acme@template@complex{section in toc}[tocsection]%
+  {}{}
+  {\vskip12pt plus6pt minus6pt\leavevmode\usebeamertemplate{itemize item}\hskip\labelsep}{}
+\acme@template@complex{subsection in toc}[tocsubsection]%
+  {}{}
+  {\vskip3pt plus3pt minus3pt\leavevmode\hskip\leftmarginii\usebeamertemplate{itemize subitem}\hskip\labelsep}{\endgraf}
+
+%>> Basic templates (end) ————————————————————————————————————————— >>
+
+% New commands: \emptyfull, \emptyhalf, and the generic \emptyline
+
+\newcommand\emptyline[1][\baselineskip]{\vskip#1}
+\def\emptyfull{\emptyline[\baselineskip]}
+\def\emptyhalf{\emptyline[.5\baselineskip]}
+
+% Below we propose a default theme
+
+%<< [··· colors      ···] >>
+
+%<< — helpers ············ — >>
+
+\def\usefgorcolor#1{%
+  \ifbeamercolorempty[fg]{#1}%
+  {\definecolor{fg}{named}{#1}\color{#1}}%
+  {\usebeamercolor[fg]{#1}}}
+
+\def\useordefinefgbgcolor#1{%
+  \ifbeamercolorempty[fg]{#1}%
+  {\definecolor{fg}{named}{#1}\definecolor{bg}{named}{bg}}%
+  {\usebeamercolor{#1}}}
+
+%>>
+
+% color definitions
+\definecolor{nearlyblack}{RGB}{17,11,4}
+\definecolor{nearlywhite}{RGB}{253,252,254}
+\definecolor{darkorange}{RGB}{188,90,18}
+\definecolor{solidblue}{RGB}{9,51,106}
+\definecolor{softgray}{RGB}{105,105,105}
+\definecolor{darkyellow}{rgb}{.95,.95,.85}
+
+% general definitions
+\def\plain@colors{
+  \setbeamercolor{normal text}
+    {fg=gray!30!black,bg=gray!3}
+  \setbeamercolor{structure}
+    {fg=solidblue!80!gray,bg=solidblue!80!gray!5}
+
+  \setbeamercolor{alerted text}
+    {fg=red!60!black, bg=red!60!black!5}
+  \setbeamercolor{example text}
+    {fg=green!40!black, bg=green!40!black!5}
+  \setbeamercolor{emphasis}
+    {fg=darkorange, bg=darkorange!5}
+
+  \setbeamercolor{background canvas}{parent=normal text}
+  \setbeamercolor{background}{parent=background canvas}
+
+  \setbeamercolor{palette primary}{use=structure,fg=structure.fg}
+  \setbeamercolor{palette secondary}{use=structure,fg=structure.fg!75!black}
+  \setbeamercolor{palette tertiary}{use=structure,fg=structure.fg!50!black}
+  \setbeamercolor{palette quaternary}{fg=gray!65!black}
+
+  \setbeamercolor{palette sidebar primary}{use=normal text,fg=normal text.fg}
+  \setbeamercolor{palette sidebar secondary}{use=structure,fg=structure.fg}
+  \setbeamercolor{palette sidebar tertiary}{use=normal text,fg=normal text.fg}
+  \setbeamercolor{palette sidebar quaternary}{use=structure,fg=structure.fg}
+
+  \setbeamercolor{math text}{}
+  \setbeamercolor{math text inlined}{parent=math text}
+  \setbeamercolor{math text displayed}{parent=math text}
+
+  \setbeamercolor{normal text in math text}{}
+
+  \setbeamercolor{local structure}{parent=palette quaternary}
+
+  \setbeamercolor{titlelike}{parent=structure}
+
+  \setbeamercolor{headline}{fg=black}
+  \setbeamercolor{footline}{parent=headline}
+
+  \setbeamercolor{title}{parent=titlelike}
+  \setbeamercolor{title in head/foot}{parent=headline}
+  \setbeamercolor{title in sidebar}{parent=palette sidebar quaternary}
+
+  \setbeamercolor{subtitle}{parent=title}
+
+  \setbeamercolor{author}{fg=gray!45!black}
+  \setbeamercolor{author in head/foot}{parent=headline}
+  \setbeamercolor{author in sidebar}{use=palette sidebar tertiary,fg=palette sidebar tertiary.fg}
+
+  \setbeamercolor{institute}{fg=gray!25!black}
+  \setbeamercolor{institute in head/foot}{parent=headline}
+  \setbeamercolor{institute in sidebar}{use=palette sidebar tertiary,fg=palette sidebar tertiary.fg}
+
+  \setbeamercolor{date}{parent=author}
+  \setbeamercolor{date in head/foot}{parent=headline}
+  \setbeamercolor{date in sidebar}{use=palette sidebar tertiary,fg=palette sidebar tertiary.fg}
+
+  \setbeamercolor{titlegraphic}{}
+
+  \setbeamercolor{part name}{}
+  \setbeamercolor{part title}{parent=titlelike}
+
+  \setbeamercolor{section name}{}
+  \setbeamercolor{section title}{parent=titlelike}
+
+  \setbeamercolor{section in toc}{parent=structure}
+  \setbeamercolor{section in toc shaded}{parent=section in toc}
+  \setbeamercolor{section in head/foot}{parent=headline}
+  \setbeamercolor{section in sidebar}{parent=palette sidebar secondary}
+  \setbeamercolor{section in sidebar shaded}{use=section in sidebar,fg=section in sidebar.fg!40!bg}
+  \setbeamercolor{section number projected}{parent=item projected}
+
+  \setbeamercolor{subsection name}{}
+  \setbeamercolor{subsection title}{parent=titlelike}
+
+  \setbeamercolor{subsection in toc}{parent=local structure}
+  \setbeamercolor{subsection in toc shaded}{parent=subsection in toc}
+  \setbeamercolor{subsection in head/foot}{parent=headline}
+  \setbeamercolor{subsection in sidebar}{parent=palette sidebar primary}
+  \setbeamercolor{subsection in sidebar shaded}{use=subsection in sidebar,fg=subsection in sidebar.fg!40!bg}
+  \setbeamercolor{subsection number projected}{parent={subitem projected}}
+
+  \setbeamercolor{subsubsection in toc}{parent=subsection in toc}
+  \setbeamercolor{subsubsection in toc shaded}{parent=subsubsection in toc}
+  \setbeamercolor{subsubsection in head/foot}{parent=headline}
+  \setbeamercolor{subsubsection in sidebar}{parent=subsection in sidebar}
+  \setbeamercolor{subsubsection in sidebar shaded}{parent=subsection in sidebar shaded}
+  \setbeamercolor{subsubsection number projected}{parent=subsubitem projected}
+
+  \setbeamercolor{sidebar}{}
+  \setbeamercolor{sidebar left}{parent=sidebar}
+  \setbeamercolor{sidebar right}{parent=sidebar}
+
+  \setbeamercolor{logo}{parent=palette secondary}
+
+  \setbeamercolor{frametitle}{parent=titlelike}
+  \setbeamercolor{framesubtitle}{parent=frametitle}
+
+  \setbeamercolor{frametitle right}{parent=frametitle}
+
+  \setbeamercolor{caption}{}
+  \setbeamercolor{caption name}{parent=structure}
+
+  \setbeamercolor{button}{use=local structure,bg=local structure.fg!50!bg,fg=white}
+  \setbeamercolor{button border}{use=button,fg=button.bg}
+  \setbeamercolor{navigation symbols}{use=local structure,fg=local structure.fg!40!bg}
+  \setbeamercolor{navigation symbols dimmed}{use=local structure,fg=local structure.fg!20!bg}
+  \setbeamercolor{mini frame}{parent=section in head/foot}
+
+  \setbeamercolor{block body}{parent=normal text}
+  \setbeamercolor{block body alerted}{parent=normal text}
+  \setbeamercolor{block body example}{parent=normal text}
+  \setbeamercolor{block title}{parent=structure}
+  \setbeamercolor{block title alerted}{parent=alerted text}
+  \setbeamercolor{block title example}{parent=example text}
+
+  \setbeamercolor{item}{parent=structure}
+  \setbeamercolor{subitem}{parent=item}
+  \setbeamercolor{subsubitem}{parent=subitem}
+
+  \setbeamercolor{item projected}{parent=item,use=item,fg=white,bg=item.fg}
+  \setbeamercolor{subitem projected}{parent=item projected}
+  \setbeamercolor{subsubitem projected}{parent=subitem projected}
+
+  \setbeamercolor{enumerate item}{parent=item}
+  \setbeamercolor{enumerate subitem}{parent=subitem}
+  \setbeamercolor{enumerate subsubitem}{parent=subsubitem}
+
+  \setbeamercolor{itemize item}{parent=item}
+  \setbeamercolor{itemize subitem}{parent=subitem}
+  \setbeamercolor{itemize subsubitem}{parent=subsubitem}
+
+  \setbeamercolor{itemize/enumerate body}{}
+  \setbeamercolor{itemize/enumerate subbody}{}
+  \setbeamercolor{itemize/enumerate subsubbody}{}
+
+  \setbeamercolor{description item}{parent=item}
+
+  \setbeamercolor{bibliography item}{parent=item}
+
+  \setbeamercolor{bibliography entry author}{use=structure,fg=structure.fg}
+  \setbeamercolor{bibliography entry title}{use=normal text,fg=normal text.fg}
+  \setbeamercolor{bibliography entry location}{use=structure,fg=structure.fg!65!bg}
+  \setbeamercolor{bibliography entry note}{use=structure,fg=structure.fg!65!bg}
+
+  \setbeamercolor{separation line}{}
+
+  \setbeamercolor{upper separation line head}{parent=separation line}
+  \setbeamercolor{middle separation line head}{parent=separation line}
+  \setbeamercolor{lower separation line head}{parent=separation line}
+
+  \setbeamercolor{upper separation line foot}{parent=separation line}
+  \setbeamercolor{middle separation line foot}{parent=separation line}
+  \setbeamercolor{lower separation line foot}{parent=separation line}
+
+  \setbeamercolor{abstract}{}
+  \setbeamercolor{abstract title}{parent=structure}
+
+  \setbeamercolor{verse}{}
+
+  \setbeamercolor{quotation}{}
+  \setbeamercolor{quote}{parent=quotation}
+
+  \setbeamercolor{page number in head/foot}{parent=headline, fg=black}
+
+  \setbeamercolor{qed symbol}{parent=structure}
+
+  % personnal additions
+  \setbeamercolor{big box}{parent=structure}
+  \setbeamercolor{title box}{parent=big box}
+  \setbeamercolor{frametoc}{parent=structure}
+}
+
+%>>
+%<< [··· fonts       ···] >>
+
+\def\plain@fonts{
+  \setbeamerfont{normal text}{size=\normalsize}
+  \parskip=.5\baselineskip plus1fill minus.5\baselineskip
+  \setbeamerfont{emphasis}{series=\bfseries}
+
+  \setbeamerfont{alerted text}{series=\bfseries}
+  \setbeamerfont{example text}{}
+
+  \setbeamerfont{structure}{series=\bfseries}
+  \setbeamerfont{tiny structure}{size=\tiny}
+
+  \setbeamerfont{headline}{parent={tiny structure}, size=\Tiny,shape=\scshape}
+  \setbeamerfont{footline}{parent={headline}}
+
+  \setbeamerfont{title}{size=\large,shape=\scshape,series=\bfseries}
+  \setbeamerfont{title in head/foot}{}
+  \setbeamerfont{title in sidebar}{size=\tiny}
+
+  \setbeamerfont{subtitle}{parent=title,size=\footnotesize}
+
+  \setbeamerfont{author}{size=\tiny}
+  \setbeamerfont{author in head/foot}{}
+  \setbeamerfont{author in sidebar}{size=\tiny}
+
+  \setbeamerfont{institute}{size=\tiny}
+  \setbeamerfont{institute in head/foot}{}
+  \setbeamerfont{institute in sidebar}{}
+
+  \setbeamerfont{date}{size=\tiny}
+  \setbeamerfont{date in head/foot}{}
+  \setbeamerfont{date in sidebar}{}
+
+  \setbeamerfont{part name}{size=\LARGE}
+  \setbeamerfont{part title}{size=\LARGE,parent=title}
+
+  \setbeamerfont{section name}{size=\Large}
+  \setbeamerfont{section title}{size=\Large,parent=title}
+
+  \setbeamerfont{section in toc}{parent=structure}
+  \setbeamerfont{section in toc shaded}{parent=section in toc}
+  \setbeamerfont{section in head/foot}{}
+  \setbeamerfont{section in sidebar}{size=\tiny}
+  \setbeamerfont{section number projected}{size=\small,parent={section in toc,projected text}}
+
+  \setbeamerfont{subsection name}{size=\large}
+  \setbeamerfont{subsection title}{size=\large,parent=title}
+
+  \setbeamerfont{subsection in toc}{size=\small}
+  \setbeamerfont{subsection in toc shaded}{parent=subsection in toc}
+  \setbeamerfont{subsection in head/foot}{}
+  \setbeamerfont{subsection in sidebar}{}
+
+  \setbeamerfont{subsubsection in toc}{size=\footnotesize}
+
+  \setbeamerfont{subsubsection in toc shaded}{parent=subsubsection in toc}
+  \setbeamerfont{subsubsection in head/foot}{}
+  \setbeamerfont{subsubsection in sidebar}{}
+
+  \setbeamerfont{sidebar}{size=\Tiny,parent={tiny structure}}
+  \setbeamerfont{sidebar left}{parent=sidebar}
+  \setbeamerfont{sidebar right}{parent=sidebar}
+
+  \setbeamerfont{frametitle}{parent=structure,size=\Large,shape=\scshape,series=\bfseries}
+  \setbeamerfont{framesubtitle}{parent=frametitle,size=\normalsize}
+
+  \setbeamerfont{caption}{size=\small}
+  \setbeamerfont{caption name}{parent={structure,caption}}
+
+  \setbeamerfont{button}{size=\tiny}
+
+  \setbeamerfont{block body}{}
+  \setbeamerfont{block body alerted}{}
+  \setbeamerfont{block body example}{}
+  \setbeamerfont{block title}{size=\large,parent={structure,block body}}
+  \setbeamerfont{block title alerted}{parent={block title,alerted text}}
+  \setbeamerfont{block title example}{parent={block title,example text}}
+  \setbeamerfont{block title example}{parent={block title,example text}}
+
+  \setbeamerfont{item}{parent=structure, size=\footnotesize, shape=\scshape}
+  \setbeamerfont{subitem}{parent=item}
+  \setbeamerfont{subsubitem}{parent=subitem}
+
+  \setbeamerfont{item projected}{size=\tiny,parent={item,projected text}}
+  \setbeamerfont{subitem projected}{parent=item projected}
+  \setbeamerfont{subsubitem projected}{parent=subitem projected}
+
+  \setbeamerfont{itemize item}{parent=item}
+  \setbeamerfont{itemize subitem}{parent=subitem}
+  \setbeamerfont{itemize subsubitem}{parent=subsubitem}
+
+  \setbeamerfont{enumerate item}{parent=item}
+  \setbeamerfont{enumerate subitem}{parent=subitem}
+  \setbeamerfont{enumerate subsubitem}{parent=subsubitem}
+
+  \setbeamerfont{itemize/enumerate body}{}
+  \setbeamerfont{itemize/enumerate subbody}{size=\small}
+  \setbeamerfont{itemize/enumerate subsubbody}{size=\footnotesize}
+
+  \setbeamerfont{description item}{parent=item}
+
+  \setbeamerfont{projected text}{parent={tiny structure}}
+
+  \setbeamerfont{abstract}{size=\small}
+  \setbeamerfont{abstract title}{parent={abstract,structure},size=\normalsize}
+
+  \setbeamerfont{verse}{family=\rmfamily,shape=\itshape}
+
+  \setbeamerfont{quotation}{shape=\itshape}
+  \setbeamerfont{quote}{parent=quotation}
+
+  \setbeamerfont{note page}{size=\small}
+}
+
+%>>
+%<< [··· definitions ···] >>
+
+\def\acmeplaintheme{%
+  % [·fonts & colors·]
+  \plain@fonts
+  \plain@colors
+  % [·title page·]
+  \setbeamertemplate{title page}{%
+    \begin{tikzpicture}[remember picture, overlay]%
+      %% thin line towards the bottom
+      {\usebeamercolor{structure}
+      \draw [color=fg, very thick]%
+        ([xshift=\leftmargin, yshift=\titlepagelineoffset]current page.south west)%
+        coordinate (reference) -- ++(\hsize,0);}%
+      %% tilegraphic above that line
+      \node [anchor=south west, inner sep=0pt]%
+        at ([yshift=2pt]reference)%
+        {\titlegraphic};%
+      %% title(/subtitle) below that line
+      \node [anchor=north west, inner sep=0pt]%
+        at ([yshift=-2pt]reference)%
+        {\vbox\bgroup
+          \hbox{\usebeamer{title}\strut\MakeLowercase\inserttitle}%
+          \ifx\insertsubtitle\@empty\else\vskip-4pt%
+            \hbox{\usebeamer{subtitle}\strut\insertsubtitle}\fi%
+          \egroup};%
+   \end{tikzpicture}}%
+  % [·headline·]
+  \setuppagenumber[plain]
+  \setbeamertemplate{headline}[acme]%
+    [width=\hsize, lmargin=\leftmargin, rmargin=\rightmargin, tmargin=2pt, bmargin=0pt]%
+    {left=title, right=page number}%
+  % [·footline·]
+  \setbeamertemplate{footline}[acme]{left=empty, center=empty, right=empty}%
+  % [·frametitle·]
+  \setbeamertemplate{frametitle}[acme]%
+    [width=\hsize, frame=off, tframe=on, offset=0pt, toffset=1pt,
+            options={draw=fg, fill=normal text.bg, very thick}]%
+    {\vbox\bgroup
+       \hbox{\usebeamer{frametitle}%
+         \vrule width0pt height1.2\strutht
+         \insertframetitle}
+       \vskip-.3\baselineskip
+       \hbox{\usebeamer{framesubtitle}%
+         \vrule width0pt depth\strutdp
+         \insertframesubtitle}
+     \egroup}
+  % [·blocks·] (soon)
+  % [·items·]
+  \let\olditem\item
+  \def\item{\olditem\parskip=.5\baselineskip minus.5\baselineskip}
+  \setbeamertemplate{itemize item}
+    {\unitsquare[fill, scale=5, rounded corners=1, yshift=.2]}
+  \setbeamertemplate{itemize subitem}
+    {\unittriangle[fill, scale=4, rounded corners=.2, yshift=.25]}
+  \setbeamertemplate{itemize subsubitem}
+    {\unittriangle[draw, scale=3, rounded corners=.2, yshift=.3333]}
+}
+
+%>>
+
+\protect
+
+
+%%% Local Variables:
+%%% TeX-master: "demo"
+%%% End:
