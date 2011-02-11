@@ -1,212 +1,191 @@
-\documentclass[9pt]{beamer}
+\documentclass[8pt, utf8, a4paper, handout]{beamer}
 
 \usepackage[english]{babel}
-\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
-\usepackage{acme-beamer}
+\usepackage{acmebeamer}
+\usepackage{arev}
+
+\usepackage{fancyvrb}
+
 \usetikzlibrary[shapes.geometric]
 
 \acmeplaintheme
+
 \setbeamersize{text margin left=1em, text margin right=1em}
+\setbeamerfont{normal text}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}%WTF
+\setbeamerfont{subsection in toc}{size=\footnotesize}
+\setbeamerfont{block title}{size=\normalsize, parent={structure,block body}}
 
-%<< [·Conclusions·] >>
+\def\bold{\simplegroupedcommand{\bfseries}{}}
+\def\slanted{\simplegroupedcommand{\slshape}{}}
 
-\setbeamercolor{conclusion}{use=normal text, fg=darkorange, bg=normal text.bg}
-\setbeamerfont{conclusion}{size=\Large,series=\bfseries}
-\defineblock[conclusion][color=conclusion]
-\setupblock[conclusion]
-  [frameoptions={offset=4pt,
-     options={draw=fg, fill=bg, rounded corners=3pt, very thick}},
-   bodyoptions={offset=0pt},
-   bodystyle=\usebeamerfont*{conclusion},
-   bodyhalign=center, width=.6\hsize]
-\newcommand\conclusion[2][]{%
-  \par\begin{conclusionblock}[#1]{} #2 \end{conclusionblock}}
+\leftmarginii=.9em
+\leftmarginiii=.8em
 
-%>>
-%<< [·Questions···] >>
+\setbeamertemplate{itemize item}
+  {\unitsquare[fill, scale=3, yshift=.3]}
+\setbeamertemplate{itemize subitem}
+  {\unittriangle[fill, scale=3, yshift=.3]}
+\setbeamertemplate{itemize subsubitem}
+  {\unittriangle[draw, scale=2, yshift=.5]}
 
-\setbeamercolor{question}{parent=conclusion}
-\setbeamerfont{question}{parent=conclusion}%
-\defineblock[question][conclusion]
-\setupblock[question]
-  [frameoptions={offset=0pt},
-   frame=off,
-   bodyoptions={offset=0pt},
-   bodycolor=question,
-   bodystyle=\usebeamerfont*{question},
-   bodyhalign=flushleft, width=.6\hsize]
-\let\bullet\textbullet
-\newcommand\question[2][]{%
-  \begin{questionblock} [#1]{} \bullet\ #2 \end{questionblock}}
-\newenvironment{questions}[1][]
-{\begingroup
- \def\item{\dosingleempty\doitem}%
- \def\doitem[##1]##2.{\question[#1, ##1]{\ignorespaces##2\,?}\par}}
-{\endgroup}
+%<< [·Handy commands for documentation·] >>
 
-%>>
-%<< [·Item blocks·] >>
+% \def\docsetbeamer#1#2{\btype{setbeamer#1\{#2\}\{…\}}}
+% \def\docusebeamer#1#2{\btype{usebeamer#1\{#2\}\{…\}}}
 
-\pgfkeys{/blockitems/.is family}
-\pgfkeys{/blockitems,
-  itemize/.code=\edef\items{itemize},
-  enumerate/.code=\edef\items{enumerate}, n/.style={enumerate},
-  type/.code=\def\blockitemstype{#1},
-  default/.style={type=},
-  alert/.style={type=alert},
-  example/.style={type=example},
-  options/.store in=\blockitemsoptions,
-  extras/.store in=\blockitemsextras}
+% \edef\longlorem{Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+%   Praesent tincidunt est nec odio ultricies fringilla tempor et lectus.
+%   Duis accumsan varius nisl placerat volutpat. Quisque feugiat, sapien
+%   sit amet ultricies cursus, tellus odio auctor purus, sed placerat quam
+%   enim at urna. Nunc molestie magna eu turpis fringilla ac ultricies
+%   ante convallis. Proin sed magna eros. Aliquam lobortis sapien eu augue
+%   faucibus hendrerit. Class aptent taciti sociosqu ad litora torquent
+%   per conubia nostra, per inceptos himenaeos. Nulla facilisi. Vivamus ut
+%   purus non metus facilisis convallis. Pellentesque bibendum purus nec
+%   quam molestie ultrices. Maecenas turpis odio, volutpat quis aliquet a,
+%   ultrices aliquam neque. Aenean eleifend imperdiet felis a viverra. Sed
+%   semper vulputate volutpat. Pellentesque sit amet orci tellus, ut
+%   imperdiet metus. Sed et augue a augue suscipit facilisis. Proin
+%   malesuada dolor non ligula dictum molestie.}
 
-\long\def\blockitems{%
-  \doifnextbgroupelse
-    {\doblockitems}
-    {\doblockitems{}}}
-\long\def\doblockitems#1{%
-  \doifnextoptionalelse
-    {\dodoblockitems{#1}}
-    {\dodoblockitems{#1}[]}}
-\long\def\dodoblockitems#1[#2]{%
-  \begingroup
-  \pgfkeys{/blockitems, itemize, default, options=, extras=, #2}%
-  \addtobeamertemplate{itemize/enumerate body end}
-    {} {\par\kern.5\baselineskip}% prevent too much space at the bottom
-  \expanded{\begin{\blockitemstype block}{#1}
-   [\blockitemsoptions, bodyoptions={offset=0pt, loffset=5pt, roffset=5pt}]}
-   \blockitemsextras
-   \expanded{\begin{\items}}}
-\def\endblockitems{%
-  \expanded{\end{\items}}%
-  \expanded{\end{\blockitemstype block}}%
-  \endgroup}
-
-%>>
-%<< [·Handy commands for documentation·]
-
-\def\tikz{Ti\textit{k}Z}
-
-\def\key#1{\texttt{#1}}
-\def\value#1{\texttt{#1}}
-
-\def\setb#1#2{%
-  \texttt{\textbackslash setbeamer#1\{#2\}\{\dots\}}}
-% \def\usebeamer#1#2{%
-%   \texttt{\textbackslash usebeamer#1\{#2\}\{\dots\}}}
-
-\def\com#1{\texttt{\textbackslash #1}}
-\def\env#1{%
-  \texttt{\textbackslash begin\{#1\}\dots\textbackslash end\{#1\}}}
-\def\envoptarg#1[#2]{\texttt{\textbackslash begin\{#1\}[#2]}}
-
-\def\params#1{\texttt{[#1]}}
-
-\def\pack#1{\texttt{#1}}
-
-\let\setbeamer\setb
-\let\command\com
-\let\environment\env
-\let\parameters\params
-\let\package\pack
-
-% [·Nice highlighting in text·]
-\newcommand\highlight[2][red!30]{%
-  \inframe[frame=off, background=color, options={fill=#1}]{#2}}
-
-\edef\longlorem{Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-  Praesent tincidunt est nec odio ultricies fringilla tempor et lectus.
-  Duis accumsan varius nisl placerat volutpat. Quisque feugiat, sapien
-  sit amet ultricies cursus, tellus odio auctor purus, sed placerat quam
-  enim at urna. Nunc molestie magna eu turpis fringilla ac ultricies
-  ante convallis. Proin sed magna eros. Aliquam lobortis sapien eu augue
-  faucibus hendrerit. Class aptent taciti sociosqu ad litora torquent
-  per conubia nostra, per inceptos himenaeos. Nulla facilisi. Vivamus ut
-  purus non metus facilisis convallis. Pellentesque bibendum purus nec
-  quam molestie ultrices. Maecenas turpis odio, volutpat quis aliquet a,
-  ultrices aliquam neque. Aenean eleifend imperdiet felis a viverra. Sed
-  semper vulputate volutpat. Pellentesque sit amet orci tellus, ut
-  imperdiet metus. Sed et augue a augue suscipit facilisis. Proin
-  malesuada dolor non ligula dictum molestie.}
-
-\edef\mediumlorem{Lorem ipsum dolor sit amet, consectetur adipiscing
-  elit. Praesent tincidunt est nec odio ultricies fringilla tempor et
-  lectus. Duis accumsan varius nisl placerat volutpat. Quisque feugiat,
-  sapien sit amet ultricies cursus, tellus odio auctor purus, sed
-  placerat quam enim at urna. Nunc molestie magna eu turpis fringilla ac
-  ultricies ante convallis. Proin sed magna eros. Aliquam lobortis
-  sapien eu augue faucibus hendrerit.}
+% \edef\mediumlorem{Lorem ipsum dolor sit amet, consectetur adipiscing
+%   elit. Praesent tincidunt est nec odio ultricies fringilla tempor et
+%   lectus. Duis accumsan varius nisl placerat volutpat. Quisque feugiat,
+%   sapien sit amet ultricies cursus, tellus odio auctor purus, sed
+%   placerat quam enim at urna. Nunc molestie magna eu turpis fringilla ac
+%   ultricies ante convallis. Proin sed magna eros. Aliquam lobortis
+%   sapien eu augue faucibus hendrerit.}
 
 \edef\smalllorem{Lorem ipsum dolor sit amet, consectetur adipiscing
   elit. Duis accumsan varius nisl placerat volutpat.}
 
-\edef\tinylorem{Lorem ipsum dolor sit amet.}
+% \edef\tinylorem{Lorem ipsum dolor sit amet.}
 
-\let\lorem\mediumlorem
+% \let\lorem\mediumlorem
+
+\def\vdelimiton{\def\vdelimit{\vrule}}
+\def\vdelimitoff{\def\vdelimit{\vrule width0pt}}
+
+\vdelimitoff
+
+\def\Describe{\dosingleempty\doDescribe}
+\long\def\doDescribe[#1]#2#3{%
+  \pgfkeys{/describe/.cd,
+    leftwidth/.initial=.2\textwidth,
+    rightwidth/.initial=.8\textwidth,
+    leftstyle/.initial=\type,
+    rightstyle/.initial=, #1}%
+  \blank[line]
+  \begin{columns}[onlytextwidth, t]
+    \vdelimit
+    \begin{column}{\pgfkeysvalueof{/describe/leftwidth}}
+      \bgroup\pgfkeysvalueof{/describe/leftstyle}#2\egroup
+    \end{column}\vdelimit
+    \begin{column}{\pgfkeysvalueof{/describe/rightwidth}}
+      \parskip=.5\baselineskip plus.5\baselineskip minus.5\baselineskip
+      \bgroup\pgfkeysvalueof{/describe/rightstyle}#3\egroup
+    \end{column}\vdelimit
+  \end{columns}}
+
+\newcommand\samplecode[3][]{%
+\blank[2*line]
+\begin{columns}[onlytextwidth]
+  \begin{column}{.475\hsize}
+    #2
+  \end{column}
+  \begin{column}{.475\hsize}
+    \usage{#3}
+  \end{column}
+\end{columns}}
+
+\newcommand\warningsign[1][]{%
+  \begin{tikzpicture}[draw=darkred, fill=white, #1]
+    \node [scale=1.3, shape border rotate=90,
+           shape=isosceles triangle,
+           isosceles triangle apex angle=60,
+           draw, fill, line width=3pt,
+           rounded corners, font=\Large\bfseries] at (6,0) {!};
+  \end{tikzpicture}}
+
+\newcommand\notice[2][]{%
+\begin{noticeblock}[#1]#2\end{noticeblock}}
+
+\newenvironment{noticeblock}[1][]{%
+  \hbox to \hsize
+  \bgroup\hss
+  \begin{framedtext}
+    [width=.8\hsize, minheight=35pt, background=on,
+     tikzoptions={draw=darkred, fill=darkred!10, very thick,
+       rounded corners=2pt}, #1]
+    \begin{columns}[totalwidth=\hsize]
+      \begin{column}{.1\hsize}
+        \warningsign[baseline=-12pt]%
+      \end{column}
+      \begin{column}{.85\hsize}\bgroup}{%
+      \egroup\end{column}
+    \end{columns}
+  \end{framedtext}%
+  \hss\egroup}
+
+\def\type{%
+  \simplegroupedcommand
+  {\scriptsize\ttfamily\let\\\textbackslash\parskip=0pt}
+  {}}
+\def\usage{%
+  \simplegroupedcommand
+  {\usebeamercolor[fg]{emphasis}\scriptsize\ttfamily\let\\\textbackslash}
+  {}}
+
+\def\btype{\simplegroupedcommand{\type\textbackslash}{}}
+\newcommand\hbtype[2][\bfseries]{\btype{#1#2}}
+
+\def\benvtype#1{\btype{begin\{#1\}}}
+\def\eenvtype#1{\btype{end\{#1\}}}
+\def\beenvtype#1#2{\btype{begin\{#1\}}\type{#2}\btype{end\{#1\}}}
+
+\def\ctype#1#2{\btype{#1\{#2\}}}
+\newcommand\hctype[3][\bfseries]{\ctype{{#1#2}}{#3}}
+
+\def\dtype#1#2#3{\btype{#1\ctype{#2}{#3}}}
+\def\deftype{\dtype{def}}
 
 %>>
 
-\def\sharp#1{{\usebeamer{structure}(\scshape#1)}}
+
+\title{Documentation of the {\tt acmebeamer} package.}
+\subtitle{A presentation like/showcase document.}
+
+\author{Cédric Mauclair}
+\institute{Onera/DTIM}
+
+\date[2011-02-07]{February 7, 2011}
 
 
-\title
-{Showcase presentation}%
-
-\subtitle
-{What you can do and how to do it with the {\tt acme-beamer} package}
-
-\author
-{Cédric Mauclair}
-
-\institute
-{Onera/DTIM}
 
 
 \begin{document}
 
-%<< * First slide of presentation: the title page >>
+\vdelimitoff
 
-\setuptitlepage[logo=custom]
-\logocustom{%
-  \hbox to \hsize{%
-    {\usebeamer{institute}\insertinstitute}\hfil
-    {\usebeamer{author}\insertauthor}
-    {\usebeamer{date}(\insertdate)}}}
-\maketitle
+\setuptitlepage[lineoffset=.75\paperheight]
 
-%>>
-%<< * Outline of the talk >>
+\maketitle[logo=institute]
 
-\frametoc{Outline / table of contents}
+\frametoc{Table of contents}
 
-%>>
+\def\blankline{\blank[line]}
 
-\section{Title page}
 
-\begin{frame}
-  {Customizing the title page}
-%<< content >>
+\section{Package options}
+%<< (folded) >>
 
-  \begin{itemize}
-  \item You can customize the default theme provided in two ways:
-    \sharp1 the height of the horizontal line and
-    \sharp2 the ``logo'' above that line.
-    If you want anything else, just set the regular beamer template to
-    your liking with \setbeamer{template}{titlepage}.
+\begin{frame}[fragile,fragile]
 
-    Both customizations are setup using
-    \command{setuptitlepage[\dots]}. The key \key{lineoffset} accepts
-    any dimension (\texttt{.15\command{paperheight}} by default); The
-    key \key{logo}, accepts~3 values: \value{empty}, \value{institute}
-    and \value{custom}. The first two are quite self-explanatory, the
-    last one will use whatever is passed to \command{logocustom} (which
-    is nothing by default).
-
-  \vfill
-  \item Better use the absolute positionning offered by \tikz\ rather
-    than the \package{textpos} package; Start every picture with:
-    \envoptarg{tikzpicure}[remember~picture,~overlay].
-  \end{itemize}
+  \Describe{portrait}%
+  {Swaps the height and width of the document.}
 
 \end{frame}
 
@@ -214,349 +193,650 @@
 
 
 
-\section{Table of contents}
+\section{Beamer features}
+
+\subsection{Title page}
+%<< (folded) >>
 
 \begin{frame}
-  {Customizing the table of contents}
-%<< content >>
 
-  You can use the command %
-  \command{frametoc\{\textsl{frame title}\}[\dots]} %
-  to put a frame with the table of contents. The \emph{second
-    [argument]} is optional (not the first one as in \LaTeX) and is
-  passed to the \command{tableofcontents} command provided by beamer
-  (there is no other default setting than those of beamer).
+  \begin{sitemize}
+  \item {\bold Usual and basic way}
 
-  For example, to display the current section and the subsections from
-  the other ones, use %
-  \command{tableofcontents[sectionstyle=show/hide,
-    subsectionstyle=hide/show]}:
+    \Describe{\\maketitle}%
+    {Modified to typeset the macro \btype{inserttitlepage} inside
+      a \type{frame} environment.}
 
-  \parskip0pt
-  \tableofcontents[sectionstyle=show/hide, subsectionstyle=hide/show]
+    \Describe{\btype{titlegraphic}}%
+    {Sets the value of \btype{inserttitlegraphic}.}
+
+    \Describe{\btype{setbeamertemplate}}%
+    {Define the template to use for the title page. Same as
+      \btype{titlegraphic} in this context.}
+
+  \blank[2*big]
+  \item {\bold Going a bit further}
+    \begin{sitemize}
+    \item \btype{maketitle} actually takes {\bold two optional
+        arguments}. The first one is passed to \btype{setuptitlepage}
+      (see below), the second one is passed to the frame options. If you
+      want to give the second argument without the first one, you must
+      give an explictly empty first argument.
+
+      Use as%
+      \hfill\usage{\\maketitle%
+        [{\slanted <options to \\setuptitlepage[…]>}]%
+        [{\slanted <options to \\begin\{frame\}[…]>}]}.
+
+    \item The package provides a way to setup the title page with the
+      macro \btype{setuptitlepage[…]}, according to a few (for now)
+      options of the default template. There are three options as of
+      now, \type{lineoffset}, \type{logo} and \type{customlogo}.
+      \begin{sitemize}
+      \item \type{lineoffset}: sets the height of the line in the
+        default template.
+      \item \type{logo}: two values only (for now), \type{none} and
+        \type{institute}. One way guess what they do.
+      \item \type{customlogo}: sets its value to be the logo. The last
+        one wins.
+      \end{sitemize}
+    \end{sitemize}
+  \end{sitemize}
 
 \end{frame}
+
 %>>
 
-
-
-\section{Frames}
-\subsection{Head/footline}
-
-\setupheadline[left=section]
+\subsection{Table of contents}
+%<< (folded) >>
 
 \begin{frame}
-  {Customizing the head/footline}
-%<< content >>
 
-  Both the headline and footline can be customized in quite a number of
-  ways. Here follow the elements that can be inserted without much
-  efforts at the left, center or right of the head/footline:
-  \sharp1 the title, author and date of the presentation,
-  \sharp2 the current section (text) and current subsection (text,
-  bullets or squares),
-  \sharp3 the page number (setup with its own command).
-  One can also use the special value \texttt{custom} and give what (s)he
-  likes to \command{headlineleft}, \command{headlinecenter}, \dots
+  \Describe{\\frametoc}%
+  {Takes one mandatory argument (in braces) {\bold and then}, an
+    optional argument (in brackets). The mandatory argument is the title
+    of the frame. The optional argument is passed
+    to \btype{tableofcontents}.
 
-  The command to use is
-  \command{setbeamertemplate\{headline\}[acme][\dots]\{\dots\}};\\
-  The default is
-  \texttt{\{left=title, center=empty, right=page number\}} for the
-  headline and
-  \texttt{\{left=empty, center=empty, right=empty\}} for the footline.
-  One can use \texttt{\{left/section=text, right/subsection=bullets\}}
-  if (s)he prefers (in case of \texttt{text}, \texttt{\{left=section\}}
-  also works).
-
-  The argument between brackets is optional and setups the width,
-  height, offsets and margins. Here for example, we used
-  \texttt{[width=\textbackslash hsize, %
-    left~margin=\textbackslash leftmargin, %
-    right~margin=\textbackslash rightmargin, %
-    top~margin=2pt, bottom~margin=0pt]} %
-  for the headline and something similar for the footline (basically,
-  top and bottom are reversed).
-
-  The two commands \command{leftmargin} and \command{rightmargin} are
-  equal to the margins of beamer at the left and right of each page.
-  These can be set with the command\\
-  \command{setbeamersize\{text~margin~left=\dots,
-    text~margin~right=\dots\}} (\texttt{1em} by default).
+    Use as%
+    \hfill\usage{\\frametoc%
+      \{{\slanted <frame title>}\}%
+       [{\slanted <options to \\tableofcontents[…]>}]}.}
 
 \end{frame}
+
 %>>
 
+\subsection{Page numbers}
+%<< (folded) >>
+
+\begin{frame}
+
+  \Describe{\\setuppagenumbers}%
+  {Takes one mandatory argument in square brackets, a key value list
+    consisting of two possible keys: \type{style} and \type{custom}. The
+    latter sets the page numbers command to typeset its argument. There
+    are three values possible (for now) for the \type{style} key:
+    \type{none}, \type{boxed} and \type{plain}. The last two typeset the
+    pages as \type{\slanted <page number>/<total number of pages>}.
+
+    Use as%
+    \hfill\usage{\\setuppagenumbers[…]}.}
+
+\end{frame}
+
+%>>
+
+\subsection{Head-~and footline}
+%<< (folded) >>
+
+\begingroup
+
+\setupheadline[left=section, center/subsection=bullets]
+\setupfootline[left=subtitle, center=author, right=date]
+
+\begin{frame}
+
+  The \type{acmebeamer} package provides a flexible way to customize the
+  head-~and footline through two commands \btype{setupheadline} and
+  \btype{setupfootline} described below.
+
+  \blank[line]
+  \Describe{\\setupheadline\par\\setupfootline}%
+  {Takes one mandatory argument in square brackets, a key value list.
+    There are four key available: \type{left}, \type{center},
+    \type{right} and \type{frame}. The first three customize the
+    respective places and \type{frame} is used to customize the width
+    and the margins.
+
+    You can set those with %
+    \btype{setupheadline[frame=\{width=.8\\hsize, margin=3pt,
+      topmargin=5pt\}]} for example. Available are \type{width},
+    \type{margin}, \type{leftmargin}, \type{rightmargin},
+    \type{topmargin} and \type{bottommargin}.
+
+    The other options have the same behaviour and options. The values
+    start being \type{empty}.
+    \begin{sitemize}
+    \item Standard options from \type{beamer}: \type{title},
+      \type{subtitle}, \type{author}, \type{date}, \type{section} and
+      \type{section}.
+    \item New options, the basic way: \type{page numbers} and
+      \type{empty}.
+    \item New options, the tricky way: don't use \type{right=...}, but
+      \type{right/subsection=...} with the following options available:
+      \type{text} (same as doing \type{right=subsection}),
+      \type{bullets} and \type{squares}. At some point, the package may
+      offer a direct solution.
+    \end{sitemize}}
+
+  \blank[2*line]
+  \begin{columns}[onlytext]
+    \begin{column}{.5\hsize}
+      The present document uses\\
+      \usage{\\setupheadline[left=title, right=page numbers]}\\
+      \usage{\\setupfootline[]}.
+    \end{column}
+    \begin{column}{.5\hsize}
+      This particular slide uses\\
+      \usage{\\setupheadline[left=section, center/subsection=bullets]}\\
+      \usage{\\setupfootline[left=subtitle, center=author, right=date]}.
+    \end{column}
+  \end{columns}
+
+  One can notice that the short forms are used for the standard options
+  and that previous setups are not erased (see the page numbers on the
+  right). If all \type{right}, \type{center} and \type{left} are empty,
+  the head-~or footline doesn't occupy any space.
+\end{frame}
+
+\endgroup
+
+%>>
 
 \subsection{Frametitle}
-
-\begin{frame}[fragile]
-  {Customizing the frametitle}
-  {Very usefull and interesting subtitle}
-%<< content >>
-
-  One can use \command{setbeamertemplate[\dots]\{\dots\}} to setup the
-  way the frame title and subtitle are displayed. The first argument in
-  brackets is optional. They are both passed to the \command{framed}
-  command (see later for more on this command).
-
-  The default is:
-\begin{verbatim}
-\setbeamertemplate{frametitle}[acme]%
-  [width=\hsize, frame=off, tframe=on, offset=0pt, toffset=1pt,
-     options={draw=fg, fill=normal text.bg, very thick}]
-  {\vbox\bgroup
-     \hbox{\usebeamer{frametitle}%
-       \vrule width0pt height1.2\strutht
-       \insertframetitle}
-     \vskip-.3\baselineskip
-     \hbox{\usebeamer{framesubtitle}%
-       \vrule width0pt depth\strutdp
-       \insertframesubtitle}
-   \egroup}
-\end{verbatim}
-
-\end{frame}
-%>>
-
-
-
-\section{Framed text}
-\subsection{Short texts and inline framing}
+%<< (folded) >>
 
 \begin{frame}
-  {Framing short text}
-%<< content >>
 
-  The package offers two new commands to typeset text into a frame:
-  \inframe{\command{inframe}} and \command{framed}. The first one is
-  intended to \highlight[green!30]{highlight text} inside a paragraph,
-  whereas the second is focused on highlighting text on a line by itself
-  (as the text \emph{inside} does not have the same baseline as the text
-  \emph{around}). However, one can put several frames on the same line,
-  just be sure to be in horizontal mode if the frame is to start the
-  paragraph by using \command{leavevmode}.
+  \framesubtitle{Great feature added!}
 
-  \leavevmode
-  \framed[height=30pt, valign=bottom]
-  {Fit width, fixed height, bottom aligned text.}
-  \hfill
-  \framed[width=150pt, options={draw=orange, thin}]
-  {Fixed width of \texttt{150pt} with a thin, square cornered and orange
-    frame.}
+  \Describe{{\usebeamer{normal text}template} frametitle}%
+  {Has been modified so that if the frame title is empty, then the
+    template is not used. Besides, the subtitle always occupies space if
+    the template is used (may change in the future).}
 
-  \leavevmode
-  \framed[minimum width=200pt]
-  {Minimum width of text of \texttt{200pt} and no special aligment.}
-  \vrule height.4pt depth0pt width2cm
-  \hfill\inframe{\command{inframe} text}
+  \Describe{\\begin\{frame\}\par…\par\\end\{frame\}}%
+  {Has been modified to be able to omit the title if one wants to use
+    the same as the current section or subsection. Here are the rules:
+    \begin{sitemize}
+    \item No title provided:
+      \begin{sitemize}
+      \item uses the subsection (\btype{subsecname}) if not empty;
+      \item or uses the section (\btype{secname}) if not empty;
+      \item or uses the template with an empty title (if a subtitle is
+        provided, it will be typeset).
+      \end{sitemize}
+    \item A title has been provided: normal behaviour. As a remainder,
+      one can specify a title and a subtitle according to the following:
+      \begin{sitemize}
+      \item as the first and second {\bold braced group} if nothing
+        happens before the groups except for spaces and comments
+        \hfill\usage{\\begin\{frame\}
+          \{{\slanted <title>}\}
+          \{{\slanted <subtitle>}\}};
+      \item as arguments to the commands \btype{frametitle} and
+        \btype{framesubtitle} inside the \type{frame} environment.
+      \end{sitemize}
+      How can we add a subtitle to a frame that has the same title as
+      the (sub)section? This slide uses
+      \hfill\usage{\\begin\{frame\} \\framesubtitle\{…\}}.
 
-  \framed[minimum width=200pt, halign=flushright]
-  {Same as above but with right aligned text.}
+      There is a small catch however: you must use \btype{maketitle} or
+      you can use \btype{acmeframetitlehack} before the frames you want
+      to use this feature on. All the following frames will use the
+      feature.
+    \end{sitemize}}
 
-  \rightline{\framed[maximum width=200pt, halign=center]
-    {Same as above only with maximum and centered text instead of
-      minimum and flushright.}}
-
-  \vfill
-  \centerline{\framed[minimum width=100pt, maximum width=200pt]
-    {Longer text that needs to be at least \texttt{200pt} wide to see
-      a line break (\texttt{min=100pt, max=200pt}).}}
-
-  \centerline{\framed[minimum width=100pt, maximum width=200pt]
-    {Same as above.}}
 
 \end{frame}
+
 %>>
 
 
-\subsection{Larger chunks and paragraphs}
 
-\def\sine#1#2#3#4{%
-  \tempdim=\dimexpr#2\relax
-  \path [draw, rotate=-90] (#1)
-    \foreach \n in {1,...,#3} {
-      \dosine{\tempdim}{#4}};}
-\def\dosine#1#2{%
-  sin ++(.25#1,#2)  cos ++(.25#1,-#2)
-  sin ++(.25#1,-#2) cos ++(.25#1,#2)}
+\section{Extra features}
+
+\subsection{Better {\tt itemize} environment}
+%<< (folded) >>
 
 \begin{frame}[fragile]
-  {Framing larger chunks of text}
-%<< content >>
 
-  \hfill
-  \begin{framedtext}
-    [width=.8\hsize, halign=flushright,
-     offset=5pt, frame=off, right frame=on,
-     background=color, options={draw=red, fill=red!10, line width=3pt}]
-    For longer text or for text with paragraphs, the package provides an
-    environment \environment{framedtext}.
+  \Describe{\\begin\{sitemize\}\par…\par\\end\{sitemize\}}%
+  {Sometimes, we would like to list a bunch of things, but we do not
+    want to start at level~1. This is the {\slanted raison d'être} of
+    this environment. You can specify the level in an optional
+    argument: allowed values are~\type{1}, \type{2}~and~\type{3}. The
+    values are {\bold relative to the current nesting level}. The
+    default level is~\type{1} for compatibility reasons.}
 
-    It also accepts an optional argument in brackets; The options are
-    the same as the \command{framed} command except the width defaults
-    to \command{hsize} and minimum/maximum width don't work.
-
-    It works quite well. Indeed!
-  \end{framedtext}
-
-  Typeset with
-  \begin{framedtext}
-    [framepath={\sine{0,0}{.1\framedboxht-.1\framedboxdp}{10}{1pt}},
-     options={draw=red, line width=1pt, line cap=round}]
+  \blank[3*line]
+  \begin{columns}[t, onlytext]
+    \begin{column}{.3\hsize}
+      Example\blank[1pt]
+      \begin{enumerate}[<+->] % remove 'handout' to see
+      \item Text goes here.
+        \begin{sitemize}
+        \item one-one (third level)
+        \item one-two (third level)
+        \end{sitemize}
+      \item Text goes here.
+        \begin{sitemize}
+        \item two-one (second level)
+        \item two-two (second level)
+          \begin{enumerate}[a]
+          \item a
+          \item b
+          \end{enumerate}
+        \item two-three (second level)
+        \end{sitemize}
+      \end{enumerate}
+    \end{column}
+    \begin{column}{.3\hsize}
+      Typeset with
+      \bgroup\usage
 \begin{verbatim}
-  \begin{framedtext}[%
-    width=.8\hsize, halign=flushright,
-    offset=5pt, frame=off, right frame=on,
-    background=color, options={draw=red, fill=red!10, line width=3pt}]
-    ...
-  \end{framedtext}
-\end{verbatim}
-  \end{framedtext}
+\begin{enumerate}[<+->] % remove 'handout' to see
+\item Text goes here.
+  \begin{sitemize}
+  \item one-one (third level)
+  \item one-two (third level)
+  \end{sitemize}
+\item Text goes here.
+  \begin{sitemize}
+  \item two-one (second level)
+  \item two-two (second level)
+    \begin{enumerate}[a]
+    \item a
+    \item b
+    \end{enumerate}
+  \item two-three (second level)
+  \end{sitemize}
+\end{enumerate}
+      \end{verbatim}\egroup
+    \end{column}\hfill
+  \end{columns}
 
 \end{frame}
+
 %>>
 
+\subsection{Blocks on steroids}
+%<< (folded) >>
+
+\begin{frame}
+  {\subsecname \hfill \slide 1 of 4}
+
+  \begin{noticeblock}
+    Blocks are completely rewritten from scratch. They are still
+    accessible with the same commands, but the arguments are somewhat
+    different and are given differently too.
+  \end{noticeblock}
+
+  \begin{sitemize}
+  \item {\bold \#1 the arguments}
+
+    The beamer blocks take only one optional parameter {\bold in braces}
+    which is the title of the block, if any. Now, there is two optional
+    arguments, one in braces, the title, {\bold and then} one in square
+    brackets. The latter are options destined to the new system of
+    blocks.
+
+    \hfill\usage{%
+      \\begin\{{\slanted blockname}\} \{{\slanted <title>}\}
+              [{\slanted <options>}]…
+      \\end\{{\slanted blockname}\}}.
 
 
-\section{Blocks}
-\subsection{Defaults and classics}
+
+  \item {\bold \#2 basic options}\blank[-5pt]
+    \Describe{width}{Sets the width of the block.}
+
+    \Describe{color}{Sets the color of the block.}
+
+    \Describe{align}%
+    {Sets the alignment of the block, not the text inside the block (see
+      below).}
+
+    \Describe{bodyheight}{Sets the height of the blockbody.}
+
+    \Describe{title/bodycolor}%
+    {Sets the color of the title/body, this can be a beamer color or
+      just a color (like ``yellow'').}
+
+    \Describe{title/bodystyle}%
+    {Sets the style of the title/body (like ``\type{\\bfseries}'' or
+      ``\type{\\slshape\\large\\color\{green\}}'').}
+
+    \Describe{title/bodyalign}%
+    {Sets the alignment of the text inside. Possible values are:
+      \type{default}, \type{flushleft}, \type{flushright} and
+      \type{center} horizontaly and \type{top}, \type{bottom} and
+      \type{middle} vertically. You can give several (typically two) as
+      a list in braces: \type{bodyalign=\{center,top\}}. Better avoid
+      spaces.}
+
+
+
+  \item {\bold \#3 advanced options}\blank[-5pt]
+    \Describe{title-/bodycustomframe\par title-/bodybackground}%
+    {Sets the frame Ti{\slanted k}Z path. You can disable the frame with
+      \type{false} or anything that will be ignored in
+      a \type{tikzpicture} environment. So \type{true} alos works, but
+      is confusing. The same goes for the background. (Defaults on
+      third next slide.)}
+
+    \Describe{title-/bodyoptions}%
+    {Options passed to the \type{framedtext} environment. (See next
+      section.)}
+  \end{sitemize}
+
+\end{frame}
+
 
 \begin{frame}[fragile]
-  {Default blocks\dots\ plus one}
-%<< content >>
+  {\subsecname \hfill \slide 2 of 4}
+  {Examples}
 
-  \begin{block}
-    {\texttt{block} with a centered title}
-    [width=.6\hsize, align=flushright, titlehalign=center]
-    And a tiny body.
-    \parameters{width=.6\textbackslash hsize, align=flushright,
-      titlehalign=center}
+  \samplecode
+  {\begin{block}
+     {With a yellow title}
+     [titlecolor=yellow]
+     \smalllorem
+   \end{block}}
+  {\\begin\{block\} \{With a yellow title\} \par
+   ~~[titlecolor=yellow]                    \par
+   ~~\\smalllorem                           \par
+   \\end\{block\}}
+
+  \samplecode
+  {\begin{alertblock}
+     [bodyalign=center, bodystyle=\bold]
+     Without title, bold centered body text.
+   \end{alertblock}}
+  {\\begin\{alertblock\}                      \par
+   ~~[bodyalign=center, bodystyle=\\bfseries] \par
+   ~~Without title, bold centered body text.  \par
+   \\end\{alertblock\}}
+
+  \samplecode
+  {\begin{exampleblock}
+     {Left aligned title}
+     [titlealign=flushleft, bodyheight=20pt,
+      bodyalign={bottom,flushright}]
+     Fixed body height to 20pt, bottom right aligned.
+   \end{exampleblock}}
+  {\\begin\{exampleblock\} \{Left aligned title\}         \par
+   ~~[titlealign=flushleft, bodyheight=20pt,              \par
+   ~~~bodyalign=\{bottom,flushright\}]                    \par
+   ~~Fixed body height to 20pt, bottom and right aligned. \par
+   \\end\{exampleblock\}}
+
+  \samplecode
+  {\begin{emphasisblock}
+     {A new one, \type{\small emphasisblock}}
+     \begin{sitemize}
+     \item one
+     \item two
+     \item three
+     \end{sitemize}
+   \end{emphasisblock}}
+  {\\begin\{emphasisblock\} \{A new one, emphasisblock\} \par
+   ~~\\begin\{sitemize\}                                 \par
+   ~~\\item one                                          \par
+   ~~\\item two                                          \par
+   ~~\\item three                                        \par
+   ~~\\end\{sitemize\}                                   \par
+   \\end\{emphasisblock\}}                               \par
+
+\end{frame}
+
+
+\begin{frame}
+  {\subsecname \hfill \slide 3 of 4}
+  {The case of lists and enumerations}
+
+  The use of lists in blocks is somewhat screwed up if there is text
+  around. The package offers a dirty solution in the form of a macro to
+  use between the text and the \type{\\(s)itemize/enumerate}
+  environments: \btype{fixvspace}.
+
+  \begin{block}[width=.45\hsize]
+    Before text: \btype{fixvspace} macro between text and
+    environment.\fixvspace
+    \begin{sitemize}
+    \item one
+    \item two
+    \end{sitemize}
+    After text: no \btype{fixvspace} macro between text and environment.
+  \end{block}
+  \begin{block}[width=.45\hsize]
+    \begin{sitemize}
+    \item one
+    \item two
+    \end{sitemize}
   \end{block}
 
-  \begin{alertblock}
-    [width=.7\hsize, bodystyle=\bfseries]
-    The title comes BEFORE the optional argument; It can also be left
-    out altogether.
-\begin{verbatim}
-\begin{alertblock}
-  [width=.7\hsize, bodystyle=\bfseries]
-  ...
-\end{alertblock}
-\end{verbatim}
-  \end{alertblock}
-
-  \begin{exampleblock}
-    [bodyheight=30pt, bodyhalign=center, bodyvalign=top]
-    \texttt{exampleblock} with no title\\
-    \parameters{bodyheight=30pt, bodyhalign=center,  bodyvalign=top}
-  \end{exampleblock}
-
-  \begin{emphasisblock}
-    {Title with\par\hfill a paragraph}
-    [width=.9\hsize]
-    A new comer: \environment{emphasisblock}.
-  \end{emphasisblock}
-
 \end{frame}
-%>>
 
-
-\subsection{As many as needed}
 
 \begin{frame}
-  {Creating new blocks and customizations \slide 1 of 3}
-%<< content >>
+  {\subsecname \hfill \slide 4 of 4}
+  {Default setup}
 
-  One can create new blocks with
-  \command{defineblock[\textsl{name}][\dots]}. %
-  Only the second argument
-  is optional: The first one is the name of the
-  new block:\\
-  \texttt{\textsl{default} $\rightarrow$ \textsl{defaultblock}},
-  \texttt{\textsl{alert} $\rightarrow$ \textsl{alertblock}},
-  \texttt{\textsl{example} $\rightarrow$ \textsl{exampleblock}}~\dots\
-  There is a link between from \environment{block} to
-  \environment{defaultblock}.
+  \Describe{\\defineblock[…][…]\par\\defineblocks[…][…]}%
+  {Defines a block or several at once, either from an existing block, or
+    a setup.}
 
-  \begingroup
-  The second argument (optional) means the following:
-  \parskip0pt\let\item\olditem
-  \begin{enumerate}
-  \item if not given, the new block will inherit its non specified
-    parameters from \texttt{\textsl{blocks}};
-  \item if the name of a block, the new block will inherit its non
-    specified parameters from it;
-  \item if a \texttt{key=value} list, the new block will inherit its non
-    specified parameters from \texttt{\textsl{blocks}} and will set its
-    parameters from the list.
-  \end{enumerate}
-  \endgroup
+  \Describe{\\setupblock[…][…]\par
+    \\setupblocks[…][…]\par\\setupblocks[…]}%
+  {Setups a block, several blocks at once or setup the default for all
+    blocks. Unless specified otherwise, blocks inherit their parameters
+    from \type{blocks}. If defined from another block, they inherit from
+    it. All parameter set explicitely is specific to the block.}
 
-  The blocks can then be setup using %
-  \command{setupblock[\textsl{name}][\dots]}. There is also
-  \command{defineblocks} and \command{setupblocks} to define and setup
-  several blocks at once.
-
-  \begin{alertblock}
-    [width=.8\hsize, bodyheight=30pt, bodyoptions={left offset=40pt},
-     bodystyle=\bfseries, bodycolor=alerted text, bodyhalign=right]
-     \begin{tikzpicture}[overlay]
-       \node [shift={(-20pt,-6pt)},
-              rotate=90, shape=isosceles triangle, draw=red!60!black,
-              line width=3pt, rounded corners=2.4pt, minimum width=25pt,
-              isosceles triangle apex angle=60] {};
-       \node [shift={(-20pt,-4.5pt)},
-              font=\fontsize{15}{15}\fontfamily{qbk}\selectfont\bfseries, text=black] {!};
-     \end{tikzpicture}%
-    Do not put spaces before commas as it will be part of the name of
-    the block, but maybe that's what you want.
-  \end{alertblock}
+  \blank[line]
+  \begin{columns}[t]
+    \begin{column}{.35\hsize}
+      \bgroup\usage\parskip=0pt
+      ~~\\defineblock                                                \par
+      ~~~~[default] [color=structure]                                \par
+      ~~\\defineblock                                                \par
+      ~~~~[alert] [color=alerted text]                               \par
+      ~~\\defineblock                                                \par
+      ~~~~[example] [color=example text]                             \par
+      ~~\\defineblock                                                \par
+      ~~~~[emphasis] [color=emphasis]                                \par
+      \blank[line]
+      ~~\% color of the bullets                                      \par
+      ~~\\setbeamercolor \{defaultblockitems\}                       \par
+      ~~~~\{parent=structure\}                                       \par
+      ~~\\setbeamercolor \{alertblockitems\}                         \par
+      ~~~~\{parent=alerted text\}                                    \par
+      ~~\\setbeamercolor \{exampleblockitems\}                       \par
+      ~~~~\{parent=example text\}                                    \par
+      ~~\\setbeamercolor \{emphasisblockitems\}                      \par
+      ~~~~\{parent=emphasis\}                                        \par
+      \blank[line]
+      ~~\% map defaultblock to LaTeX block                           \par
+      ~~\\let\\defaultblock\\block                                   \par
+      ~~\\let\\defaultendblock\\endblock
+      \blank[line]
+      \% example                                                     \par
+      ~~\\defineblock                                                \par
+      ~~~~[newexpample] [example]                                    \par
+      ~~\\defineblocks                                               \par
+      ~~~~[one,two, three] [default]                                 \par
+      ~~\\defineblocks                                               \par
+      ~~~~[four,five,six] [width=.5\\hsize]                          \par
+      \egroup
+    \end{column}
+    \begin{column}{.62\hsize}
+      \bgroup\usage\parskip=0pt
+      \\setupblocks[\% no spaces after [ or before commas                            \par
+      ~~width=\\hsize,                                                               \par
+      ~~align=center,                                                                \par
+      ~~customframe=                                                                 \par
+      ~~  \{\\path [draw] (0,0) rectangle ++(\\framedboxwd,-\\framedboxht);\},       \par
+      ~~custombackground=                                                            \par
+      ~~  \{\\path [fill] (0,0) rectangle ++(\\framedboxwd,-\\framedboxht);\},       \par
+      ~~frameoptions=                                                                \par
+      ~~  \{offset=0pt,                                                              \par
+      ~~   tikzoptions=\{draw=fg, fill=bg, thick, rounded corners=2pt\}\},           \par
+      ~~titlecustomframe=none,                                                       \par
+      ~~titlecustombackground=                                                       \par
+      ~~  \{\\path [fill=fg]                                                         \par
+      ~~  \{[sharp corners] (0,0) --- ++(0,-\\framedboxht) --- ++(\\framedboxwd,0)\} \par
+      ~~  \{[rounded corners=2pt] --- ++(0,\\framedboxht)  --- cycle\};\},           \par
+      ~~titleoptions=\{offset=4pt, bottomoffset=2pt, left=\\strut\},                 \par
+      ~~titlecolor=white,                                                            \par
+      ~~titlestyle=\\usebeamerfont\{block title\},                                   \par
+      ~~titlealign=\{center\},                                                       \par
+      ~~bodycustomframe=none,                                                        \par
+      ~~bodycustombackground=false,                                                  \par
+      ~~bodyoptions=\{offset=4pt\},                                                  \par
+      ~~bodycolor=normal text,                                                       \par
+      ~~bodystyle=\\usebeamerfont\{block body\},                                     \par
+      ~~bodyheight=-\\maxdimen,                                                      \par
+      ~~bodyalign=\{default, middle\}]
+      \blank[line]
+      \% example                                                                     \par
+      \\setupblocks[default,alert][align=left]
+      \egroup
+    \end{column}
+  \end{columns}
 
 \end{frame}
+
 %>>
 
-\begin{frame}[fragile]
-  {Creating new blocks and customizations \slide 2 of 3}
-%<< content >>
 
-\begin{verbatim}
-\setupblocks [
-  width=\hsize,          align=center,
-  frame=on,              background=color,
-  frameoptions={offset=0pt,
-    options={draw=fg, fill=fg!5, very thick, rounded corners=3pt}},
-  % [·title·]
-  titleframe=off,        titlebackground=on,
-  titlebackgroundpath={\path [fill=fg]
-    {[sharp corners] (0,0) --
-       ++(0,-\framedboxht-\framedboxdp) -- ++(\framedboxwd,0)}
-    {[rounded corners=3pt] --
-       ++(0,\framedboxht+\framedboxdp)  -- cycle};},
-  titleoptions={offset=4pt, bottom offset=2pt},
-  titlecolor=white,      titlestyle=\usebeamerfont{block title},
-  titlehalign=flushleft,
-  % [·body·]
-  bodyframe=off,         bodybackground=off,
-  bodyoptions={offset=4pt},
-  bodycolor=normal text, bodystyle=\usebeamerfont{block body},
-  bodyheight=fit,        bodyvalign=middle,
-  bodyhalign=flushleft]
-\end{verbatim}
+
+\section{One more thing~…}
+
+%<< (folded) >>
+
+\begin{frame}
+  {\secname \hfill \slide 1 of 2}
+  {The {\tt framed} command and the {\tt framedtext} environment}
+
+  The \type{acmebeamer} package relies on a package named
+  \type{acmetoolbox} which provides (among other things) facilities to
+  frame text similarly to packages like \type{bclogo} or
+  \type{fancybox}. These facilities come as two commands for short
+  snippets and an environment. They rely on Ti{\slanted k}Z to do the
+  framing.
+
+  \Describe{\\framed}%
+  {Frames a text with a \btype{hbox}. It takes one optional argument in
+    square brackets and one mandatory argument which is the text to
+    frame. Use as \hfill\usage{\\framed[{\slanted <options>}]\{…\}}.}
+
+  \Describe{\\inframe}%
+  {Ditto as \btype{framed}, except the baseline of the text inside is
+    the same as the text outside.}
+
+  \Describe{\\beging\{framedtext\}\par…\par\\end\{framedtext\}}%
+  {Frames a text with a \btype{vbox}. It takes one optional argument in
+    square brackets.}
+
+  You actually already saw some framed text: %
+  \inframe[frame=off, background=on, tikzoptions={fill=green!35}]
+  {the notice on slide~13.} This was an example of inframed text.
+
+  \vfill\vfill{\usebeamercolor[fg]{structure}\hrule}\vfill
+
+  There is yet another (convenient) way to highlight text in paragraphs
+  and formulas.
+
+  \Describe{\\hl}%
+  {Highlights text. This command is overlay-aware!%
+    \hfill\usage{\\hl[{\slanted <tikz options>}]\{…\}}}
+
+  \Describe{\\placehlmark}%
+  {Place a named mark. The name is optional and is specified in square
+    brackets. The mandatory argument is placed in a Ti{\slanted k}Z node
+    named after the name supplied (\type{mark} by default).%
+    \hfill\usage{\\placehlmark[{\slanted <name of mark>}]\{{\slanted
+        <text to be marked>}\}}}
+
+  \Describe{\\hlmarks}%
+  {\placehlmark[mark1]{\hl{Used to highlight several marks.}} This
+    command is overlay-aware too! An optional argument can be supplied
+    in square brackets to indicate the shape to use to hightlight the
+    marks, this is \placehlmark[mark2]{\hl{\type{ellipse} by default.}}
+    (See the source to understand how it is used.)
+
+    \hfill\usage{\\hlmarks[{\slanted <tikz options>}]\{(some) (marks)
+      (to) (ellipse)\}}}
+
+  \hlmarks{(mark1) (mark2)}
 
 \end{frame}
+
+
+\begin{frame}
+  {\secname \hfill \slide 2 of 2}
+  {The available options}
+
+  \Describe{left, right,\par top, bottom}%
+  {Put something at the left, right, top and bottom respectively arround
+    the text (which will be boxed by that time).}
+
+  \Describe{left/right/\par top/bottom/frame}%
+  {Take values \type{on} and \type{off} to activate/deactivate the left,
+    right, top, bottom or the whole frame. The code is clever enough to
+    use the whole frame if all sides are \type{on}.}
+
+  \Describe{left/right/\par top/bottom/margin}%
+  {Sets the margins around the frame (in addition to the width).}
+
+  \Describe{left/right/\par top/bottom/offset}%
+  {Sets the offsets inside the frame (part of the width).}
+
+  \Describe{width, minwidth, maxwidth}%
+  {Sets the width, minimum or maximum width of the resulting frame.}
+
+  \Describe{height, minheight, maxheight}%
+  {Sets the height, minimum or maximum height of the resulting frame.}
+
+  \Describe{align}%
+  {Defines the alignment of the text in the frame. (See title/bodyalign
+    in previous slides.)}
+
+  \Describe{background}%
+  {Takes values \type{on} and \type{off} to activate or deactivate the
+    background.}
+
+  \Describe{customframe}%
+  {Custom Ti{\slanted k}Z path to be used to draw the frame.\par
+    Default is
+    \hfill\usage{\\path [draw] (0,0) rectangle
+      ++(\\framedboxwd,-\\framedboxht);}}
+
+  \Describe{custombackground}%
+  {Custom Ti{\slanted k}Z path to be used to draw the background.\par
+    Default is
+    \hfill\usage{\\path [fill] (0,0) rectangle
+      ++(\\framedboxwd,-\\framedboxht);}}
+
+  \Describe{tikzoptions}%
+  {Options passed to the \type{tikzpicture} environment used to draw the
+    frame.}
+
+\end{frame}
+
 %>>
 
-\begin{frame}[fragile]
-  {Creating new blocks and customizations \slide 3 of 3}
-
-\begin{verbatim}
-\defineblock [default]  [color=structure]
-\defineblock [alert]    [color=alerted text]
-\defineblock [example]  [color=example text]
-\defineblock [emphasis] [color=emphasis]
-\end{verbatim}
-
-\end{frame}
 
 \end{document}
