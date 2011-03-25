@@ -55,9 +55,11 @@
 \firstline{Wonderful journal}
 \secondline{Extraordinary cool organization}
 \thirdline{42/42/4242 at Lovely place}
-\logo{\tikz \node
-  [draw, fill=lightgray, minimum height=1cm, minimum width=5cm]
-  {Place logo here};}
+\logo{%
+  \begin{tikzpicture}
+    \node [draw, fill=lightgray, minimum height=1cm, minimum width=5cm]
+      {Place logo here};
+  \end{tikzpicture}}
 
 
 \begin{document}
@@ -82,7 +84,7 @@
 \end{abstract}
 
 
-\begin{content}
+\begin{twocols}
 
 \section{Lorem ipsum}
 \lorem\par
@@ -115,18 +117,18 @@
 \sedut\par
 \atvero
 
-\end{content}
+\end{twocols}
 
 
 \section*{Figures}
 
-\begin{content}
+\begin{twocols}
 
   \begin{figure}[H]
     \centering
     \begin{tikzpicture}
-      \node[draw, fill=lightgray, minimum height=3cm, minimum width=6cm]
-      {Image placeholder};
+      \node [draw, fill=lightgray, minimum height=3cm, minimum width=6cm]
+        {Image placeholder};
     \end{tikzpicture}
     \caption{Sample figure~1.}
   \end{figure}
@@ -134,13 +136,13 @@
   \begin{figure}[H]
     \centering
     \begin{tikzpicture}
-      \node[draw, fill=lightgray, minimum height=6cm, minimum width=5cm]
-      {Image placeholder};
+      \node [draw, fill=lightgray, minimum height=6cm, minimum width=5cm]
+        {Image placeholder};
     \end{tikzpicture}
     \caption{Sample figure~2.}
   \end{figure}
 
-\end{content}
+\end{twocols}
 
 
 \section*{Tables}

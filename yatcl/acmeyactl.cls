@@ -1,4 +1,4 @@
-% Time-stamp: <2011-03-24 18:35:05 cmauclai>
+% Time-stamp: <2011-03-25 10:16:08 cmauclai>
 %
 % YACTL --- Yet another two column layout.
 %
@@ -60,13 +60,11 @@
   bottom=0.9in, left=0.9in] {geometry}
 
 \RequirePackage[runin] {abstract}
-\RequirePackage        {ifthen}
 \RequirePackage        {multicol}
 \RequirePackage        {float}
 \RequirePackage        {lmodern}
 \RequirePackage        {url}
 \RequirePackage        {graphicx}
-\RequirePackage        {calc}
 \RequirePackage        {amsmath,amssymb,amsthm}
 
 
@@ -112,13 +110,13 @@
   %% header
   \begin{minipage}{.5\hsize}
     \@logo
-  \end{minipage}%
+  \end{minipage}\hfill%
   \begin{minipage}{.5\hsize}
     \raggedleft
-    {\bfseries\@firstline}\\
-    \@secondline\\
+    \ifx\@firstline\@empty\else{\bfseries\@firstline}\\\fi
+    \ifx\@secondline\@empty\else\@secondline\\\fi
     \@thirdline
-  \end{minipage}
+  \end{minipage}%
   %% title pane
   \bigskip \hrule height 1pt
   \vskip2ex plus1ex minus1ex{\centering\LARGE\bfseries\@title\par}
@@ -143,7 +141,7 @@
 
 
 %% Two column layout. %%
-\newenvironment{content}[1][2]
+\newenvironment{twocols}[1][2]
 {\begin{multicols}{#1}}
 {\end{multicols}}
 
@@ -201,8 +199,7 @@
 \bibliographystyle{plain}
 
 \renewenvironment{thebibliography}[1]
-{\vskip2\bigskipamount
-  \section*{\refname}
+{\section*{\refname}
   \list{\@biblabel{\@arabic\c@enumiv}}
   {\settowidth\labelwidth{\@biblabel{#1}}
     \leftmargin\labelwidth
@@ -216,9 +213,11 @@
   \@clubpenalty \clubpenalty
   \widowpenalty4000
   \sfcode`\.\@m\small
-  \setlength{\columnsep}{\labelwidth+\labelsep+\@ColSep}
-  \begin{multicols}{2}}
-{\end{multicols}
+  \columnsep\labelwidth
+  \advance\columnsep\labelsep
+  \advance\columnsep\@ColSep
+  \begin{twocols}}
+{\end{twocols}
   \def\@noitemerr
   {\@latex@warning{Empty `thebibliography' environment}}
   \endlist}
