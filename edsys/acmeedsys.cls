@@ -1,4 +1,4 @@
-% Time-stamp: <2011-03-25 09:49:45 cmauclai>
+% Time-stamp: <2011-03-25 10:58:28 cmauclai>
 %
 % Format pour les articles du congres EDSYS.
 %
@@ -26,11 +26,11 @@
 \def\congressplace{\def\@congressplace}
 
 
-% Give the rest to the 'article' class
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
+% Give the rest to the 'acmeyatcl' class
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{acmeyatcl}}
 \ProcessOptions\relax
 
-\LoadClass[twoside,10pt]{acmeyactl}
+\LoadClass[twoside,10pt]{acmeyatcl}
 
 \firstline{\@congressnumber\up{e} congr\`es EDSYS}
 \secondline{}

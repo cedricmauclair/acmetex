@@ -1,4 +1,4 @@
-% Time-stamp: <2011-03-25 10:26:45 cmauclai>
+% Time-stamp: <2011-03-25 10:59:35 cmauclai>
 %
 % Format pour les articles du congres EDSYS.
 %
@@ -26,11 +26,11 @@
 \def\jdtplace{\def\@jdtplace}
 
 
-% Give the rest to the 'article' class
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
+% Give the rest to the 'acmeyatcl' class
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{acmeyatcl}}
 \ProcessOptions\relax
 
-\LoadClass[twoside,10pt]{acmeyactl}
+\LoadClass[twoside,10pt]{acmeyatcl}
 
 \firstline{Journ\'ees des th\`eses \@jdtyear}
 \secondline{Branche TIS (DCPS/DCSD/DTIM)}
