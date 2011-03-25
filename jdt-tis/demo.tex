@@ -1,0 +1,165 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                     %
+%             Sample document to demonstrate the class.               %
+%                                                                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{acmejdt}
+
+\usepackage[T1]       {fontenc}
+\usepackage[utf8]     {inputenc}
+\usepackage[francais] {babel}
+
+\usepackage{booktabs, tikz}
+
+\def\lorem{Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
+  do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+  ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+  aliquip ex ea commodo consequat. Duis aute irure dolor in
+  reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+  culpa qui officia deserunt mollit anim id est laborum.}
+
+\def\sedut{Sed ut perspiciatis unde omnis iste natus error sit
+  voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque
+  ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae
+  dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
+  aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos
+  qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui
+  dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed
+  quia non numquam eius modi tempora incidunt ut labore et dolore magnam
+  aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum
+  exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex
+  ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in
+  ea voluptate velit esse quam nihil molestiae consequatur, vel illum
+  qui dolorem eum fugiat quo voluptas nulla pariatur?}
+
+\def\atvero{At vero eos et accusamus et iusto odio dignissimos ducimus
+  qui blanditiis praesentium voluptatum deleniti atque corrupti quos
+  dolores et quas molestias excepturi sint occaecati cupiditate non
+  provident, similique sunt in culpa qui officia deserunt mollitia
+  animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis
+  est et expedita distinctio. Nam libero tempore, cum soluta nobis est
+  eligendi optio cumque nihil impedit quo minus id quod maxime placeat
+  facere possimus, omnis voluptas assumenda est, omnis dolor
+  repellendus. Temporibus autem quibusdam et aut officiis debitis aut
+  rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint
+  et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente
+  delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut
+  perferendis doloribus asperiores
+  repellat.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\jdtyear{2011}
+\jdtdate{6~et 7~mai~2010}
+\jdtplace{Toulouse}
+\logo{\includegraphics[width=5cm]{logo-onera}}
+
+
+\begin{document}
+
+
+\title{Lorem ipsum dolor sit amet, consectetur adipisicing}
+\author{John Doe}
+
+\email{John.Doe@domain.com}
+\laboratory{Best lab in the world}
+\affiliation{Best employer ever}
+\moreinfos{Anything you want to add can go here.}
+
+
+\maketitle
+
+\nocite{lorem, ipsum}
+
+
+\begin{abstract}
+  \lorem
+\end{abstract}
+
+
+\begin{twocols}
+
+\section{Lorem ipsum}
+\lorem\par
+\sedut
+
+\subsection{Dolor sit amet}
+\lorem\par
+\atvero
+
+\subsection{Consectetur adipisicing elit}
+\lorem\par
+\atvero
+
+
+\section{Duis aute irure}
+\lorem\par
+\sedut
+
+\subsection{Dolor in reprehenderit}
+\lorem\par
+\atvero
+
+\subsection{In voluptate velit}
+\lorem\par
+\atvero
+
+
+\section{Excepteur sint occaecat}
+\lorem\par
+\sedut\par
+\atvero
+
+\end{twocols}
+
+
+\section*{Figures}
+
+\begin{twocols}
+
+  \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+      \node[draw, fill=lightgray, minimum height=3cm, minimum width=6cm]
+      {Image placeholder};
+    \end{tikzpicture}
+    \caption{Sample figure~1.}
+  \end{figure}
+
+  \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+      \node[draw, fill=lightgray, minimum height=6cm, minimum width=5cm]
+      {Image placeholder};
+    \end{tikzpicture}
+    \caption{Sample figure~2.}
+  \end{figure}
+
+\end{twocols}
+
+
+\section*{Tables}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{rcl}
+    \toprule
+      \bfseries Right aligned &
+        \bfseries Centered &
+        \bfseries Left aligned \\
+    \midrule
+      1\up{st} cell & 2\up{nd} cell & 3\up{rd} and wide cell \\
+      4\up{th} cell & 5\up{th} cell & 6\up{th} cell \\
+      7\up{th} cell & 8\up{th} cell & 9\up{th} cell \\
+    \bottomrule
+  \end{tabular}
+  \caption{Sample table.}
+\end{table}
+
+
+\bibliography{demo}
+
+
+\end{document}
