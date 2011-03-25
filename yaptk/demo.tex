@@ -1,0 +1,247 @@
+\documentclass{acmeyaptk}
+
+\usepackage[utf8]             {inputenc}
+\usepackage[T1]               {fontenc}
+\usepackage[english,francais] {babel}
+
+\usepackage{booktabs, tikz}
+
+\def\lorem{Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
+  do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+  ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+  aliquip ex ea commodo consequat. Duis aute irure dolor in
+  reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+  culpa qui officia deserunt mollit anim id est laborum.}
+
+\def\sedut{Sed ut perspiciatis unde omnis iste natus error sit
+  voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque
+  ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae
+  dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
+  aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos
+  qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui
+  dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed
+  quia non numquam eius modi tempora incidunt ut labore et dolore magnam
+  aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum
+  exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex
+  ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in
+  ea voluptate velit esse quam nihil molestiae consequatur, vel illum
+  qui dolorem eum fugiat quo voluptas nulla pariatur?}
+
+\def\atvero{At vero eos et accusamus et iusto odio dignissimos ducimus
+  qui blanditiis praesentium voluptatum deleniti atque corrupti quos
+  dolores et quas molestias excepturi sint occaecati cupiditate non
+  provident, similique sunt in culpa qui officia deserunt mollitia
+  animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis
+  est et expedita distinctio. Nam libero tempore, cum soluta nobis est
+  eligendi optio cumque nihil impedit quo minus id quod maxime placeat
+  facere possimus, omnis voluptas assumenda est, omnis dolor
+  repellendus. Temporibus autem quibusdam et aut officiis debitis aut
+  rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint
+  et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente
+  delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut
+  perferendis doloribus asperiores
+  repellat.}
+
+\def\emptybox[#1,#2]{%
+  \begin{tikzpicture}
+    \node [draw, fill=lightgray, minimum height=#1, minimum width=#2]
+      {Replace with figure};
+  \end{tikzpicture}}
+
+\renewcommand{\titlesize}{\veryHuge} % sinon on est sur deux pages
+
+
+\title{Sed ut perspiciatis unde omnis iste natus\\
+  error sit voluptatem accusantium}
+
+\author{Sedut Atvero (\texttt{Sedut.Atvero@domain.com})}
+% \email{Sedut.Atvero@domain.com}
+
+\institute{Über wonderful employer in extraordinnary beautiful and crazy place}
+
+% \noleftlogo  or \leftlogo  [1]   {mylogo} (\includegraphics[scale=1]{mylogo})
+% \norightlogo or \rightlogo [3.2] {myotherlogo}
+
+% Manual tweak of the logo as this is not an includegraphics
+\leftlogo{}
+\renewcommand{\printleftlogo}{%
+  \begin{center}
+    \begin{tikzpicture}
+      \node
+        [draw, fill=lightgray,
+         inner sep=20pt,
+         minimum height=8cm, minimum width=12cm,
+         font=\bfseries\large]
+        {YOUR LOGO GOES HERE};
+    \end{tikzpicture}
+  \end{center}}
+
+\norightlogo
+
+
+\begin{document}
+
+\maketitle
+
+\vspace{-2ex}                   % sinon on est sur deux pages
+
+\begin{multicols}{2}
+
+  \begin{colorframebox}{Lorem ipsum}
+
+    \begin{multicols}{2}
+      \group Dolor sit amet.
+      \lorem
+
+      \columnbreak
+
+      \group Consectetur adipisicing elit.
+      \begin{itemize}
+        \renewcommand{\labelitemi}{\textbullet\kern.1em}
+          \item lorem ipsum
+          \item dolor sit amet
+          \item consectetur adipisicing elit
+          \item sed do eiusmod
+          \item tempor incididunt ut labore
+          \item et dolore magna aliqua
+          \item ut enim ad minim veniam
+          \item quis nostrud exercitation
+      \end{itemize}\par % explicit \par or empty line to make \group work
+    \end{multicols}
+
+    \drawLine
+
+    \begin{figure}
+      \centering
+      \emptybox[8cm, 20cm]
+      \caption{Sample figure.}
+    \end{figure}\vspace{-4ex} % too much space otherwise
+  \end{colorframebox}
+
+
+  \begin{colorframebox}{Sed ut}
+    \lorem\par
+    \sedut\par
+    \sedut
+    \vspace{34pt} % fine tunning for proper alignment
+  \end{colorframebox}
+
+\end{multicols}
+
+
+\begin{colorframebox}{}
+
+  \columnseprule2pt
+  \columnsep2em
+
+  \begin{multicols}{2}
+
+    \section{Lorem ipsum}
+
+    \begin{minipage}[t]{0.35\linewidth}
+      \begin{smallbox}
+        \centering
+        \group Lorem ipsum.
+
+        \begin{tabular}{r@{ : }l}
+          $E$             & lorem ipsum                 \\
+          $E_i$           & dolor sit amet              \\
+          $\varphi$       & consectetur adipisicing elit \\
+          $\varphi_0$     & lorem ipsum                 \\
+          $Z_k$           & dolor sit amet              \\
+          $N_k$           & consectetur adipisicing elit \\
+          $U_k$           & lorem ipsum                 \\
+          $U_0$           & dolor sit amet              \\
+          $\mu_k$         & consectetur adipisicing elit \\
+          $\omega_k$      & lorem ipsum                 \\
+          $e$             & dolor sit amet              \\
+          $\varepsilon_0$ & consectetur adipisicing elit \\
+        \end{tabular}
+      \end{smallbox}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{.6\linewidth}
+      \lorem
+      \begin{equation*}
+        \left\{
+          \begin{aligned}
+            \omega_k       & = \dfrac{\partial N_k}{\partial t} + \nabla .(N_k\ U_k) \\
+            \Delta \varphi & = - \dfrac{e}{\varepsilon_0}\ \displaystyle{\sum_k}\ Z_k\ N_k\\
+            E              & = -\nabla \varphi\\
+            U_k            &= U_0 + \text{sign}(Z_k)\ \mu_k\ E
+          \end{aligned}
+        \right.
+      \end{equation*}
+    \end{minipage}
+
+    \columnbreak
+
+    \section{At vero}
+    \lorem\par\bigskip
+    \atvero
+  \end{multicols}
+
+\end{colorframebox}
+
+\begin{minipage}[t]{.4\linewidth}
+
+  \begin{colorframebox}[\textwidth]{}
+
+    \section{Sed ut}
+
+    \group Perspiciatis unde omnis.
+    \sedut
+
+    \group Lorem ipsum.
+    {\lorem\par\lorem} % keep in same group
+
+    \lorem
+  \end{colorframebox}
+
+\end{minipage}\hfill % no spaces before \hfill => two minipage on the same line
+\begin{minipage}[t]{.6\linewidth-\postermargin}
+
+  \begin{colorframebox}[\textwidth]{}
+
+    \section{Et harum quidem rerum facilis est}
+
+    \begin{figure}
+      \centering
+
+      \subfigure[Lorem ipsum]
+        {\emptybox[8cm, 16cm]}
+      \hfil
+      \subfigure[Dolor sit amet]
+        {\emptybox[8cm, 16cm]}
+
+      \vskip2\bigskipamount
+
+      \subfigure[Consectetur adpiscing elit]
+        {\emptybox[8cm, 16cm]}
+      \hfil
+      \subfigure[Sed do eiusmod]
+        {\emptybox[8cm, 16cm]}
+    \end{figure}
+
+  \end{colorframebox}
+
+  \bigskip
+
+  \begin{colorframebox}[\textwidth]{Lorem ipsum}
+
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+    eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    \renewcommand{\labelitemi}{\textbullet\hskip.5em}
+    \begin{itemize}
+    \item lorem ipsum dolor sit amet
+    \item consectetur adipisicing elit
+    \item sed do eiusmod tempor
+    \item incididunt ut labore et dolore magna aliqua
+    \end{itemize}
+
+  \end{colorframebox}
+
+\end{minipage}
+
+\end{document}
