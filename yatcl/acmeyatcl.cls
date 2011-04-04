@@ -1,4 +1,4 @@
-% Time-stamp: <2011-04-04 13:25:17 cmauclai>
+% Time-stamp: <2011-04-04 13:26:13 cmauclai>
 %
 % YATCL --- Yet another two column layout.
 %
@@ -43,10 +43,14 @@
 \immediate\write0{}
 
 
+\DeclareOption{italics}{\let\emshape\itshape}
+\DeclareOption{slanted}{\let\emshape\slshape}
+
 % Give the options to the 'article' class
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 
 % Take the options into consideration.
+\ExecuteOptions{slanted}
 \ProcessOptions\relax
 
 \message{#################################}
@@ -90,7 +94,7 @@
 %% Emphasis is slanted. %%
 \DeclareRobustCommand\em
   {\@nomath\em\ifdim\fontdimen\@ne\font>\z@
-    \upshape\else\slshape\fi}
+    \upshape\else\emshape\fi}
 
 
 %% Block title. %%
