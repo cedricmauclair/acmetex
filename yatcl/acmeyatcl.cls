@@ -1,4 +1,4 @@
-% Time-stamp: <2011-03-25 10:58:00 cmauclai>
+% Time-stamp: <2011-04-04 13:25:17 cmauclai>
 %
 % YATCL --- Yet another two column layout.
 %
@@ -151,8 +151,8 @@
 
 \def\thesection{\Alph{section}}
 \def\section{%
-   \if@noskipsec \leavevmode \fi
-   \par \addvspace{2\bigskipamount}%
+   \if@noskipsec\leavevmode\fi
+   \par\addvspace{2\bigskipamount}%
    \@afterheadingcfg\secdef\@section\@ssection}
 \def\@section[#1]#2{
   \refstepcounter{section}
@@ -160,22 +160,22 @@
     \interlinepenalty \@M
     \normalfont\bfseries
     \thesection.\quad\MakeUppercase{#2}\par}%
-  \nobreak\kern\smallskipamount\hrule
-  \nobreak\bigskip\@afterheading}
+  \kern\smallskipamount\hrule
+  \kern\bigskipamount\nobreak\@afterheading}
 \def\@ssection#1{
   {\parindent=0pt \raggedright
     \interlinepenalty \@M
     \normalfont\bfseries
     \centering\MakeUppercase{#1}\par}%
-  \nobreak\kern\smallskipamount\hrule
-  \nobreak\bigskip\@afterheading}
+  \kern\smallskipamount\hrule
+  \kern\bigskipamount\nobreak\@afterheading}
 
 
 %% Subsections. %%
 \def\thesubsection{\arabic{subsection}}
 \def\subsection{%
-   \if@noskipsec \leavevmode \fi
-   \par \addvspace{\bigskipamount}%
+   \if@noskipsec\leavevmode\fi
+   \par\addvspace{\bigskipamount}%
    \@afterheadingcfg\secdef\@subsection\@ssubsection}
 \def\@subsection[#1]#2{
   \refstepcounter{subsection}
@@ -183,16 +183,32 @@
     \interlinepenalty \@M
     \normalfont\large\bfseries
     \thesubsection.\quad#2\par}%
-  \nobreak\smallskip\@afterheading}
+  \kern\smallskipamount\@afterheading}
 \def\@ssubsection#1{
   {\parindent=0pt \raggedright
     \interlinepenalty \@M
     \normalfont\large\bfseries#1\par}%
-  \nobreak\smallskip\@afterheading}
+  \kern\smallskipamount\nobreak\@afterheading}
 
 
 %% Subsubsections. %%
-\let\subsubsection\paragraph
+\def\thesubsubsection{\arabic{subsubsection}}
+\def\subsubsection{%
+   \if@noskipsec\leavevmode\fi
+   \par\addvspace{\bigskipamount}%
+   \@afterheadingcfg\secdef\@subsubsection\@ssubsubsection}
+\def\@subsubsection[#1]#2{
+  \refstepcounter{subsubsection}
+  {\parindent=0pt \raggedright
+    \interlinepenalty \@M
+    \normalfont\bfseries
+    \thesubsection.\thesubsubsection.\quad#2\par}%
+  \kern\smallskipamount\nobreak\@afterheading}
+\def\@ssubsubsection#1{
+  {\parindent=0pt \raggedright
+    \interlinepenalty \@M
+    \normalfont\bfseries#1\par}%
+  \kern\smallskipamount\nobreak\@afterheading}
 
 
 %% Bibliography. %%
