@@ -1,0 +1,80 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                     %
+%             Sample document to demonstrate the class.               %
+%                                                                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{acmetutorial}
+
+\usepackage[utf8]    {inputenc}
+\usepackage[T1]      {fontenc}
+\usepackage[english] {babel}
+\usepackage          {hyperref}
+
+\usepackage[math]{blindtext}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title
+  [Lorem ipsum]
+  {Lorem ipsum dolor sit amet, consectetur adipisicing}
+
+% \alttitle % if different
+%   {Lorem ipsum dolor sit amet, consectetur adipisicing}
+
+\subjclass{Mathematics from the future}
+
+\author
+  {\firstname{John} \middlename{F.} \lastname{Doe}}
+
+\address
+  {University of Examples\\
+   Dept. of pure Randomness\\
+   Nowhere, NoCountry}
+
+% \curraddr % if different
+%   {Universitè de NullePart\\
+%    00000 NullePart (France)}
+
+\email{john.doe@email.com}
+% \urladdr{http://www.example.org/}
+
+\thanks
+  {The author particularly wish to thank the community for its support.}
+
+
+\author
+  {\firstname{Another} \lastname{Author}}
+\address
+  {Université de NullePart\\
+   00000 NullePart (France)}
+\email{another.author@email.com}
+
+
+\keywords{rien, néant}
+\altkeywords{nothing, nil}
+
+
+\begin{document}
+
+
+\begin{abstract}
+  Here is the abstract.
+\end{abstract}
+
+\begin{altabstract}
+  Ceci est le résumé françcais.
+\end{altabstract}
+
+
+\maketitle
+
+
+\Blinddocument
+
+
+\nocite{lorem, ipsum}
+\bibliographystyle{acmetutorial}
+\bibliography{demo}
+
+\end{document}
