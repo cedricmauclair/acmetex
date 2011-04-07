@@ -1,0 +1,21 @@
+[submodule "acmebeamer"]
+	path = acmebeamer
+	url = /DATA/gitrepos/cmauclai/acmebeamer.git
+[submodule "acmejdt"]
+	path = acmejdt
+	url = /DATA/gitrepos/cmauclai/acmejdt.git
+[submodule "acmetutorial"]
+	path = acmetutorial
+	url = /DATA/gitrepos/cmauclai/acmetutorial.git
+[submodule "acmeyatcl"]
+	path = acmeyatcl
+	url = /DATA/gitrepos/cmauclai/acmeyatcl.git
+[submodule "acmeedsys"]
+	path = acmeedsys
+	url = /DATA/gitrepos/cmauclai/acmeedsys.git
+[submodule "acmetoolbox"]
+	path = acmetoolbox
+	url = /DATA/gitrepos/cmauclai/acmetoolbox.git
+[submodule "acmeyaptk"]
+	path = acmeyaptk
+	url = /DATA/gitrepos/cmauclai/acmeyaptk.git
