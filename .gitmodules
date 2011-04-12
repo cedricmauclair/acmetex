@@ -19,3 +19,6 @@
 [submodule "acmeyaptk"]
 	path = acmeyaptk
 	url = git://github.com/cedricmauclair/acmeyaptk.git
+[submodule "beamer-themes"]
+	path = beamer-themes
+	url = git://github.com/cedricmauclair/beamer-themes.git
