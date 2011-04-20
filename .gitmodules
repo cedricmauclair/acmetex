@@ -22,3 +22,6 @@
 [submodule "beamer-themes"]
 	path = beamer-themes
 	url = git://github.com/cedricmauclair/beamer-themes.git
+[submodule "acmepkh"]
+	path = acmepkh
+	url = git://github.com/cedricmauclair/acmepkh.git
