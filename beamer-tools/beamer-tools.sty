@@ -1,0 +1,340 @@
+%C Time-stamp: <2011-06-29 17:22:55 cmauclai>
+%C
+%C Copyright 2010, 2011 by Cedric Mauclair
+%C
+%C This file may be distributed and/or modified
+%C 1. under the CCPL Attribution-ShareAlike License, found here:
+%C    http://creativecommons.org/licenses/by-sa/3.0/legalcode
+%C and/or
+%C 2. under the MIT License, found here:
+%C    http://www.opensource.org/licenses/mit-license.php
+%C
+%C Latest major version: 0.1
+%C Date: 2011-07-01
+%C
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\ProvidesPackage{beamer-tools}[2011/07/01 Beamer utilities.]
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%D Packages needed:
+%D     pgfkeys (from TeXLive 2010 or above)
+%D     pgffor  (from TeXLive 2010 or above)
+
+\RequirePackage {pgfkeys}
+\RequirePackage {pgffor}
+
+\let\@EA\expandafter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%D Macro \setuppresentation
+%D
+%D \setuppresentation[title={...}, author={...}, ...]
+
+\def\setuppresentation{\pgfqkeys{/beamer/presentation}}
+
+\pgfqkeys{/beamer/presentation}{.is family,
+  title/.code=\def\inserttitle{#1},
+  short title/.code=\def\beamer@shorttitle{#1},
+  author/.code=\def\insertauthor{#1},
+  institute/.code=\def\insertinstitute{#1},
+  short author/.code=\def\beamer@shortauthor{#1},
+  date/.code=\def\insertdate{#1},
+  short date/.code=\def\beamer@shortdate{#1},
+  short institute/.code=\def\beamer@shortinstitute{#1},
+}
+
+\AtBeginDocument{
+  \ifx\@empty\beamer@shorttitle
+    \let\beamer@shorttitle\inserttitle\fi
+  \ifx\@empty\beamer@shortauthor
+    \let\beamer@shortauthor\insertauthor\fi
+  \ifx\@empty\beamer@shortdate
+    \let\beamer@shortdate\insertdate\fi
+  \ifx\@empty\beamer@shortinstitute
+    \let\beamer@shortinstitute\insertinstitute\fi
+}
+
+
+%D Macro \setuptheme
+%D
+%D \setuptheme[margins, ..., colors, ..., ...]
+
+\def\setuptheme{\pgfqkeys{/beamer/theme}}
+
+\pgfqkeys{/beamer/theme}{.is family,
+  margins/.code=\setupmargins{#1},
+  colors/.code=\setupcolors{#1},
+  fonts/.code=\setupfonts{#1},
+  headline/.code=\setupheadline{#1},
+  footline/.code=\setupfootline{#1},
+  navigation symbols/none/.code=
+    \setbeamertemplate{navigation symbols}{}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%D Macros \beamer (\switchto), \textbeamer (\textin)
+%D
+%D Switch to a beamer font and (fg) color.
+
+\def\beamer#1{\usebeamerfont{#1}\usebeamercolor[fg]{#1}}
+\def\textbeamer#1#2{\begingroup\beamer{#1}#2\endgroup}
+\let\switchto\beamer
+\let\textin\textbeamer
+
+
+%D Macro \setupcolors
+%D
+%D \setupcolors {frametitle={fg=red, bg=green!50}}
+
+\def\setupcolors{\pgfqkeys{/beamer/colors}}
+
+\pgfqkeys{/beamer/colors}{.is family,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  multi/.code 2 args=%
+    \pgfutil@in@{=}{#2}%
+    \ifpgfutil@in@ % assume 'beamer style'
+    \gdef\next{}\foreach\var in{#1}{% accumulate in global macro
+      \@EA\@EA\@EA\gdef\@EA\@EA\@EA\next\@EA\@EA\@EA{%
+        \@EA\next\@EA\setbeamercolor\@EA{\var}{#2}}}\next
+    \else
+    \gdef\next{}\foreach\var in{#1}{% accumulate in global macro
+      \@EA\@EA\@EA\gdef\@EA\@EA\@EA\next\@EA\@EA\@EA{%
+        \@EA\next\@EA\setupcolors\@EA{\var={#2}}}}\next
+    \fi,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  .unknown/.code=\setbeamercolor{\pgfkeyscurrentname}{#1}
+}
+
+
+%D Macro \setupfonts
+%D
+%D \setupfonts {%
+%D   block title={series=\bfseries},
+%D   serif={frametitle, title},
+%D   small caps={}}
+
+\def\setupfonts{\pgfqkeys{/beamer/fonts}}
+
+\pgfqkeys{/beamer/fonts}{.is family,
+  @build/.style 2 args=
+    {@#2/.code=\setbeamerfont{##1}{#1=\csname#2\endcsname},
+     #2/.style={@#2/.list={##1}}},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  @build={size}{TINY},  @build={size}{Tiny},  @build={size}{tiny},
+  @build={size}{scriptsize},
+  @build={size}{footnotesize},
+  @build={size}{small},
+  @build={size}{normalsize},
+  @build={size}{large}, @build={size}{Large}, @build={size}{LARGE},
+  @build={size}{huge},  @build={size}{Huge},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  @build={series}{mdseries},
+  @build={series}{bfseries},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  @build={shape}{upshape},
+  @build={shape}{scshape},
+  @build={shape}{itshape},
+  @build={shape}{slshape},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  @build={family}{rmfamily},
+  @build={family}{sffamily},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  reset/.style={%
+    @normalsize/.list={#1}, @sffamily/.list={#1},
+    @mdseries/.list={#1},   @upshape/.list={#1}},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  normal/.style={@mdseries/.list={#1}},    % same as mdseries
+  bold/.style={@bfseries/.list={#1}},      % same as bfseries
+  roman/.style={@upshape/.list={#1}},      % same as upshape
+  small caps/.style={@scshape/.list={#1}}, % same as scshape
+  italic/.style={@itshape/.list={#1}},     % same as itshape
+  slanted/.style={@slshape/.list={#1}},    % same as slshape
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  serif/.style={@rmfamily/.list={#1}},
+  sans/.style={@sffamily/.list={#1}},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  multi/.code 2 args=%
+    \pgfutil@in@{=}{#2}%
+    \ifpgfutil@in@ % assume 'beamer style'
+      \gdef\next{}\foreach\var in{#1}{% accumulate in global macro
+        \@EA\@EA\@EA\gdef\@EA\@EA\@EA\next\@EA\@EA\@EA{%
+          \@EA\next\@EA\setbeamerfont\@EA{\var}{#2}}}\next
+    \else
+      \gdef\next{}\foreach\var in{#1}{% accumulate in global macro
+        \@EA\@EA\@EA\gdef\@EA\@EA\@EA\next\@EA\@EA\@EA{%
+          \@EA\next\@EA\setupfonts\@EA{\var={#2}}}}\next
+    \fi,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  .unknown/.code=\setbeamerfont{\pgfkeyscurrentname}{#1}
+}
+
+
+%D Macro \setupmargins
+%D
+%D Just an alias, easier to remember for the author.
+
+\def\setupmargins{\pgfqkeys{/beamer/margins}}
+\pgfqkeys{/beamer/margins}{.is family,
+  headline margin/.style={/beamer/headline/margin=#1},
+  headline margin left/.style={/beamer/headline/margin left=#1},
+  headline margin right/.style={/beamer/headline/margin right=#1},
+  headline margin top/.style={/beamer/headline/margin top=#1},
+  headline margin bottom/.style={/beamer/headline/margin bottom=#1},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  footline margin/.style={/beamer/footline/margin=#1},
+  footline margin left/.style={/beamer/footline/margin left=#1},
+  footline margin right/.style={/beamer/footline/margin right=#1},
+  footline margin top/.style={/beamer/footline/margin top=#1},
+  footline margin bottom/.style={/beamer/footline/margin bottom=#1},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  .unknown/.code=\setbeamersize{\pgfkeyscurrentname=#1}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%D Macros \setupheadline
+
+\def\setupheadline{\pgfqkeys{/beamer/headline}}
+
+\newdimen\bt@hdlmargin \newdimen\bt@hdrmargin
+\newdimen\bt@hdtmargin \newdimen\bt@hdbmargin
+\newdimen\bt@hdlskip   \newdimen\bt@hdrskip
+
+\newdimen\bt@hdwd
+\newdimen\bt@hdht
+\newdimen\bt@hddp
+
+\def\bt@hdleft{}
+\def\bt@hdcenter{}
+\def\bt@hdright{}
+
+\pgfqkeys{/beamer/headline}{.is family,
+  margin/.style={
+    /beamer/headline/margin left=#1, /beamer/headline/margin right=#1,
+    /beamer/headline/margin top=#1,  /beamer/headline/margin bottom=#1},
+  margin left/.code=\bt@hdlmargin\dimexpr#1\relax,
+  margin right/.code=\bt@hdrmargin\dimexpr#1\relax,
+  margin top/.code=\bt@hdtmargin\dimexpr#1\relax,
+  margin bottom/.code=\bt@hdbmargin\dimexpr#1\relax,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  skip left/.code=\bt@hdlskip\dimexpr#1\relax,
+  skip right/.code=\bt@hdrskip\dimexpr#1\relax,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  width/.code=\bt@hdwd\dimexpr#1\relax,
+  height/.code=\bt@hdht\dimexpr#1\relax,
+  depth/.code=\bt@hddp\dimexpr#1\relax,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  left/.code=\def\bt@hdleft{#1},
+  center/.code=\def\bt@hdcenter{#1},
+  right/.code=\def\bt@hdright{#1},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  color/.style={/beamer/colors/headline={#1}},
+  font/.style={/beamer/fonts/headline={#1}},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  none/.code=\setbeamertemplate{headline}{},
+}
+
+\setbeamertemplate{headline}{%
+  \@tempdima\dimexpr\paperwidth-\bt@hdlmargin-\bt@hdrmargin\relax
+  \ifdim\bt@hdwd=0pt \bt@hdwd\@tempdima\fi
+  \hbox to\paperwidth{%
+    \hskip\bt@hdlmargin\vbox{%
+      \vskip\bt@hdtmargin
+      \ifdim\bt@hdht=0pt
+        \def\next{\begin{beamercolorbox}
+                    [wd=\bt@hdwd, dp=\bt@hddp]}
+      \else
+        \def\next{\begin{beamercolorbox}
+                    [wd=\bt@hdwd, ht=\bt@hdht, dp=\bt@hddp]}
+      \fi
+      \next{headline}
+        \hbox to0pt{\hbox to\bt@hdwd{\hskip\bt@hdlskip\bt@hdleft\hfil\hskip\bt@hdrskip}}%
+        \hbox to0pt{\hbox to\bt@hdwd{\hskip\bt@hdlskip\hfil\bt@hdcenter\hfil\hskip\bt@hdrskip}}%
+        \hbox to0pt{\hbox to\bt@hdwd{\hskip\bt@hdlskip\hfil\bt@hdright\hskip\bt@hdrskip}}
+      \end{beamercolorbox}
+      \vskip\bt@hdbmargin
+    }\hskip\bt@hdrmargin}
+}
+
+
+%D Macros \setupfootline
+
+\def\setupfootline{\pgfqkeys{/beamer/footline}}
+
+\newdimen\bt@ftlmargin \newdimen\bt@ftrmargin
+\newdimen\bt@fttmargin \newdimen\bt@ftbmargin
+\newdimen\bt@ftlskip   \newdimen\bt@ftrskip
+
+\newdimen\bt@ftwd
+\newdimen\bt@ftht
+\newdimen\bt@ftdp
+
+\def\bt@ftleft{}
+\def\bt@ftcenter{}
+\def\bt@ftright{}
+
+\pgfqkeys{/beamer/footline}{.is family,
+  margin/.style={
+    /beamer/footline/margin left=#1, /beamer/footline/margin right=#1,
+    /beamer/footline/margin top=#1,  /beamer/footline/margin bottom=#1},
+  margin left/.code=\bt@ftlmargin\dimexpr#1\relax,
+  margin right/.code=\bt@ftrmargin\dimexpr#1\relax,
+  margin top/.code=\bt@fttmargin\dimexpr#1\relax,
+  margin bottom/.code=\bt@ftbmargin\dimexpr#1\relax,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  skip left/.code=\bt@ftlskip\dimexpr#1\relax,
+  skip right/.code=\bt@ftrskip\dimexpr#1\relax,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  width/.code=\bt@ftwd\dimexpr#1\relax,
+  height/.code=\bt@ftht\dimexpr#1\relax,
+  depth/.code=\bt@ftdp\dimexpr#1\relax,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  left/.code=\def\bt@ftleft{#1},
+  center/.code=\def\bt@ftcenter{#1},
+  right/.code=\def\bt@ftright{#1},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  color/.style={/beamer/colors/footline={#1}},
+  font/.style={/beamer/fonts/footline={#1}},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  none/.code=\setbeamertemplate{footline}{},
+}
+
+\setbeamertemplate{footline}{%
+  \@tempdima\dimexpr\paperwidth-\bt@ftlmargin-\bt@ftrmargin\relax
+  \ifdim\bt@ftwd=0pt \bt@ftwd\@tempdima\fi
+  \hbox to\paperwidth{%
+    \hskip\bt@ftlmargin\vbox{%
+      \vskip\bt@fttmargin
+      \ifdim\bt@ftht=0pt
+        \def\next{\begin{beamercolorbox}
+                    [wd=\bt@ftwd, dp=\bt@ftdp]}%
+      \else
+        \def\next{\begin{beamercolorbox}
+                    [wd=\bt@ftwd, ht=\bt@ftht, dp=\bt@ftdp]}%
+      \fi
+      \next{footline}%
+        \hbox to0pt{\hbox to\bt@ftwd{\hskip\bt@ftlskip\bt@ftleft\hfil\hskip\bt@ftrskip}}%
+        \hbox to0pt{\hbox to\bt@ftwd{\hskip\bt@ftlskip\hfil\bt@ftcenter\hfil\hskip\bt@ftrskip}}%
+        \hbox to0pt{\hbox to\bt@ftwd{\hskip\bt@ftlskip\hfil\bt@ftright\hskip\bt@ftrskip}}
+      \end{beamercolorbox}
+      \vskip\bt@ftbmargin
+    }\hskip\bt@ftrmargin}
+}
+
+
+
+%%% Local Variables:
+%%% TeX-master: "demo"
+%%% End:
