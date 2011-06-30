@@ -1,12 +1,14 @@
-\documentclass[a4paper, utf8, handout]{beamer}
+\documentclass[a4paper, utf8]{beamer}
 
 \usepackage [T1]      {fontenc}
 \usepackage [english] {babel}
 
 \usepackage {amsmath, amsfonts}
-\usepackage {graphicx}
+\usepackage {graphicx, tikz}
 
 \usepackage {beamer-tools}
+
+\usefonttheme[onlylarge]{structurebold}
 
 % Customs colors
 \definecolor {blue}     {RGB} { 40, 80,120}
@@ -23,9 +25,9 @@
     text margin left  = 0.3cm,
     text margin right = 0.3cm,
     % footline (also in 'footline' section, see 'headline' below)
-    footline margin        = 0.3cm,
+    footline skip          = 0.3cm,
     footline margin top    = 0cm,
-    footline margin bottom = 0.1cm},
+    footline margin bottom = 0cm},
   % --------------------------------------------------------
   % Colors
   colors = {
@@ -33,30 +35,35 @@
     structure    = {fg=blue},
     alerted text = {fg=red},
     example text = {fg=green},
-    footline     = {parent=headline}},
+    headline     = {fg=litegray, bg=darkgray},
+    footline     = {parent=headline},
+    block title         = {bg=white},
+    block title alerted = {bg=white},
+    block title example = {bg=white},
+    block body          = {parent=block title,         fg=normal text.fg},
+    block body alerted  = {parent=block title alerted, fg=normal text.fg},
+    block body example  = {parent=block title example, fg=normal text.fg}},
   % --------------------------------------------------------
   % Fonts
   fonts = {
-    normal text  = {size=\normalsize},
-    structure    = {series=\bfseries},
-    alerted text = {series=\bfseries},
-    footline     = {size=\tiny}},
+    headline = {size=\tiny},
+    footline = {parent=headline}},
   % --------------------------------------------------------
   % Headline
   headline = {
-    % same as frametitle (hard wired in 'beamerbasedefault.sty' l.146)
-    margin        = 0.3cm,
-    margin top    = 0.1cm,
+    height = 1.2ex,
+    depth  = 0.4ex,
+    skip          = 0.3cm,
+    margin top    = 0cm,
     margin bottom = 0cm,
-    % style
-    color = {fg=gray},
-    font  = {parent=footline},
     % content
     left  = \slshape\insertshorttitle,
     right = \insertframenumber/\inserttotalframenumber},
   % --------------------------------------------------------
   % Footline
   footline = {
+    height = 1.2ex,
+    depth  = 0.4ex,
     % content
     left  = \insertsection,
     right =\insertshortauthor},
@@ -151,7 +158,7 @@
     Movie file is not embedded, it must be on the computer
   \end{exampleblock}
 
-  \begin{alertblock}{Yet another block}
+  \begin{alertblock}{}
     Some text in here.
     \begin{itemize}
     \item Movies only seem to work in Adobe Reader
@@ -161,21 +168,57 @@
 
 \end{frame}
 
-
-
 \section
   {Conclusion}
 
 \begin{frame}
   {Credits}
 
-  \begin{itemize}
-  \item Brought to you by Cédric Mauclair
-  \item Please let me know about improvements!
-  \item inspiration: \url{http://www.shawnlankton.com}... (in code)
-  \end{itemize}
-\end{frame}
+  \begin{alertblock}{Yet another block}
+    Some text in here.
+    \begin{itemize}
+    \item Movies only seem to work in Adobe Reader
+    \item Movie file is not embedded, it must be on the computer
+    \end{itemize}
+  \end{alertblock}
 
+  \begin{beamerboxesrounded}{Head}
+    \begin{itemize}
+    \item Brought to you by Cédric Mauclair
+    \item Please let me know about improvements!
+    \item inspiration: \url{http://www.shawnlankton.com}... (in code)
+    \end{itemize}
+  \end{beamerboxesrounded}
+
+  \blackout%<2->
+
+  \putbox%<2->
+    [anchor=north, text width=0.75\textwidth]
+    (north) {Head}
+    {Brought to you by Cédric Mauclair Please let me know about
+     improvements! inspiration: \url{http://www.shawnlankton.com}...
+     (in code)}
+
+  \putbox<3->
+    [anchor=south east, text width=0.6\textwidth]
+    [upper=example text]
+    (south east) {}
+    {Brought to you by Cédric Mauclair Please let me know about
+     improvements! inspiration: \url{http://www.shawnlankton.com}...
+     (in code)}
+
+  \putbox<3->
+    [anchor=east, text width=0.6\textwidth]
+    [upper=example text]
+    (east) {}
+    {Brought to you by Cédric Mauclair Please let me know about
+     improvements! inspiration: \url{http://www.shawnlankton.com}...
+     (in code)}
+
+   text titi
+
+   text toto
+\end{frame}
 
 \begin{frame}
   {Questions}

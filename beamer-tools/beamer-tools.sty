@@ -1,4 +1,4 @@
-%C Time-stamp: <2011-06-29 17:22:55 cmauclai>
+%C Time-stamp: <2011-06-30 18:24:58 cmauclai>
 %C
 %C Copyright 2010, 2011 by Cedric Mauclair
 %C
@@ -27,6 +27,10 @@
 
 \RequirePackage {pgfkeys}
 \RequirePackage {pgffor}
+\RequirePackage {mathtools}
+
+\RequirePackage{tikz}
+\usetikzlibrary{calc}
 
 \let\@EA\expandafter
 
@@ -185,15 +189,11 @@
 
 \def\setupmargins{\pgfqkeys{/beamer/margins}}
 \pgfqkeys{/beamer/margins}{.is family,
-  headline margin/.style={/beamer/headline/margin=#1},
-  headline margin left/.style={/beamer/headline/margin left=#1},
-  headline margin right/.style={/beamer/headline/margin right=#1},
+  headline skip/.style={/beamer/headline/skip=#1},
   headline margin top/.style={/beamer/headline/margin top=#1},
   headline margin bottom/.style={/beamer/headline/margin bottom=#1},
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  footline margin/.style={/beamer/footline/margin=#1},
-  footline margin left/.style={/beamer/footline/margin left=#1},
-  footline margin right/.style={/beamer/footline/margin right=#1},
+  footline skip/.style={/beamer/footline/skip=#1},
   footline margin top/.style={/beamer/footline/margin top=#1},
   footline margin bottom/.style={/beamer/footline/margin bottom=#1},
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -208,37 +208,29 @@
 
 \def\setupheadline{\pgfqkeys{/beamer/headline}}
 
-\newdimen\bt@hdlmargin \newdimen\bt@hdrmargin
-\newdimen\bt@hdtmargin \newdimen\bt@hdbmargin
-\newdimen\bt@hdlskip   \newdimen\bt@hdrskip
+\newdimen\btheadtmargin \newdimen\btheadbmargin
+\newdimen\btheadskip
 
-\newdimen\bt@hdwd
-\newdimen\bt@hdht
-\newdimen\bt@hddp
+\newdimen\btheadwd
+\newdimen\btheadht
+\newdimen\btheaddp
 
-\def\bt@hdleft{}
-\def\bt@hdcenter{}
-\def\bt@hdright{}
+\def\btheadleft{}
+\def\btheadcenter{}
+\def\btheadright{}
 
 \pgfqkeys{/beamer/headline}{.is family,
-  margin/.style={
-    /beamer/headline/margin left=#1, /beamer/headline/margin right=#1,
-    /beamer/headline/margin top=#1,  /beamer/headline/margin bottom=#1},
-  margin left/.code=\bt@hdlmargin\dimexpr#1\relax,
-  margin right/.code=\bt@hdrmargin\dimexpr#1\relax,
-  margin top/.code=\bt@hdtmargin\dimexpr#1\relax,
-  margin bottom/.code=\bt@hdbmargin\dimexpr#1\relax,
+  margin top/.code=\btheadtmargin\dimexpr#1\relax,
+  margin bottom/.code=\btheadbmargin\dimexpr#1\relax,
+  skip/.code=\btheadskip\dimexpr#1\relax,
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  skip left/.code=\bt@hdlskip\dimexpr#1\relax,
-  skip right/.code=\bt@hdrskip\dimexpr#1\relax,
+  width/.code=\btheadwd\dimexpr#1\relax,
+  height/.code=\btheadht\dimexpr#1\relax,
+  depth/.code=\btheaddp\dimexpr#1\relax,
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  width/.code=\bt@hdwd\dimexpr#1\relax,
-  height/.code=\bt@hdht\dimexpr#1\relax,
-  depth/.code=\bt@hddp\dimexpr#1\relax,
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  left/.code=\def\bt@hdleft{#1},
-  center/.code=\def\bt@hdcenter{#1},
-  right/.code=\def\bt@hdright{#1},
+  left/.code=\def\btheadleft{#1},
+  center/.code=\def\btheadcenter{#1},
+  right/.code=\def\btheadright{#1},
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   color/.style={/beamer/colors/headline={#1}},
   font/.style={/beamer/fonts/headline={#1}},
@@ -247,25 +239,21 @@
 }
 
 \setbeamertemplate{headline}{%
-  \@tempdima\dimexpr\paperwidth-\bt@hdlmargin-\bt@hdrmargin\relax
-  \ifdim\bt@hdwd=0pt \bt@hdwd\@tempdima\fi
-  \hbox to\paperwidth{%
-    \hskip\bt@hdlmargin\vbox{%
-      \vskip\bt@hdtmargin
-      \ifdim\bt@hdht=0pt
-        \def\next{\begin{beamercolorbox}
-                    [wd=\bt@hdwd, dp=\bt@hddp]}
+  \ifdim\btheadwd=0pt \btheadwd\textwidth\fi
+  \hbox to\textwidth{%
+    \vbox{%
+      \vskip\btheadtmargin
+      \ifdim\btheadht=0pt
+        \def\next{\begin{beamercolorbox}[wd=\btheadwd, dp=\btheaddp]}
       \else
-        \def\next{\begin{beamercolorbox}
-                    [wd=\bt@hdwd, ht=\bt@hdht, dp=\bt@hddp]}
+        \def\next{\begin{beamercolorbox}[wd=\btheadwd, ht=\btheadht, dp=\btheaddp]}
       \fi
       \next{headline}
-        \hbox to0pt{\hbox to\bt@hdwd{\hskip\bt@hdlskip\bt@hdleft\hfil\hskip\bt@hdrskip}}%
-        \hbox to0pt{\hbox to\bt@hdwd{\hskip\bt@hdlskip\hfil\bt@hdcenter\hfil\hskip\bt@hdrskip}}%
-        \hbox to0pt{\hbox to\bt@hdwd{\hskip\bt@hdlskip\hfil\bt@hdright\hskip\bt@hdrskip}}
+        \hbox to0pt{\hbox to\btheadwd{\hskip\btheadskip\btheadleft\hfil\hskip\btheadskip}}%
+        \hbox to0pt{\hbox to\btheadwd{\hskip\btheadskip\hfil\btheadcenter\hfil\hskip\btheadskip}}%
+        \hbox to0pt{\hbox to\btheadwd{\hskip\btheadskip\hfil\btheadright\hskip\btheadskip}}
       \end{beamercolorbox}
-      \vskip\bt@hdbmargin
-    }\hskip\bt@hdrmargin}
+      \vskip\btheadbmargin}}
 }
 
 
@@ -273,37 +261,29 @@
 
 \def\setupfootline{\pgfqkeys{/beamer/footline}}
 
-\newdimen\bt@ftlmargin \newdimen\bt@ftrmargin
-\newdimen\bt@fttmargin \newdimen\bt@ftbmargin
-\newdimen\bt@ftlskip   \newdimen\bt@ftrskip
+\newdimen\btfoottmargin \newdimen\btfootbmargin
+\newdimen\btfootskip
 
-\newdimen\bt@ftwd
-\newdimen\bt@ftht
-\newdimen\bt@ftdp
+\newdimen\btfootwd
+\newdimen\btfootht
+\newdimen\btfootdp
 
-\def\bt@ftleft{}
-\def\bt@ftcenter{}
-\def\bt@ftright{}
+\def\btfootleft{}
+\def\btfootcenter{}
+\def\btfootright{}
 
 \pgfqkeys{/beamer/footline}{.is family,
-  margin/.style={
-    /beamer/footline/margin left=#1, /beamer/footline/margin right=#1,
-    /beamer/footline/margin top=#1,  /beamer/footline/margin bottom=#1},
-  margin left/.code=\bt@ftlmargin\dimexpr#1\relax,
-  margin right/.code=\bt@ftrmargin\dimexpr#1\relax,
-  margin top/.code=\bt@fttmargin\dimexpr#1\relax,
-  margin bottom/.code=\bt@ftbmargin\dimexpr#1\relax,
+  margin top/.code=\btfoottmargin\dimexpr#1\relax,
+  margin bottom/.code=\btfootbmargin\dimexpr#1\relax,
+  skip/.code=\btfootskip\dimexpr#1\relax,
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  skip left/.code=\bt@ftlskip\dimexpr#1\relax,
-  skip right/.code=\bt@ftrskip\dimexpr#1\relax,
+  width/.code=\btfootwd\dimexpr#1\relax,
+  height/.code=\btfootht\dimexpr#1\relax,
+  depth/.code=\btfootdp\dimexpr#1\relax,
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  width/.code=\bt@ftwd\dimexpr#1\relax,
-  height/.code=\bt@ftht\dimexpr#1\relax,
-  depth/.code=\bt@ftdp\dimexpr#1\relax,
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  left/.code=\def\bt@ftleft{#1},
-  center/.code=\def\bt@ftcenter{#1},
-  right/.code=\def\bt@ftright{#1},
+  left/.code=\def\btfootleft{#1},
+  center/.code=\def\btfootcenter{#1},
+  right/.code=\def\btfootright{#1},
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   color/.style={/beamer/colors/footline={#1}},
   font/.style={/beamer/fonts/footline={#1}},
@@ -312,27 +292,234 @@
 }
 
 \setbeamertemplate{footline}{%
-  \@tempdima\dimexpr\paperwidth-\bt@ftlmargin-\bt@ftrmargin\relax
-  \ifdim\bt@ftwd=0pt \bt@ftwd\@tempdima\fi
-  \hbox to\paperwidth{%
-    \hskip\bt@ftlmargin\vbox{%
-      \vskip\bt@fttmargin
-      \ifdim\bt@ftht=0pt
-        \def\next{\begin{beamercolorbox}
-                    [wd=\bt@ftwd, dp=\bt@ftdp]}%
+  \ifdim\btfootwd=0pt \btfootwd\textwidth\fi
+  \hbox to\textwidth{%
+    \vbox{%
+      \vskip\btfoottmargin
+      \ifdim\btfootht=0pt
+        \def\next{\begin{beamercolorbox}[wd=\btfootwd, dp=\btfootdp]}%
       \else
-        \def\next{\begin{beamercolorbox}
-                    [wd=\bt@ftwd, ht=\bt@ftht, dp=\bt@ftdp]}%
+        \def\next{\begin{beamercolorbox}[wd=\btfootwd, ht=\btfootht, dp=\btfootdp]}%
       \fi
       \next{footline}%
-        \hbox to0pt{\hbox to\bt@ftwd{\hskip\bt@ftlskip\bt@ftleft\hfil\hskip\bt@ftrskip}}%
-        \hbox to0pt{\hbox to\bt@ftwd{\hskip\bt@ftlskip\hfil\bt@ftcenter\hfil\hskip\bt@ftrskip}}%
-        \hbox to0pt{\hbox to\bt@ftwd{\hskip\bt@ftlskip\hfil\bt@ftright\hskip\bt@ftrskip}}
+        \hbox to0pt{\hbox to\btfootwd{\hskip\btfootskip\btfootleft\hfil\hskip\btfootskip}}%
+        \hbox to0pt{\hbox to\btfootwd{\hskip\btfootskip\hfil\btfootcenter\hfil\hskip\btfootskip}}%
+        \hbox to0pt{\hbox to\btfootwd{\hskip\btfootskip\hfil\btfootright\hskip\btfootskip}}
       \end{beamercolorbox}
-      \vskip\bt@ftbmargin
-    }\hskip\bt@ftrmargin}
+      \vskip\btfootbmargin}}
 }
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Boxes from: LaTeX Beamer inner theme "chamfered"
+%
+% Copyright Christian Gogolin 2009 (beamer@cgogolin.de)
+%
+% http://www.cgogolin.de
+
+\newif\ifbtboxshadow
+\newif\ifbtboxoutline
+
+\newdimen\btboxcorners
+\newdimen\btboxpadding
+
+\newdimen\btboxwidth
+\newdimen\btboxheadheight
+\newdimen\btboxheaddepth
+\newdimen\btboxbodyheight
+\newdimen\btboxbodydepth
+\newdimen\btboxheadbodyseperation
+
+\def\btboxoptions{}
+\newbox\btboxheadbox
+\newbox\btboxbodybox
+
+\pgfqkeys{/beamer/boxes}{.is family,
+  upper/.code=\def\bmb@upper{#1},
+  lower/.code=\def\bmb@lower{#1},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  width/.ecode=\btboxwidth\dimexpr#1\relax,
+  shadow/.is if=btboxshadow,
+  outline/.is if=btboxoutline,
+  corners/.code=\btboxcorners\dimexpr#1\relax,
+  padding/.code=\btboxpadding\dimexpr#1\relax,
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  options/.code=\@EA\def\@EA\btboxoptions\@EA{\btboxoptions,#1},
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  .unknown/.code=
+    \@EA\@EA\@EA\def\@EA\@EA\@EA\btboxoptions\@EA\@EA\@EA{%
+      \@EA\btboxoptions\@EA,\pgfkeyscurrentname=#1}
+}
+
+\def\setupboxes{\pgfqkeys{/beamer/boxes}}
+
+% default values
+\setupboxes{
+  outline = true,
+  shadow  = false,
+  upper   = block title,
+  lower   = block body,
+  corners = 2pt,
+  padding = 1ex,
+  options = {thick, fill=upper.bg, rounded corners=\btboxcorners}}
+
+\renewcommand\beamerboxesrounded[2][]{%
+  \global\let\beamer@firstlineitemizeunskip=\relax%
+  \vbox\bgroup\setupboxes{width=\textwidth, #1}%
+  \begingroup
+    \usebeamercolor{\bmb@lower}%
+    \globalcolorstrue\colorlet{lower.bg}{bg}%
+  \endgroup
+  \begingroup
+    \usebeamercolor{\bmb@upper}%
+    \globalcolorstrue\colorlet{upper.bg}{bg}%
+  \endgroup
+  \setbox\btboxheadbox=\hbox{%
+    \begin{minipage}[b]{\btboxwidth-2\btboxcorners-2\btboxpadding}
+      \usebeamercolor[fg]{\bmb@upper}#2%
+    \end{minipage}}%
+  \ifdim\wd\btboxheadbox=0pt
+    \setbox\btboxheadbox=\null
+    \btboxheadbodyseperation=-0.5ex
+    {\usebeamercolor{\bmb@lower}% make head and body bg color equal if head is empty
+     \globalcolorstrue\colorlet{upper.bg}{bg}}%
+  \else
+    \btboxheadheight=\ht\btboxheadbox
+    \btboxheadbodyseperation=0.5ex
+  \fi
+  \btboxheaddepth=0.7ex
+  \setbox\btboxbodybox=\hbox\bgroup
+    \begin{minipage}[b]{\btboxwidth-2\btboxcorners-2\btboxpadding}
+      \usebeamercolor[fg]{\bmb@lower}%
+      \colorlet{beamerstructure}{upper.bg}%
+      \colorlet{structure}{upper.bg}%
+}
+
+
+\def\endbeamerboxesrounded{%
+  \end{minipage}\egroup% end of body box
+  \ifdim\wd\btboxbodybox=0pt
+    \setbox\btboxbodybox=\null
+    \btboxbodyheight=1pt
+    \btboxbodydepth=\btboxpadding
+  \else
+    \btboxbodyheight=\ht\btboxbodybox
+    \btboxbodydepth=1ex
+  \fi
+  \begin{tikzpicture}
+    \bmb@dima\dimexpr\btboxheadheight+\btboxpadding\relax
+    \bmb@dimb\dimexpr\btboxheadbodyseperation+\btboxbodyheight
+                     +\btboxbodydepth+\btboxpadding\relax
+    \ifbtboxshadow
+      \foreach \x in {75,50,15}{
+        \pgfmathsetlength\@tempdima{\x/75*1.25pt}
+        \edef\doit{\noexpand\path
+          [fill=lower.bg!\x!black, rounded corners=\btboxcorners]}
+        \doit
+          (0.5pt+\@tempdima,-0.5pt+\bmb@dima) rectangle
+          ++(\btboxwidth, -\bmb@dima-\bmb@dimb-\@tempdima);}
+    \fi
+
+    % draw line around box or not?
+    \ifbtboxoutline\setupboxes{options={draw=\bmb@upper.fg}}\fi
+
+    \@EA\path \@EA[\btboxoptions]
+      (0,\bmb@dima) rectangle ++(\btboxwidth,-\bmb@dima-\bmb@dimb);
+
+    \pgfputat
+      {\pgfpoint{\btboxpadding}{0pt}}
+      {\pgftext[left,base]{\copy\btboxheadbox}}
+    \pgfputat
+      {\pgfpoint{\btboxpadding}{-\btboxbodyheight-\btboxheaddepth
+                                 -\btboxheadbodyseperation}}
+      {\pgftext[left,base]{\copy\btboxbodybox}}
+  \end{tikzpicture}\egroup\ignorespaces
+}
+
+
+% Floating boxes
+
+\tikzset{putbox/.style={}}
+
+\def\putbox{\pgfutil@ifnextchar<\@putbox{\@putbox<+->}}
+\def\@putbox<#1>{\pgfutil@ifnextchar[{\@@putbox<#1>}{\@@putbox<#1>[]}}
+\def\@@putbox<#1>[#2]{\pgfutil@ifnextchar[{\@@@putbox<#1>[#2]}
+                                          {\@@@putbox<#1>[#2][]}}
+\def\@@@putbox<#1>#2[#3]#4[#5]#6(#7)#8#9{%
+  \onslide<#1>{%
+    \nointerlineskip
+    \pgfutil@in@{,}{#7}%
+    \begin{tikzpicture}[remember picture, overlay]
+      \path
+        (current page.north west) +(0,-\btheaddp-\btheadht) coordinate (north west)
+        (current page.north east) +(0,-\btheaddp-\btheadht) coordinate (north east)
+        (current page.north)      +(0,-\btheaddp-\btheadht) coordinate (north)
+        (current page.south west) +(0,\btfootdp+\btfootht)  coordinate (south west)
+        (current page.south east) +(0,\btfootdp+\btfootht)  coordinate (south east)
+        (current page.south)      +(0,\btfootdp+\btfootht)  coordinate (south)
+        (current page.west) coordinate (west)
+        (current page.east) coordinate (east);
+      \path \ifpgfutil@in@ (current page.south west) ++(#7) \else(#7)\fi
+        node [anchor=south west, inner sep=0pt, outer sep=1ex,
+              putbox, #3] {%
+          \begin{beamerboxesrounded}[shadow=false, #5]{#8}
+            #9\end{beamerboxesrounded}};
+    \end{tikzpicture}}\ignorespaces
+}
+
+\def\blackout{\pgfutil@ifnextchar<\doblackout{\doblackout<+(1)->}}
+\def\doblackout<#1>{%
+  \onslide<#1>{%
+    \nointerlineskip
+    % \usebeamercolor{background canvas}%
+    \begin{tikzpicture}[remember picture, overlay]
+      \path [fill=black, opacity=0.4]
+        (current page.north west) rectangle (current page.south east);
+    \end{tikzpicture}}\ignorespaces
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Blocks
+
+\defbeamertemplateparent{blocks}[beamer-tools]
+  {block begin, block end,%
+   block alerted begin,block alerted end,%
+   block example begin,block example end}[1][]
+{[#1]}
+
+\defbeamertemplate*{block begin}{beamer-tools}[1][]{
+  \par\vskip\medskipamount%
+  \begin{beamerboxesrounded}[upper=block title,lower=block body,#1]%
+    {\raggedright\usebeamerfont*{block title}\insertblocktitle}%
+    \raggedright%
+    \usebeamerfont{block body}%
+}
+\defbeamertemplate*{block end}{beamer-tools}[1][]{%
+  \end{beamerboxesrounded}\vskip\smallskipamount}
+
+\defbeamertemplate*{block alerted begin}{beamer-tools}[1][]{
+  \par\vskip\medskipamount%
+  \begin{beamerboxesrounded}[upper=block title alerted,lower=block body alerted,#1]%
+    {\raggedright\usebeamerfont*{block title alerted}\insertblocktitle}%
+    \raggedright%
+    \usebeamerfont{block body alerted}%
+}%
+\defbeamertemplate*{block alerted end}{beamer-tools}[1][]{
+  \end{beamerboxesrounded}\vskip\smallskipamount}
+
+\defbeamertemplate*{block example begin}{beamer-tools}[1][]{
+  \par\vskip\medskipamount%
+  \begin{beamerboxesrounded}[upper=block title example,lower=block body example,#1]
+    {\raggedright\usebeamerfont*{block title example}\insertblocktitle}%
+    \raggedright%
+    \usebeamerfont{block body alerted}%
+}%
+\defbeamertemplate*{block example end}{beamer-tools}[1][]{
+  \end{beamerboxesrounded}\vskip\smallskipamount}
 
 
 %%% Local Variables:
